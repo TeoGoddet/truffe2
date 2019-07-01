@@ -526,7 +526,7 @@ class GenericStateValidableOrModerable(object):
         states_links = {
             '0_draft': ['1_asking', '3_archive'],
             '1_asking': ['0_draft', '2_online', '3_archive', '4_deny'],
-            '2_online': ['0_draft', '3_archive', '4_canceled'],
+            '2_online': ['3_archive', '4_canceled'],
             '3_archive': [],
             '4_deny': ['1_asking', '3_archive'],
             '4_canceled': ['1_asking', '3_archive'],
@@ -764,7 +764,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
         states_quick_switch = {
             '0_draft': [('1_asking', _(u'Demander à valider')), ],
             '1_asking': [('2_online', _(u'Valider')), ],
-            '2_online': [('0_draft', _(u'Repasser en brouillon')), ('3_archive', _(u'Archiver')), ('4_canceled', _(u'Annuler')), ],
+            '2_online': [('3_archive', _(u'Archiver')), ('4_canceled', _(u'Annuler')), ],
         }
 
         status_col_id = 6
