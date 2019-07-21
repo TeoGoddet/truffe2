@@ -587,14 +587,15 @@ class GenericStateValidableOrModerable(object):
         if self.status == '3_archive' and not user.is_superuser:
             return (False, _(u'Seul un super utilisateur peut sortir cet élément de l\'état archivé'))
 
+
+        if self.status == '2_online' and not self.rights_can('VALIDATE', user):
+            return (False, _(u'Seul un modérateur peut changer le statut d\'un élément validé.'))
+
         if dest_state == '2_online' and not self.rights_can('VALIDATE', user):
             return (False, _(u'Seul un modérateur peut valider cet élément. Merci de passer cet élément dans le statut \'Modération en cours\' pour demander une validation.'))
 
         if dest_state == '4_deny' and not self.rights_can('VALIDATE', user):
             return (False, _(u'Seul un modérateur peut refuser cet élément.'))
-
-        if self.status == '2_online' and super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
-            return (True, None)
 
         if dest_state == '0_draft' and not super(GenericStateValidableOrModerable, self).rights_can_EDIT(user):
             return (False, _(u'Les modérateurs ne peuvent pas repasser en brouillon un élément qui ne leur appartient pas.'))
