@@ -1,0 +1,45 @@
+{% extends "accounting_tools/generic_tva_edit.html" %}
+
+{% block bonus_unit_updated %}
+    update_users(pk);
+{% endblock %}
+
+{% block bonus_year_updated %}
+    update_accounts();
+{% endblock %}
+
+
+{% block line_js_bonus %}
+    {{block.super}}
+
+    $(function () {
+        // Remove style constraint on form max width
+        $('.row').children().css('max-width', '');
+
+        // Transform id_user in select2
+        $('#id_user').removeClass('form-control');
+        $('#id_user').css('width', '100%').select2();
+
+        update_users({{CURRENT_UNIT_PK}});
+
+        update_accounts();
+    });
+
+    function update_users(pk) {
+        $.ajax('{% url 'accounting_core.views.users_available_list_by_unit' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+
+            var old_value = $('#id_user').val();
+            var options = '<option value=""></option>';
+
+            $.each(data, function (index, option) {
+                options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
+            });
+
+            $('#id_user').select2('destroy');
+            $('#id_user').html(options);
+            $('#id_user').val(old_value);
+            $('#id_user').select2();
+        });
+    }
+
+{% endblock %}

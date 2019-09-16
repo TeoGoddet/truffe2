@@ -1598,3 +1598,145 @@ class CashBookLine(ModelUsedAsLine):
     def sub_total(self):
         previous_lines = list(self.cashbook.lines.filter(order__lte=self.order))  # including self
         return sum(map(lambda line: line.get_line_delta(), previous_lines))
+
+
+
+        
+class _POSRequest(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
+    """Modèle pour les demandes de POS et autocolant twint"""
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE', 'SECRETARIAT']
+
+    class MetaRights(UnitEditableModel.MetaRights):
+        linked_unit_property = 'costcenter.unit'
+
+    name = models.CharField(_(u'Evènement'), max_length=255)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
+    
+    start_date = models.DateTimeField(_(u'Date de début'))
+    end_date = models.DateTimeField(_(u'Date de fin'))
+
+
+    twint_number = models.SmallIntegerField(_(u'Nombre de Twint'), default=1)
+
+    sumup_number = models.SmallIntegerField(_(u'Nombre de Sumup'), default=1)
+
+
+    class MetaData:
+        list_display = [
+            ('name', _('Evènement')),
+            ('user', _(u'Utilisateur')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('twint_number', _(u'Nombre de Twint')),
+            ('sumup_number', _(u'Nombre de Sumup')),
+            ('status', _('Statut')),
+        ]
+
+        details_display = list_display + [('nb_proofs', _(u'Nombre de justificatifs')), ('accounting_year', _(u'Année comptable')), ('comment', _(u'Commentaire'))]
+        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'user__first_name', 'user__last_name', 'user__username')
+
+        default_sort = "[0, 'desc']"  # Creation date (pk) descending
+
+        base_title = _(u'Demande de Sumup/Twint')
+        list_title = _(u'Liste des demandes de Sumup/Twint')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-pencil-square-o'
+
+
+        has_unit = True
+
+        menu_id = 'menu-compta-pos-request'
+
+        help_list = _(u"""Vous pouvez demandez ici des autocolants qr code twint et des terminaux sumup. 
+
+Il est nécessaire de remplir ici les produits que vous souhaitez vendre.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        all_users = True
+
+        datetime_fields = ('start_date', 'end_date')
+
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Produits'),
+                'class': 'accounting_tools.models.POSRequestLine',
+                'form': 'accounting_tools.forms2.POSRequestLineForm',
+                'related_name': 'products',
+                'field': 'pos_request',
+                'tva_field': 'tva', 
+                'sortable': True,
+                'show_list': [
+                    ('label', _(u'Titre')),
+                    ('account', _(u'Compte')),
+                    ('price', _(u'Prix (HT)')),
+                    ('get_tva', _(u'TVA')),
+                    ('price_ttc', _(u'Prix (TTC)')),
+                ]},
+        ]
+
+    def genericFormExtraClean(self, data, form):
+
+        from django import forms
+
+        if 'start_date' in data and 'end_date' in data and data['start_date'] > data['end_date']:
+            raise forms.ValidationError(_(u'La date de fin ne peut pas être avant la date de début !'))
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
+    class MetaState(GenericAccountingStateModel.MetaState):
+        pass
+        
+        
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"POS Request"
+        index_files = True
+
+        fields = [
+            'name',
+            'user',
+            'comment',
+        ]
+
+        linked_lines = {
+            'lines': ['label', 'price', 'price_ttc']
+        }
+
+    def __unicode__(self):
+        return u"{} - {}".format(self.name, self.costcenter)
+
+
+    def get_lines(self):
+        return self.lines.order_by('order')
+
+    def is_unit_validator(self, user):
+        """Check if user is a validator for the step '1_unit_validable'."""
+        return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+
+
+class POSRequestLine(ModelUsedAsLine):
+
+
+    pos_request = models.ForeignKey('POSRequest', related_name="products")
+
+    label = models.CharField(_(u'Nom'), max_length=255)
+
+    account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
+    value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)
+    tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
+    value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
+
+    def __unicode__(self):
+        return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
+
+    def get_tva(self):
+        from accounting_core.models import TVA
+        return TVA.tva_format(self.tva)
