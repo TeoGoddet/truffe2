@@ -1669,7 +1669,7 @@ Il est nécessaire de remplir ici les produits que vous souhaitez vendre.""")
                 'form': 'accounting_tools.forms2.POSRequestLineForm',
                 'related_name': 'products',
                 'field': 'pos_request',
-                'tva_field': 'tva', 
+                'tva_fields': ['tva'],
                 'sortable': True,
                 'show_list': [
                     ('label', _(u'Titre')),
