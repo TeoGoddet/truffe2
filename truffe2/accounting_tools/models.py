@@ -28,6 +28,8 @@ from generic.models import GenericModel, GenericStateModel, FalseFK, GenericCont
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
 
+from address.models import AddressField
+
 
 class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel, SearchableModel):
 
@@ -1539,6 +1541,27 @@ class ExpenseClaimLine(ModelUsedAsLine):
 
 #TEO
 
+class _Provider(GenericModel, ModelWithRight, SearchableModel)
+     def rights_can_SHOW(self, user):
+        return True
+
+    def rights_can_CREATE(self, user):
+        return self.rights_in_root_unit(user, access='TRESORERIE') or self.rights_in_root_unit(user, access='SECRETARIAT')
+
+    def rights_can_EDIT(self, user):
+        return self.get_creator() == user or self.rights_in_root_unit(user, access='TRESORERIE') or self.rights_in_root_unit(user, access='SECRETARIAT')
+        
+    class MetaRights(ModelWithRight.MetaRights):
+        access = ['TRESORERIE', 'SECRETARIAT']
+       
+    name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
+    address = AddressField()
+    tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True)
+    
+    iban_ou_ccp = models.CharField(max_length=128, blank=False, help_text=_('IBAN (ou CCP)'))
+    bic = models.CharField(max_length=128, blank=False, help_text=_('BIC/SWIFT'))
+
+
 class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les factures fournisseur (factures)"""
 
@@ -1549,8 +1572,9 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
         linked_unit_property = 'costcenter.unit'
 
     name = models.CharField(_(u'Titre de la facture'), max_length=255)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
+
+    provider = FalseFK('accounting_tools.models.Provider', verbose_name=_(u'Fournisseur'), blank=False, null=False)
 
     class MetaData:
         list_display = [

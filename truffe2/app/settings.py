@@ -152,6 +152,8 @@ INSTALLED_APPS = (
     'vehicles',
 
     'generic',
+    
+    'address',
 
 )
 

@@ -25,3 +25,5 @@ celery
 pypdf
 wand
 schwifty
+django-address
+

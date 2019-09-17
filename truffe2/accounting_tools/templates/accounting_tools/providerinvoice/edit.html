@@ -1,8 +1,6 @@
 {% extends "accounting_tools/generic_tva_edit.html" %}
 
-{% block bonus_unit_updated %}
-    update_users(pk);
-{% endblock %}
+
 
 {% block bonus_year_updated %}
     update_accounts();
@@ -26,32 +24,15 @@
         var providerinvoice = $('#id_providerinvoice').parents('.form-group').remove();
         $('#id_name').parents('.form-group').after(providerinvoice);
 
-        // Transform id_user in select2
-        $('#id_user').removeClass('form-control');
-        $('#id_user').css('width', '100%').select2();
+        // Transform id_provider in select2
+        $('#id_provider').removeClass('form-control');
+        $('#id_provider').css('width', '100%').select2();
 
-        update_users({{CURRENT_UNIT_PK}});
 
         update_accounts();
     });
 
-    function update_users(pk) {
-        $.ajax('{% url 'accounting_core.views.users_available_list_by_unit' 99942999 %}'.replace(99942999, pk)).done(function (data) {
-
-            var old_value = $('#id_user').val();
-            var options = '<option value=""></option>';
-
-            $.each(data, function (index, option) {
-                options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
-            });
-
-            $('#id_user').select2('destroy');
-            $('#id_user').html(options);
-            $('#id_user').val(old_value);
-            $('#id_user').select2();
-        });
-    }
-
+   
     function update_accounts() {
         $.ajax('{% url 'accounting_core.views.account_available_list' %}?ypk=' + $('#input_ypk').val()).done(function (data) {
 
@@ -63,6 +44,26 @@
             });
 
             $('.line_field_lines_account .select2').each(function(index, element) {
+                var elem = $(element).next('select');
+                var old_value = elem.val();
+
+                elem.select2('destroy');
+                elem.html(options);
+                elem.val(old_value);
+                elem.select2();
+            });
+        });
+    }
+    
+    function update_provider() {
+        $.ajax('{% url 'accounting_tools.views.generic_list_json' %}).done(function (data) {
+
+            var options = '<option value="">----------</option>';
+            $.each(data.data, function (index, option) {
+                options += '<option value="' + option.pk + '">' + escape_html(option.name) + '</option>';
+            });
+
+            $('.line_field_lines_provider .select2').each(function(index, element) {
                 var elem = $(element).next('select');
                 var old_value = elem.val();
 
