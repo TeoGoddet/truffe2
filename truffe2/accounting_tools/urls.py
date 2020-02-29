@@ -19,4 +19,7 @@ urlpatterns = patterns(
     url(r'^internaltransfer/(?P<pk>[0-9,]+)/pdf/', 'internaltransfer_pdf'),
     url(r'^expenseclaim/(?P<pk>[0-9]+)/pdf/', 'expenseclaim_pdf'),
     url(r'^cashbook/(?P<pk>[0-9]+)/pdf/', 'cashbook_pdf'),
+
+    url(r'^financialprovider/list/', 'provider_available_list'),
+    url(r'^providerinvoice/(?P<pk>[0-9]+)/pdf/', 'provider_invoice_pdf'),
 )
