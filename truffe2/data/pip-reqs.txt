@@ -27,4 +27,10 @@ pypdf
 pyyaml
 wand
 schwifty
+svglib
 iso4217  # currency list
+# qrbill  # python3
+iso3166  # qrbill python2.7 backport
+python-stdnum>=1.13  # qrbill python2.7 backport
+qrcode  # qrbill python2.7 backport
+svgwrite  # qrbill python2.7 backport

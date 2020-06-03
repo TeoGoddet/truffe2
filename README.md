@@ -51,3 +51,6 @@ Deployment scripts using fabric are located in the `Deployment` folder.
 11. Run the development server with `python manage.py runserver`
 12. Go to `http://localhost:8000/` and log in with Tequila
 13. Give your user superuser rights with `echo "update users_truffeuser set is_superuser=1 where id=1;" | sqlite3 db.sqlite3`
+
+## Software dependencies
+ * librsvg2-bin
