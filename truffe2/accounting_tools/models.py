@@ -19,6 +19,9 @@ import datetime
 import string
 from PIL import Image, ImageDraw, ImageFont
 import os
+from iso4217 import Currency
+from accounting_tools.qrbill import QRBill  # Python 2
+# from qrbill.bill import QRBill  # Python 3
 
 
 from accounting_core.models import AccountingGroupModels
@@ -324,11 +327,13 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             'DOWNLOAD_PDF': _(u'Peut exporter la facture en PDF'),
         })
 
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=140)
 
     custom_bvr_number = models.CharField(_(u'Numéro de BVR manuel'), help_text=_(u'Ne PAS utiliser un numéro aléatoire, mais utiliser un VRAI et UNIQUE numéro de BVR. Seulement pour des BVR physiques. Si pas renseigné, un numéro sera généré automatiquement. Il est possible de demander des BVR à Marianne.'), max_length=59, blank=True, null=True)
 
-    address = models.TextField(_('Adresse'), help_text=_(u'Exemple: \'Monsieur Poney - Rue Des Canard 19 - 1015 Lausanne\''), blank=True, null=True)
+    client_name = models.CharField(_('Nom du client'), help_text=_(u'Exemple: \'Licorne SA - Monsieur Poney\''), max_length=70)
+    address = models.CharField(_('Adresse'), help_text=_(u'Exemple: \'Rue Des Arc en Ciel 25 - Case Postale 2, CH-1015 Lausanne\''), max_length=140, blank=True, null=True)
+
     date_and_place = models.CharField(_(u'Lieu et date'), max_length=512, blank=True, null=True)
     preface = models.TextField(_(u'Introduction'), help_text=_(u'Texte affiché avant la liste. Exemple: \'Pour l\'achat du Yearbook 2014\' ou \'Chère Madame, - Par la présente, je me permets de vous remettre notre facture pour le financement de nos activités associatives pour l\'année académique 2014-2015.\''), blank=True, null=True)
     ending = models.TextField(_(u'Conclusion'), help_text=_(u'Affiché après la liste, avant les moyens de paiements'), max_length=1024, blank=True, null=True)
@@ -354,6 +359,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('get_total_display', _(u'Total')),
         ]
         details_display = list_display + [
+            ('client_name', _('Nom Client')),
             ('address', _('Adresse')),
             ('date_and_place', _(u'Lieu et date')),
             ('preface', _(u'Introduction')),
@@ -368,7 +374,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('add_to', _(u'Rajouter "À l\'attention de"')),
 
         ]
-        filter_fields = ('title', )
+        filter_fields = ('title', 'client_name')
 
         base_title = _(u'Facture')
         list_title = _(u'Liste de toutes les factures')
@@ -678,8 +684,12 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
     def __unicode__(self):
         return u'{} ({})'.format(self.title, self.get_reference())
 
+    @property
+    def multiline_address(self):
+        return self.address.replace(u',', u'\n')
+
     def get_reference(self):
-        return 'T2-{}-{}'.format(self.costcenter.account_number, self.pk)
+        return 'TR2-{}-{}'.format(self.costcenter.account_number, self.pk)
 
     def _add_checksum(self, part_validation):
         """
@@ -698,6 +708,18 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
     def get_bvr_number(self):
         return self.custom_bvr_number or \
             self._add_checksum('94 42100 08402 {0:05d} {1:05d} {2:04d}'.format(int(self.costcenter.account_number.replace('.', '')) % 10000, int(self.pk / 10000), self.pk % 10000))  # Note: 84=T => 08402~T2~Truffe2
+
+    def get_qr_ref(self):
+        ref = '{0:06d}{1:06d}{2:06d}'.format(int(self.costcenter.account_number.replace('.', '')) % 100000, int(self.pk / 100000), self.pk % 100000)
+
+        # modulo 97-10 (same as iban)
+        checkdigits = 98 - int('29272{0}271500'.format(ref)) % 97  # TR2 -> 29272 et RF00 -> 271500
+        if (checkdigits < 10):
+            checkdigits = '0{}'.format(checkdigits)
+        else:
+            checkdigits = unicode(checkdigits)
+
+        return 'RF{0} TR2{1} {2} {3} {4} {5} {6}'.format(checkdigits, ref[0], ref[1:5], ref[5:9], ref[9:13], ref[13:17], ref[17])
 
     def get_esr(self):
         return '{}>{}+ 010025703>'.format(self._add_checksum("01{0:010d}".format(int(self.get_total() * 100))), self.get_bvr_number().replace(' ', ''))
@@ -765,6 +787,27 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         draw.text((76 * F, 846 * F), self.get_esr(), font=ocr_b, fill=(0, 0, 0))  # If len(ESR)=43
 
         return img
+
+    def generate_QR(self):
+        address = self.multiline_address.splitlines()
+        bill = QRBill(
+            account='CH1904835028789771000',
+            amount=unicode(self.get_total()),
+            currency='CHF',
+            debtor={
+                'name': self.client_name,
+                'line1': self.address[0][0:70],
+                'line2': address[1][0:70] if len(address) > 1 else ''
+            },
+            creditor={
+                'name': u'Ass. Genérale Des Etudiants de l\'EPFL', 'street': u'Case Postale', 'house_num': u'16', 'pcode': u'1015', 'city': u'Lausanne', u'country': u'CH',
+            },
+            ref_number=self.get_qr_ref(),
+            extra_infos=self.title,
+            language='en' if self.english else 'fr',
+            top_line=True
+        )
+        return bill
 
     def genericFormExtraClean(self, data, form):
 

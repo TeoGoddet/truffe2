@@ -4,16 +4,11 @@
 {% block bonus_css_pdf %}
     @page {
         size: a4 portrait;
-        margin: 1cm;
-        margin-bottom: 2cm;
-        margin-top: 5cm;
-
-        @frame footer {
-            -pdf-frame-content: footerContent;
-            bottom: 0cm;
+        @frame {
             margin-left: 1cm;
             margin-right: 1cm;
-            height: 1cm;
+            margin-bottom: 2cm;
+            margin-top: 5cm;
         }
 
         @frame logoFrame {
@@ -29,6 +24,48 @@
             left: 1.2cm;
             width: 50%;
         }
+
+    }
+
+    @page qr {
+        size: a4 portrait;
+        @frame {    
+            margin-left: 1cm;
+            margin-right: 1cm;
+            margin-bottom: 107.5mm;
+            margin-top: 5cm;
+        }
+
+        @frame logoFrame {
+            -pdf-frame-content: logoFrameContent;
+            top: 1.0cm;
+            right: 1.2cm;
+            width: 35%;
+        }
+
+        @frame headerFrame {
+            -pdf-frame-content: headerFrameContent;
+            top: 1.1cm;
+            left: 1.2cm;
+            width: 50%;
+        }
+
+        @frame qr {
+            -pdf-frame-content: qr;
+            bottom: 0cm;
+            left: 0cm;
+            width: 100%;
+            height: 105.5mm;
+        }
+
+        @frame qr_comments {
+            -pdf-frame-content: qr_comments;
+            margin-left: 1cm;
+            margin-right: 1cm;
+            margin-bottom: 115.5mm;
+            margin-top: 5cm;
+        }
+
     }
 
     .maintable .tr-a {
@@ -69,6 +106,16 @@
     body {
         font-size: 12px;
     }
+
+    #qr img {
+        zoom: 150%;
+    }
+
+    .pay_title
+    {
+        -pdf-keep-with-next: true; 
+        font-size: 120%;
+    }
 {% endblock %}
 
 {% block content %}
@@ -83,56 +130,68 @@
                 </tr>
                 <tr>
                     <td><b>G</b>énérale des</td>
-                    <td>Fax :</td>
-                    <td>+41 21 693 2097</td>
+                    <td>Email :</td>
+                    <td>contact@agepoly.ch</td>
                 </tr>
                 <tr>
                     <td><b>E</b>tudiants de l’école</td>
-                    <td>Email :</td>
-                    <td>agepoly@epfl.ch</td>
+                    <td>Web :</td>
+                    <td>agepoly.ch</td>
                 </tr>
                 <tr>
                     <td><b>Poly</b>technique Fédérale</td>
-                    <td>Web :</td>
-                    <td>http://agepoly.epfl.ch</td>
+                    <td>IBAN :</td>
+                    <td>CH19&nbsp;0483&nbsp;5028&nbsp;7897&nbsp;7100&nbsp;0</td>
                 </tr>
                 <tr>
                     <td>de Lausanne</td>
-                    <td>Banque :</td>
-                    <td>Credit Suisse - Zürich</td>
-                </tr>
-                <tr>
-                    <td>CASE POSTALE 16</td>
-                    <td>Compte :</td>
-                    <td>0425-287897-71</td>
-                </tr>
-                <tr>
-                    <td>CH - 1015 LAUSANNE EPFL</td>
                     <td>TVA :</td>
                     <td>CHE-113.397.612</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Addr : </td>
+                    <td>Case Postale 16</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>CH-1015 LAUSANNE EPFL</td>
                 </tr>
             </table>
         </div>
 
         <div id="logoFrameContent">
             <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;" width="260">
+            <div style="font-size: 170%; text-align:right; white-space: nowrap; overflow: hidden; text-overflow: clip; ">
+                <b>{% if invoice.costcenter.unit.pk != 1 %}{{ invoice.costcenter.unit }}&nbsp;{% endif %}</b>
+            </div>
         </div>
 
-        <div style="margin-left: 12cm; font-size: 140%;">
+        <table width="100%">
+        <tr>
+            <td width="12cm">
+            </td>
+            <td style="vertical-align: top;">
+                <div style="font-size: 130%;"">
+                    {% if invoice.add_to %}
+                        <small>{% trans "À l'attention de" %}</small><br />
+                    {% endif %}
+                
+                    {{ invoice.client_name }}
+                    <br />
+                    {{invoice.multiline_address|linebreaksbr}}
+                    <br />
+                    <br />
+                    {% if invoice.date_and_place %}
+                        {{invoice.date_and_place}}
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        </table>
 
-            {% if invoice.add_to %}
-                <small>{% trans "À l'attention de" %}</small><br />
-            {% endif %}
-            {{invoice.address|linebreaksbr}}
-
-            {% if invoice.date_and_place %}
-                {% if invoice.address %}<br /><br />{% endif %}
-
-                {{invoice.date_and_place}}
-            {% endif %}
-        </div>
-
-        <h3 style="text-align: center; font-size: 20px;">{% trans "Facture" %}<br />{% trans "N°" %} <b>{{invoice.get_reference}}</b></h3>
+        <h3 style="text-align: center; font-size: 18px;">{% trans "Facture" %} {% trans "N°" %}<b>{{invoice.get_reference}}</b></h3>
 
         <div style="text-align: left;">
             {{invoice.preface|linebreaksbr}}
@@ -140,11 +199,11 @@
 
         <table class="liste-c maintable">
             <tr class="tr-a noright">
-                <td width="51%" class="noright">&nbsp;&nbsp;{% trans "Description" %}</td>
+                <td width="50%" class="noright">&nbsp;&nbsp;{% trans "Description" %}</td>
                 <td width="15%">{% trans "Prix unitaire" %}</td>
                 <td width="8%">{% trans "% TVA" %}</td>
                 <td width="15%">{% trans "TVA" %}</td>
-                <td width="15%">{% trans "Total" %}</td>
+                <td width="16%">{% trans "Total" %}</td>
             </tr>
             {% for line in invoice.get_lines %}
                 <tr>
@@ -174,26 +233,24 @@
 
         {% if invoice.ending %}
             {{invoice.ending}}
-            <br /><br />
+            <br />
         {% endif %}
 
         {% if invoice.display_bvr %}
+            <p style="-pdf-keep-with-next: true;">
             {% if invoice.delay > 0 %}
                 {% blocktrans with d=invoice.delay %}
-                    Nous vous remercions de bien vouloir payer ce montant à {{d}} jours sur le compte de l'AGEPoly au moyen de bulletin de versement annexé.
+                    Nous vous remercions de bien vouloir payer ce montant à {{d}} jours avec les informations de paiement à la page suivante.
                 {% endblocktrans %}
             {% else %}
-                {% trans "Nous vous remercions de bien vouloir payer ce montant sur le compte de l'AGEPoly au moyen de bulletin de versement annexé." %}
+                {% trans "Nous vous remercions de bien vouloir payer ce montant avec les informations de paiement à la page suivante." %}
             {% endif %}
-            <br /><br />
+            </p>
+            <br />
 
         {% endif %}
-
-        {% if invoice.display_account %}
-            {% if invoice.display_bvr %}
-                {% trans "Vous pouvez aussi effectuer le paiement sur le compte suivant :" %}<br />
-            {% else %}
-
+        {% if invoice.display_account and not invoice.display_bvr %}
+            <p style="-pdf-keep-with-next: true;">
                 {% if invoice.delay > 0 %}
                     {% blocktrans with d=invoice.delay %}
                         Nous vous remercions de bien vouloir payer ce montant à {{d}} jours sur le compte suivant :
@@ -201,38 +258,30 @@
                 {% else %}
                     {% trans "Nous vous remercions de bien vouloir payer ce montant sur le compte suivant :" %}
                 {% endif %}
-            {% endif %}
+            </p>
 
-            <br />
+            <br style="-pdf-keep-with-next: true;"/>
 
-            <table style="margin-left: 5.5cm;" width="50%">
+            <table width="100%" style="-pdf-keep-with-next: false;">
                 <tr>
-                    <td width="50%">{% trans "Banque" %}&nbsp;:</td>
-                    <td>Credit&nbsp;Suisse&nbsp;-&nbsp;Zürich</td>
+                    <td width="30%"></td>
+                    <td width="30%">{% trans "Banque" %}&nbsp;:</td>
+                    <td width="40%">Credit&nbsp;Suisse&nbsp;-&nbsp;Zürich</td>
                 </tr>
                 <tr>
-                    <td>CCP&nbsp;:</td>
-                    <td>80&nbsp;500&nbsp;4</td>
-                </tr>
-                <tr>
-                    <td>{% trans "Compte" %}&nbsp;:</td>
-                    <td>No.&nbsp;0425-287897-71</td>
-                </tr>
-                <tr>
-                    <td>Clearing&nbsp;:</td>
-                    <td>4835</td>
-                </tr>
-                <tr>
+                    <td></td>
                     <td>IBAN&nbsp;:</td>
                     <td>CH19&nbsp;0483&nbsp;5028&nbsp;7897&nbsp;7100&nbsp;0</td>
                 </tr>
                 <tr>
+                    <td></td>
                     <td>BIC/SWIFT&nbsp;:</td>
                     <td>CRESCHZZ80A</td>
                 </tr>
                 <tr>
+                    <td></td>
                     <td>{% trans "Mention/Référence" %}&nbsp;:</td>
-                    <td><b>{{invoice.get_reference}}</b></td>
+                    <td>{{invoice.get_qr_ref}}</td>
                 </tr>
 
             </table>
@@ -240,7 +289,7 @@
             <br /><br />
 
         {% endif %}
-
+                
         {% if invoice.greetings %}
             {{invoice.greetings|linebreaksbr}}
             <br /><br />
@@ -262,35 +311,72 @@
             {% trans "Annexe(s): ment." %}
         {% endif %}
 
-
         {% if invoice.display_bvr %}
-            <pdf:nextpage/>
+            <pdf:nexttemplate name="qr" />
+            <pdf:nextpage>
+            <div id=qr_comments>
+               
+                <div style="margin-left: 12cm; font-size: 140%;">
+                    <p>{% trans "Facture" %}  {% trans "N°" %} <b>{{invoice.get_reference}}</b></p>
+                </div>
+                
+                <br /><br /><br />
 
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
+                <center>
+                    <p class="pay_title">
+                        <b>{% trans "Virement Bancaire" %}</b>                         
+                    </p>
+                    
+                    <br style="-pdf-keep-with-next: true;"/>
 
-            <center>
-                <img src="{{MEDIA_ROOT}}cache/bvr/{{invoice.pk}}.png" width="212mm">
-                <br />
+                    <div width="130mm" style="margin-left: 45mm;">
+                    <table width="100%" style="text-align: left; -pdf-keep-with-next: false;">
+                        <tr>
+                            <td width="20%">{% trans "Banque" %}&nbsp;:</td>
+                            <td width="80%">Credit&nbsp;Suisse&nbsp;-&nbsp;Zürich</td>
+                        </tr>
+                        <tr>
+                            <td>IBAN&nbsp;:</td>
+                            <td>CH19&nbsp;0483&nbsp;5028&nbsp;7897&nbsp;7100&nbsp;0</td>
+                        </tr>
+                        <tr>
+                            <td>BIC/SWIFT&nbsp;:</td>
+                            <td>CRESCHZZ80A</td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Mention/Référence" %}&nbsp;:</td>
+                            <td>{{invoice.get_qr_ref}}</td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Addresse" %}&nbsp;:</td>
+                            <td>Case Postale 16</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>CH-1015 LAUSANNE EPFL</td>
+                        </tr>
+                    </table>
+                    </div>
+                    
+                    <br /><br /><br /><br /><br /><br /><br /><br /><br />
 
-                <small>{% trans "Attention: Ce BVR ne peut pas être utilisé pour un paiement aux guichets de la poste ou d'une banque" %}</small>
+                    <p class="pay_title">
+                        <b>{% trans "QR Facture" %}</b>                         
+                    </p>
             </center>
+            </div>
 
+            <br />
+
+            <p style="color: white">This is a fake placeholder</p>
+
+            <div id="qr">
+                <img src="{{MEDIA_ROOT}}cache/bvr/qr-{{invoice.pk}}.png">
+            </div>
+            
         {% endif %}
     {% endlanguage %}
 {% endblock %}
 
 {% block footer %}
-    <div id="footerContent">{% trans "Page" %} <pdf:pagenumber/> - {% trans "Généré le" %} {{cdate|date:"d/m/Y"}} <small><small>[{{user.pk}}]</small></small></div>
 {% endblock %}
