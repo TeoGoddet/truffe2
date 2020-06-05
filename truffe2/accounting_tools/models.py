@@ -796,7 +796,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             currency='CHF',
             debtor={
                 'name': self.client_name,
-                'line1': self.address[0][0:70],
+                'line1': address[0][0:70],
                 'line2': address[1][0:70] if len(address) > 1 else ''
             },
             creditor={
@@ -805,7 +805,8 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             ref_number=self.get_qr_ref(),
             extra_infos=self.title,
             language='en' if self.english else 'fr',
-            top_line=True
+            top_line=True,
+            extra_auto_infos='//S1/10/{ref}/11/{date}/30/{tvauid}/40/0:{delay}/'.format(ref=self.get_reference(), date=now().strftime('%y%m%d'), tvauid='113397612', delay=self.delay)
         )
         return bill
 

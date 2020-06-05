@@ -121,7 +121,7 @@ class Address(object):
         # 'S': structured address
         if self.combined:
             return [
-                u'K', self.name, self.line1, self.line2
+                u'K', self.name, self.line1, self.line2, '', '', ''
             ]
         else:
             return [
@@ -155,7 +155,7 @@ class QRBill(object):
     def __init__(
             self, account=None, creditor=None, final_creditor=None, amount=None,
             currency=u'CHF', due_date=None, debtor=None, ref_number=None, extra_infos=u'',
-            language=u'en',top_line=False):
+            language=u'en', top_line=False, extra_auto_infos=None):
         # Account (IBAN) validation
         if not account:
             raise ValueError(u"The account parameter is mandatory")
@@ -210,7 +210,7 @@ class QRBill(object):
             raise ValueError(u"Creditor information is mandatory")
         try:
             self.creditor = Address(**creditor)
-        except ValueError, err:
+        except ValueError as err:
             raise ValueError(u"The creditor address is invalid: %s" % err)
         if final_creditor is not None:
             # The standard says ultimate creditor is reserved for future use.
@@ -222,7 +222,7 @@ class QRBill(object):
         if debtor is not None:
             try:
                 self.debtor = Address(**debtor)
-            except ValueError, err:
+            except ValueError as err:
                 raise ValueError(u"The debtor address is invalid: %s" % err)
         else:
             self.debtor = debtor
@@ -251,13 +251,20 @@ class QRBill(object):
             if self.ref_type == u'QRR':
                 raise ValueError(u"A QRR reference number is only allowed for a QR-IBAN")
 
+        self.extra_infos = u''
         if extra_infos and len(extra_infos) > 140:
             raise ValueError(u"Additional information cannot contain more than 140 characters")
         self.extra_infos = extra_infos
+
         if language not in [u'en', u'de', u'fr', u'it']:
             raise ValueError(u"Language should be 'en', 'de', 'fr', or 'it'")
         self.language = language
         self.top_line = top_line
+
+        self.extra_auto_infos = u''
+        if extra_auto_infos and len(extra_auto_infos) > 140:
+            raise ValueError(u"Additional information cannot contain more than 140 characters")
+        self.extra_auto_infos = extra_auto_infos
 
     def qr_data(self):
         u"""Return data to be encoded in the QR code."""
@@ -266,7 +273,7 @@ class QRBill(object):
         values.extend(self.final_creditor.data_list() if self.final_creditor else [u''] * 7)
         values.extend([self.amount or u'', self.currency or u''])
         values.extend(self.debtor.data_list() if self.debtor else [u''] * 7)
-        values.extend([self.ref_type or u'', self.ref_number or u'', self.extra_infos or u'', u'EPD'])
+        values.extend([self.ref_type or u'', self.ref_number or u'', self.extra_infos or u'', u'EPD', self.extra_auto_infos])
         return u"\r\n".join([unicode(v) for v in values])
 
     def qr_image(self):
