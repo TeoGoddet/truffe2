@@ -236,7 +236,7 @@
             <br />
         {% endif %}
 
-        {% if invoice.display_bvr %}
+        {% if invoice.display_qr %}
             <p style="-pdf-keep-with-next: true;">
             {% if invoice.delay > 0 %}
                 {% blocktrans with d=invoice.delay %}
@@ -249,7 +249,7 @@
             <br />
 
         {% endif %}
-        {% if invoice.display_account and not invoice.display_bvr %}
+        {% if not invoice.display_qr %}
             <p style="-pdf-keep-with-next: true;">
                 {% if invoice.delay > 0 %}
                     {% blocktrans with d=invoice.delay %}
@@ -311,7 +311,7 @@
             {% trans "Annexe(s): ment." %}
         {% endif %}
 
-        {% if invoice.display_bvr %}
+        {% if invoice.display_qr %}
             <pdf:nexttemplate name="qr" />
             <pdf:nextpage>
             <div id=qr_comments>

@@ -84,20 +84,12 @@ def export_all_demands(request):
 @login_required
 def invoice_pdf(request, pk):
 
-    import StringIO
-    from svglib.svglib import svg2rlg
-    from reportlab.graphics import renderPM
-
     from accounting_tools.models import Invoice
 
     invoice = get_object_or_404(Invoice, pk=pk, deleted=False)
 
     if not invoice.rights_can('DOWNLOAD_PDF', request.user):
         raise Http404
-
-    img = invoice.generate_bvr()
-    img = img.resize((1414, 1000), Image.LANCZOS)
-    img.save(os.path.join(settings.MEDIA_ROOT, 'cache/bvr/{}.png').format(invoice.pk))
 
     qr = invoice.generate_QR()
     qr.as_svg(os.path.join(settings.MEDIA_ROOT, 'cache/bvr/qr-{}.svg'.format(invoice.pk)))
@@ -107,22 +99,6 @@ def invoice_pdf(request, pk):
 
     return generate_pdf("accounting_tools/invoice/pdf.html", request, {'invoice': invoice})
 
-
-@login_required
-def invoice_bvr(request, pk):
-
-    from accounting_tools.models import Invoice
-
-    invoice = get_object_or_404(Invoice, pk=pk, deleted=False)
-
-    if not invoice.rights_can('SHOW', request.user):
-        raise Http404
-
-    img = invoice.generate_bvr()
-
-    response = HttpResponse(mimetype="image/png")
-    img.save(response, 'png')
-    return response
 
 @login_required
 def invoice_qr(request, pk):

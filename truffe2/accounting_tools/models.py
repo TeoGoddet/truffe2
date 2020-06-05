@@ -329,16 +329,13 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
     title = models.CharField(max_length=140)
 
-    custom_bvr_number = models.CharField(_(u'Numéro de BVR manuel'), help_text=_(u'Ne PAS utiliser un numéro aléatoire, mais utiliser un VRAI et UNIQUE numéro de BVR. Seulement pour des BVR physiques. Si pas renseigné, un numéro sera généré automatiquement. Il est possible de demander des BVR à Marianne.'), max_length=59, blank=True, null=True)
-
     client_name = models.CharField(_('Nom du client'), help_text=_(u'Exemple: \'Licorne SA - Monsieur Poney\''), max_length=70)
     address = models.CharField(_('Adresse'), help_text=_(u'Exemple: \'Rue Des Arc en Ciel 25 - Case Postale 2, CH-1015 Lausanne\''), max_length=140, blank=True, null=True)
 
     date_and_place = models.CharField(_(u'Lieu et date'), max_length=512, blank=True, null=True)
     preface = models.TextField(_(u'Introduction'), help_text=_(u'Texte affiché avant la liste. Exemple: \'Pour l\'achat du Yearbook 2014\' ou \'Chère Madame, - Par la présente, je me permets de vous remettre notre facture pour le financement de nos activités associatives pour l\'année académique 2014-2015.\''), blank=True, null=True)
     ending = models.TextField(_(u'Conclusion'), help_text=_(u'Affiché après la liste, avant les moyens de paiements'), max_length=1024, blank=True, null=True)
-    display_bvr = models.BooleanField(_(u'Afficher paiement via BVR'), help_text=_(u'Affiche un BVR et le texte corespondant dans le PDF. Attention, le BVR généré n\'est pas utilisable à la poste ! (Il est possible d\'obtenir un \'vrai\' BVR via Marianne.)'), default=True)
-    display_account = models.BooleanField(_(u'Afficher paiement via compte'), help_text=_(u'Affiche le texte pour le paiement via le compte de l\'AGEPoly.'), default=True)
+    display_qr = models.BooleanField(_(u'Afficher la QR Facture'), help_text=_(u'Affiche la QR Facture dans le PDF.'), default=True)
     greetings = models.CharField(_(u'Salutations'), default='', max_length=1024, blank=True, null=True)
     sign = models.TextField(_(u'Signature'), help_text=_(u'Titre de la zone de signature'), blank=True, null=True)
     annex = models.BooleanField(_(u'Annexes'), help_text=_(u'Affiche \'Annexe(s): ment.\' en bas de la facture'), default=False)
@@ -354,8 +351,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('reception_date', _(u'Date valeur banque')),
             ('status', _('Statut')),
             ('costcenter', _(u'Centre de coût')),
-            ('get_reference', _(u'Référence')),
-            ('get_bvr_number', _(u'Numéro de BVR')),
+            ('get_qr_ref', _(u'Référence')),
             ('get_total_display', _(u'Total')),
         ]
         details_display = list_display + [
@@ -364,8 +360,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('date_and_place', _(u'Lieu et date')),
             ('preface', _(u'Introduction')),
             ('ending', _(u'Conclusion')),
-            ('display_bvr', _(u'Afficher paiement via BVR')),
-            ('display_account', _(u'Afficher paiement via compte')),
+            ('display_qr', _(u'Afficher la QR Facture')),
             ('delay', _(u'Délai de paiement en jours')),
             ('greetings', _(u'Salutations')),
             ('sign', _(u'Signature')),
@@ -387,14 +382,12 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
         has_unit = True
 
-        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outil (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'il contienne TOUTES LES INFORMATIONS NÉCESSAIRES).
-
-Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX.""")
+        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outil (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'il contienne TOUTES LES INFORMATIONS NÉCESSAIRES).""")
 
         trans_sort = {'get_creation_date': 'pk'}
 
-        not_sortable_columns = ['get_reference', 'get_bvr_number', 'get_total_display']
-        yes_or_no_fields = ['display_bvr', 'display_account', 'annex', 'english', 'add_to']
+        not_sortable_columns = ['get_reference', 'get_total_display']
+        yes_or_no_fields = ['display_qr', 'annex', 'english', 'add_to']
         datetime_fields = ['get_creation_date', 'reception_date']
 
     class MetaEdit:
@@ -443,7 +436,8 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             'preface',
             'sign',
             'title',
-            'get_bvr_number',
+            'get_reference',
+            'get_qr_ref',
             'reception_date',
         ]
 
@@ -456,7 +450,6 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         states = {
             '0_preparing': _(u'En préparation'),
             '0_correct': _(u'Corrections nécessaires'),
-            '1_need_bvr': _(u'En attente d\'un numéro BVR'),
             '2_ask_accord': _(u'Attente Accord AGEPoly'),
             '2_accord': _(u'Attente Envoi'),
             '3_sent': _(u'Envoyée / paiement en attente'),
@@ -469,7 +462,6 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         states_texts = {
             '0_preparing': _(u'La facture est en cours de rédaction'),
             '0_correct': _(u'La facture doit être corrigée'),
-            '1_need_bvr': _(u'La facture nécessite un vrai BVR, en attente d\'attribution'),
             '2_ask_accord': _(u'Il faut attendre l\'accord de l\'AGEPoly'),
             '2_accord': _(u'Il faut envoyer la facture'),
             '3_sent': _(u'La facture a été envoyée, le paiement est en attente. La facture n\'est plus éditable !'),
@@ -478,9 +470,8 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         }
 
         states_links = {
-            '0_preparing': ['1_need_bvr', '2_ask_accord', '5_canceled'],
-            '0_correct': ['1_need_bvr', '2_ask_accord', '5_canceled'],
-            '1_need_bvr': ['0_correct'],
+            '0_preparing': ['2_ask_accord', '5_canceled'],
+            '0_correct': ['2_ask_accord', '5_canceled'],
             '2_ask_accord': ['0_correct', '2_accord', '5_canceled'],
             '2_accord': ['0_correct', '3_sent', '4_archived', '5_canceled'],
             '3_sent': ['0_correct', '4_archived', '5_canceled'],
@@ -491,7 +482,6 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         states_colors = {
             '0_preparing': 'primary',
             '0_correct': 'danger',
-            '1_need_bvr': 'danger',
             '2_ask_accord': 'primary',
             '2_accord': 'info',
             '3_sent': 'warning',
@@ -503,47 +493,37 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         }
 
         list_quick_switch = {
-            '0_preparing': [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly')),
-                            ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR'))],
-            '0_correct': [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly')),
-                          ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR'))],
-            '1_need_bvr': [],
+            '0_preparing': [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly'))],
+            '0_correct': [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly'))],
             '2_ask_accord': [('2_accord', 'fa fa-check', _(u'Donner l\'accord')),],
-            '2_accord': [('3_sent', 'fa fa-check', _(u'Marquer comme envoyée'))],
-            '3_sent': [('4_archived', 'fa fa-check', _(u'Marquer comme terminée')), ],
+            '2_accord': [('3_sent', 'fa fa-check', _(u'Marquer comme envoyée')),],
+            '3_sent': [('4_archived', 'fa fa-check', _(u'Marquer comme terminée')),],
             '4_archived': [],
             '5_canceled': [],
         }
 
         states_quick_switch = {
-            '0_preparing': [('2_ask_accord', _(u'Demande accord AGEPoly')),
-                            ('1_need_bvr', _(u'Demander un BVR'))],
-            '0_correct': [('2_ask_accord', _(u'Demande accord AGEPoly')),
-                          ('1_need_bvr', _(u'Demander un BVR'))],
-            '1_need_bvr': [],
+            '0_preparing': [('2_ask_accord', _(u'Demande accord AGEPoly'))],
+            '0_correct': [('2_ask_accord', _(u'Demande accord AGEPoly'))],
             '2_ask_accord': [('2_accord', _(u'Donner l\'accord'))],
             '2_accord': [('3_sent', _(u'Marquer comme envoyée'))],
             '3_sent': [('4_archived', _(u'Marquer comme terminée')), ],
             '4_archived': [],
             '5_canceled': [],
         }
-        states_default_filter = '0_preparing,1_need_bvr,2_ask_accord,2_accord,3_sent'
-        states_default_filter_related = '0_preparing,1_need_bvr,2_ask_accord,2_accord,3_sent'
+        states_default_filter = '0_preparing,2_ask_accord,2_accord,3_sent'
+        states_default_filter_related = '0_preparing,2_ask_accord,2_accord,3_sent'
         status_col_id = 1
 
         forced_pos = {
             '0_preparing': (0.1, 0.15),
             '0_correct': (0.5, 0.85),
-            '1_need_bvr': (0.1, 0.85),
             '2_ask_accord': (0.26, 0.15),
             '2_accord': (0.5, 0.15),
             '3_sent': (0.7, 0.35),
             '4_archived': (0.9, 0.15),
             '5_canceled': (0.9, 0.85),
         }
-
-        class FormBVR(forms.Form):
-            bvr = forms.CharField(label=_('BVR'), help_text=_(u'Soit le numéro complet, soit la fin, 94 42100 0...0 étant rajouté automatiquement'), required=False)
 
         def build_form_date(request, obj):
             class FormDate(forms.Form):
@@ -558,8 +538,6 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             return FormDate
 
         states_bonus_form = {
-            '0_preparing': FormBVR,
-            '0_correct': FormBVR,
             '4_archived': build_form_date
         }
 
@@ -569,37 +547,6 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         if hasattr(s, 'switch_status_signal'):
             s.switch_status_signal(request, old_status, dest_status)
-
-        if dest_status == '1_need_bvr':
-            notify_people(request, '%s.need_bvr' % (self.__class__.__name__,), 'invoices_bvr_needed', self, self.people_in_root_unit('SECRETARIAT'))
-
-        if dest_status == '0_preparing':
-
-            if request.POST.get('bvr'):
-
-                bvr = ''.join(filter(lambda x: x in string.digits, request.POST.get('bvr')))
-
-                while len(bvr) < 27 - len('94421'):
-                    bvr = '0{}'.format(bvr)
-
-                if len(bvr) < 27:
-                    bvr = '94421{}'.format(bvr)
-
-                if len(bvr) != 27:
-                    messages.warning(request, _(u'Numéro BVR invalide (Ne contenant pas 27 chiffres)'))
-
-                elif bvr != self._add_checksum(bvr[:-1]):
-                    messages.warning(request, _(u'Numéro BVR invalide (Checksum)'))
-
-                elif not bvr.startswith('9442100'):
-                    messages.warning(request, _(u'Numéro BVR invalide (Doit commencer par 94 42100)'))
-
-                else:
-                    self.custom_bvr_number = "{} {} {} {} {} {}".format(bvr[:2], bvr[2:7], bvr[7:12], bvr[12:17], bvr[17:22], bvr[22:])
-                    self.save()
-
-                    unotify_people('%s.need_bvr' % (self.__class__.__name__,), self)
-                    notify_people(request, '%s.bvr_set' % (self.__class__.__name__,), 'invoices_bvr_set', self, self.build_group_members_for_editors())
 
         if dest_status == '0_correct':
             notify_people(request, '%s.to_correct' % (self.__class__.__name__,), 'invoices_to_correct', self, self.build_group_members_for_editors())
@@ -656,7 +603,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         if self.status == '2_accord' and (user.is_superuser or self.rights_in_root_unit(user, 'SECRETARIAT')):
             return True
 
-        if self.status in ['0_preparing', '0_correct', '1_need_bvr']:
+        if self.status in ['0_preparing', '0_correct']:
             return super(_Invoice, self).rights_can_EDIT(user)
 
         return False
@@ -691,24 +638,6 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
     def get_reference(self):
         return 'TR2-{}-{}'.format(self.costcenter.account_number, self.pk)
 
-    def _add_checksum(self, part_validation):
-        """
-            Ajoute les modulo 10 a une string pour vérification bvr poste
-            https://www.credit-suisse.com/media/production/pb/docs/unternehmen/kmugrossunternehmen/besr_technische_dokumentation_fr.pdf
-            http://fr.wikipedia.org/wiki/Bulletin_de_versement_avec_num%C3%A9ro_de_r%C3%A9f%C3%A9rence
-
-            (Stolen from PolyLAN)
-        """
-        nTab = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5]
-        resultnumber = 0
-        for number in part_validation.replace(" ", ""):
-            resultnumber = nTab[(resultnumber + int(number)) % 10]
-        return '{}{}'.format(part_validation, (10 - resultnumber) % 10)
-
-    def get_bvr_number(self):
-        return self.custom_bvr_number or \
-            self._add_checksum('94 42100 08402 {0:05d} {1:05d} {2:04d}'.format(int(self.costcenter.account_number.replace('.', '')) % 10000, int(self.pk / 10000), self.pk % 10000))  # Note: 84=T => 08402~T2~Truffe2
-
     def get_qr_ref(self):
         ref = '{0:06d}{1:06d}{2:06d}'.format(int(self.costcenter.account_number.replace('.', '')) % 100000, int(self.pk / 100000), self.pk % 100000)
 
@@ -721,9 +650,6 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         return 'RF{0} TR2{1} {2} {3} {4} {5} {6}'.format(checkdigits, ref[0], ref[1:5], ref[5:9], ref[9:13], ref[13:17], ref[17])
 
-    def get_esr(self):
-        return '{}>{}+ 010025703>'.format(self._add_checksum("01{0:010d}".format(int(self.get_total() * 100))), self.get_bvr_number().replace(' ', ''))
-
     def get_lines(self):
         return self.lines.order_by('order').all()
 
@@ -735,58 +661,6 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
     def get_total_display(self):
         return '{} CHF'.format(intcomma(floatformat(self.get_total(), 2)))
-
-    def generate_bvr(self):
-
-        F = 4.72
-
-        ocr_b = ImageFont.truetype(os.path.join(settings.DJANGO_ROOT, 'media/fonts/OCR_BB.TTF'), int(42 * F))
-
-        img = Image.open(os.path.join(settings.DJANGO_ROOT, 'media/img/base_bvr.png'))
-
-        draw = ImageDraw.Draw(img)
-
-        # Partie gauche
-
-        # # CS Line
-        draw.text((25 * F, 84 * F), "CREDIT SUISSE", font=ocr_b, fill=(0, 0, 0))
-        # # CS Line 2
-        draw.text((25 * F, 127 * F), "1002 LAUSANNE (0425)", font=ocr_b, fill=(0, 0, 0))
-
-        # # AGEP Line 1
-        draw.text((25 * F, 211 * F), u"Ass. Gén d. Etudiants", font=ocr_b, fill=(0, 0, 0))
-
-        # # AGEP Line 2
-        draw.text((25 * F, 254 * F), "de l'EPFL / AGEPoly", font=ocr_b, fill=(0, 0, 0))
-
-        # # AGEP Line 3
-        draw.text((25 * F, 296 * F), "1024 Ecublens VD", font=ocr_b, fill=(0, 0, 0))
-
-        # # Compte
-        draw.text((279 * F, 423 * F), "01-2570-3", font=ocr_b, fill=(0, 0, 0))
-
-        # # Montant
-        total = '{0:10.2f}'.format(self.get_total())
-
-        current_x = 88.9
-        inc_x = 50.8
-
-        for d in total:
-            if d != "." and d != ",":
-                draw.text((current_x * F, 508 * F), d, font=ocr_b, fill=(0, 0, 0))
-            current_x += inc_x
-
-        # Partie droite
-
-        # # Référence
-        draw.text((635 * F, 338 * F), self.get_bvr_number(), font=ocr_b, fill=(0, 0, 0))
-
-        # Zone blanche en bas
-
-        # # Code ESR
-        draw.text((76 * F, 846 * F), self.get_esr(), font=ocr_b, fill=(0, 0, 0))  # If len(ESR)=43
-
-        return img
 
     def generate_QR(self):
         address = self.multiline_address.splitlines()
@@ -809,22 +683,6 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             extra_auto_infos='//S1/10/{ref}/11/{date}/30/{tvauid}/40/0:{delay}/'.format(ref=self.get_reference(), date=now().strftime('%y%m%d'), tvauid='113397612', delay=self.delay)
         )
         return bill
-
-    def genericFormExtraClean(self, data, form):
-
-        if 'custom_bvr_number' in data and data['custom_bvr_number']:
-            bvr = ''.join(filter(lambda x: x in string.digits, data['custom_bvr_number']))
-
-            if len(bvr) != 27:
-                raise forms.ValidationError(_(u'Numéro BVR invalide (ne contenant pas 27 chiffres)'))
-
-            if bvr != self._add_checksum(bvr[:-1]):
-                raise forms.ValidationError(_(u'Numéro BVR invalide (Checksum)'))
-
-            if not bvr.startswith('9442100'):
-                raise forms.ValidationError(_(u'Numéro BVR invalide (Doit commencer par 94 42100)'))
-
-            data['custom_bvr_number'] = "{} {} {} {} {} {}".format(bvr[:2], bvr[2:7], bvr[7:12], bvr[12:17], bvr[17:22], bvr[22:])
 
     def get_language(self):
 
