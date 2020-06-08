@@ -1,13 +1,27 @@
 {% extends "accounting_tools/generic_tva_edit.html" %}
 
-
-{% block edit_bonus %}
-    <script type="text/javascript">
-
-        //Move costcenter up
+{% block line_js_bonus %}
+    {{block.super}}
+    
+    $(function () {
+        // Move costcenter up
         var costcenterblock = $('#id_costcenter').parent().parent().remove();
         $('#id_title').parent().parent().after(costcenterblock);
 
-    </script>
+        // Move display_unit_name up
+        var display_unit_name = $('#id_display_unit_name').parent().parent().parent().parent().remove();
+        $('#id_logo').parent().parent().after(display_unit_name);
 
+        //defined in select_logo widget
+        move_unit_logo_up({{CURRENT_UNIT_PK}});
+    });    
+
+    // unselect display_unit_name if logo is changed
+    $('#id_logo').on("select", function (e) { $('#id_display_unit_name').prop("checked", false);});
+
+{% endblock %}
+
+{% block bonus_unit_updated %}
+    //defined in select_logo widget
+    move_unit_logo_up(pk);
 {% endblock %}

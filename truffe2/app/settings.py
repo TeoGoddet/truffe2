@@ -229,6 +229,7 @@ ROOT_UNIT_PK = 1
 SYSTEM_USER_PK = 1572
 PRESIDENT_ROLE_PK = 1
 CS_ACCOUNT_NUMBER = "1020 -"  # Label of account for Credit Suisse
+DEFAULT_LOGO_PK = 13  # used for invoices
 
 
 AUTO_RLC_UNIT_PK = 7  # The EPFL "Acces RLC" unit truffe's pk

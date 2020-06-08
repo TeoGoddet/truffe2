@@ -30,6 +30,7 @@ from app.utils import get_current_year, get_current_unit
 from generic.models import GenericModel, GenericStateModel, FalseFK, GenericContactableModel, GenericGroupsModel, GenericExternalUnitAllowed, GenericModelWithLines, ModelUsedAsLine, GenericModelWithFiles, GenericTaggableObject, GenericAccountingStateModel, LinkedInfoModel, SearchableModel
 from notifications.utils import notify_people, unotify_people
 from rights.utils import UnitExternalEditableModel, UnitEditableModel, AgepolyEditableModel
+import communication.models
 
 
 class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, GenericStateModel, GenericGroupsModel, UnitExternalEditableModel, GenericExternalUnitAllowed, GenericContactableModel, SearchableModel):
@@ -332,6 +333,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     client_name = models.CharField(_('Nom du client'), help_text=_(u'Exemple: \'Licorne SA - Monsieur Poney\''), max_length=70)
     address = models.CharField(_('Adresse'), help_text=_(u'Format: \'Rue Des Arc en Ciel 25 - Case Postale 2, CH-1015 Lausanne\''), max_length=140, blank=True, null=True)
 
+    logo = FalseFK('communication.models.Logo', verbose_name=_(u'Logo de l\'entête'), default=settings.DEFAULT_LOGO_PK)
+    display_unit_name = models.BooleanField(_(u'Afficher le nom de l\'unité sous le logo'), default=True)
+
     date_and_place = models.CharField(_(u'Lieu et date'), max_length=512, blank=True, null=True)
     preface = models.TextField(_(u'Introduction'), help_text=_(u'Texte affiché avant la liste. Exemple: \'Pour l\'achat du Yearbook 2014\' ou \'Chère Madame, - Par la présente, je me permets de vous remettre notre facture pour le financement de nos activités associatives pour l\'année académique 2014-2015.\''), blank=True, null=True)
     ending = models.TextField(_(u'Conclusion'), help_text=_(u'Affiché après la liste, avant les moyens de paiements'), max_length=1024, blank=True, null=True)
@@ -343,6 +347,28 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     english = models.BooleanField(_(u'Anglais'), help_text=_(u'Génére la facture en anglais'), default=False)
     reception_date = models.DateField(_(u'Date valeur banque'), help_text=_(u'Date de la réception du paiement au niveau de la banque'), blank=True, null=True)
     add_to = models.BooleanField(_(u'Rajouter "À l\'attention de"'), default=False)
+
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        from generic.fields import ModelChoiceWithObjAndFilterField
+        from communication.widgets import LogoSelect
+
+        if 'logo' in form.fields:
+            form.fields['logo'] = ModelChoiceWithObjAndFilterField(
+                help_text=form.fields['logo'].help_text,
+                required=form.fields['logo'].required,
+                label=form.fields['logo'].label,
+                initial=form.fields['logo'].initial,
+                queryset=form.fields['logo'].queryset.extra(select={'o': 'case when `communication_logo`.id={} then 1 else 2 end'.format(settings.DEFAULT_LOGO_PK)}).order_by('o', 'unit__name', 'name'),
+                filter=lambda obj: obj.rights_can_SHOW(current_user),
+                choice_builder=lambda obj, prepare_value, label_from_instance: (prepare_value(obj), label_from_instance(obj), obj.get_best_image(), unicode(obj.unit.pk), unicode(obj.unit.name)),
+                label_from_instance=lambda x: u'{} - {}'.format(unicode(x.unit), unicode(x)),
+                widget=LogoSelect())
+
+    def genericFormExtraClean(self, form, data, *args, **kwargs):
+        from communication.models import Logo
+        if 'logo' in data and data['logo']:
+            print(data['logo'])
+            Logo.objetcs.get(data['logo'])
 
     class MetaData:
         list_display = [
@@ -357,6 +383,8 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         details_display = list_display + [
             ('client_name', _('Nom Client')),
             ('address', _('Adresse')),
+            ('nice_logo', _(u'Logo de l\'entête')),
+            ('display_unit_name', _(u'Afficher le nom de l\'unité')),
             ('date_and_place', _(u'Lieu et date')),
             ('preface', _(u'Introduction')),
             ('ending', _(u'Conclusion')),
@@ -387,7 +415,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         trans_sort = {'get_creation_date': 'pk'}
 
         not_sortable_columns = ['get_reference', 'get_total_display']
-        yes_or_no_fields = ['display_qr', 'annex', 'english', 'add_to']
+        yes_or_no_fields = ['display_unit_name', 'display_qr', 'annex', 'english', 'add_to']
         datetime_fields = ['get_creation_date', 'reception_date']
 
     class MetaEdit:
@@ -495,9 +523,9 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         list_quick_switch = {
             '0_preparing': [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly'))],
             '0_correct': [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly'))],
-            '2_ask_accord': [('2_accord', 'fa fa-check', _(u'Donner l\'accord')),],
-            '2_accord': [('3_sent', 'fa fa-check', _(u'Marquer comme envoyée')),],
-            '3_sent': [('4_archived', 'fa fa-check', _(u'Marquer comme terminée')),],
+            '2_ask_accord': [('2_accord', 'fa fa-check', _(u'Donner l\'accord'))],
+            '2_accord': [('3_sent', 'fa fa-check', _(u'Marquer comme envoyée'))],
+            '3_sent': [('4_archived', 'fa fa-check', _(u'Marquer comme terminée'))],
             '4_archived': [],
             '5_canceled': [],
         }
@@ -661,6 +689,14 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
     def get_total_display(self):
         return '{} CHF'.format(intcomma(floatformat(self.get_total(), 2)))
+
+    @property
+    def nice_logo(self):
+        from django.core.urlresolvers import reverse_lazy
+        from django.utils.safestring import mark_safe
+        from django.utils.html import escape
+
+        return mark_safe(u'<img src="{}?w=50&h=30"><span style="vertical-align: middle;"> {} ({})</span>'.format(reverse_lazy('communication.views.logo_file_get_thumbnail', kwargs={'pk': self.logo.get_best_image().pk}), escape(unicode(self.logo)), escape(unicode(self.logo.unit.name))))
 
     def generate_QR(self):
         address = self.multiline_address.splitlines()

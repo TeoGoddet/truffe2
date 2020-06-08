@@ -506,24 +506,6 @@ function launchFullscreen(element) {
 function runAllForms() {
 
     /*
-     * SELECT2 PLUGIN
-     * Usage:
-     * Dependency: js/plugin/select2/
-     */
-    if ($.fn.select2) {
-        $('.select2').each(function() {
-            var $this = $(this);
-            var width = $this.attr('data-select-width') || '100%';
-            //, _showSearchInput = $this.attr('data-select-search') === 'true';
-            $this.select2({
-                //showSearchInput : _showSearchInput,
-                allowClear : true,
-                width : width
-            })
-        })
-    }
-
-    /*
      * JQUERY UI DATE
      * Dependency: js/libs/jquery-ui-1.10.3.min.js
      * Usage:

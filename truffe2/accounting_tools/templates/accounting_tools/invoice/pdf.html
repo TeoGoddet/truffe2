@@ -16,6 +16,7 @@
             top: 1.0cm;
             right: 1.2cm;
             width: 35%;
+            height: 2.5cm;
         }
 
         @frame headerFrame {
@@ -41,6 +42,7 @@
             top: 1.0cm;
             right: 1.2cm;
             width: 35%;
+            height: 2.5cm;
         }
 
         @frame headerFrame {
@@ -162,7 +164,7 @@
         </div>
 
         <div id="logoFrameContent">
-            <img src="{{MEDIA_ROOT}}img/logo_factures.png" style="text-align: right;" width="260">
+            <img src="{{MEDIA_ROOT}}{{ invoice.logo.get_best_image.file }}" style="text-align: right;" width="260">
             <div style="font-size: 170%; text-align:right; white-space: nowrap; overflow: hidden; text-overflow: clip; ">
                 <b>{% if invoice.costcenter.unit.pk != 1 %}{{ invoice.costcenter.unit }}&nbsp;{% endif %}</b>
             </div>
@@ -177,7 +179,6 @@
                     {% if invoice.add_to %}
                         <small>{% trans "À l'attention de" %}</small><br />
                     {% endif %}
-                
                     {{ invoice.client_name }}
                     <br />
                     {{invoice.multiline_address|linebreaksbr}}

@@ -1,0 +1,46 @@
+<select {{ attrs }}>
+    {% for optgroup in optgroups %}
+        <optgroup label="{{optgroup.label}}" data-unit-pk="{{optgroup.unit_pk}}">
+        {% for option in optgroup.options %}
+            <option data-img-src="{{option.img_src}}" 
+                    value="{{option.value}}" 
+                    {% if option.selected %}selected="selected"{% endif %}>
+                {{option.label}}
+            </option>
+        {% endfor %} 
+        </optgroup>    
+    {% endfor %}     
+</select>
+<script> 
+    function move_unit_logo_up(pk) {
+        $('#id_logo > optgroup[data-unit-pk='+pk+']').each(function (i, el) { 
+                 $('#id_logo').children().first().after(el);
+        });
+    }
+    
+    function format(e){
+            if(!e.id) return e.text; 
+            return $('<img class="{{id}}-select2-img" src="'+$(e.element).data('img-src')+'"><span class="{{id}}-select2-text"> '+e.text+'</span>');}
+
+    $(function() {
+        $("#{{id}}").removeClass('form-control');
+        $("#{{id}}").css('width', '100%');
+        $("#{{id}}").select2({formatResult: format, 
+                              formatSelection: format});
+    });
+</script>
+<style>
+    #s2id_{{id}} .select2-choice { 
+       height:38px; 
+    } 
+    
+    .{{id}}-select2-img {
+        background-color: white;
+        height:30px; 
+        width:50px; 
+    }
+    
+    .{{id}}-select2-text {
+        vertical-align: middle;
+    }
+</style>
