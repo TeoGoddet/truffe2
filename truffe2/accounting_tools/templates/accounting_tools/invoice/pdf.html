@@ -166,7 +166,7 @@
         <div id="logoFrameContent">
             <img src="{{MEDIA_ROOT}}{{ invoice.logo.get_best_image.file }}" style="text-align: right;" width="260">
             <div style="font-size: 170%; text-align:right; white-space: nowrap; overflow: hidden; text-overflow: clip; ">
-                <b>{% if invoice.costcenter.unit.pk != 1 %}{{ invoice.costcenter.unit }}&nbsp;{% endif %}</b>
+                <b>{% if invoice.display_unit_name %}{{ invoice.costcenter.unit }}&nbsp;{% endif %}</b>
             </div>
         </div>
 
