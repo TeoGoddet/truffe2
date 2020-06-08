@@ -239,9 +239,7 @@
         {% if invoice.display_qr %}
             <p style="-pdf-keep-with-next: true;">
             {% if invoice.delay > 0 %}
-                {% blocktrans with d=invoice.delay %}
-                    Nous vous remercions de bien vouloir payer ce montant à {{d}} jours avec les informations de paiement à la page suivante.
-                {% endblocktrans %}
+                {% blocktrans with d=invoice.delay %}Nous vous remercions de bien vouloir payer ce montant à {{d}} jours avec les informations de paiement à la page suivante.{% endblocktrans %}
             {% else %}
                 {% trans "Nous vous remercions de bien vouloir payer ce montant avec les informations de paiement à la page suivante." %}
             {% endif %}
@@ -252,9 +250,7 @@
         {% if not invoice.display_qr %}
             <p style="-pdf-keep-with-next: true;">
                 {% if invoice.delay > 0 %}
-                    {% blocktrans with d=invoice.delay %}
-                        Nous vous remercions de bien vouloir payer ce montant à {{d}} jours sur le compte suivant :
-                    {% endblocktrans %}
+                    {% blocktrans with d=invoice.delay %}Nous vous remercions de bien vouloir payer ce montant à {{d}} jours sur le compte suivant :{% endblocktrans %}
                 {% else %}
                     {% trans "Nous vous remercions de bien vouloir payer ce montant sur le compte suivant :" %}
                 {% endif %}
@@ -348,7 +344,7 @@
                             <td>{{invoice.get_qr_ref}}</td>
                         </tr>
                         <tr>
-                            <td>{% trans "Addresse" %}&nbsp;:</td>
+                            <td>{% trans "Adresse" %}&nbsp;:</td>
                             <td>Case Postale 16</td>
                         </tr>
                         <tr>
