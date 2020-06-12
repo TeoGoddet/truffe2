@@ -374,7 +374,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
 
         has_unit = True
 
-        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outil (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'il contienne TOUTES LES INFORMATIONS NÉCESSAIRES).
+        help_list = _(u"""Les factures te permettent de demander de l'argent à, par exemple, une entreprise. Tu DOIS déclarer toutes les factures que tu envoies via cet outil (tu n'es pas obligé d'utiliser le PDF généré, à condition qu'il contienne TOUTES LES INFORMATIONS NÉCESSAIRES). 
 
 Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' BVR. NE GENERE JAMAIS UN NUMÉRO DE BVR ALÉATOIRE OU DE TON CHOIX.""")
 
@@ -1598,3 +1598,224 @@ class CashBookLine(ModelUsedAsLine):
     def sub_total(self):
         previous_lines = list(self.cashbook.lines.filter(order__lte=self.order))  # including self
         return sum(map(lambda line: line.get_line_delta(), previous_lines))
+
+
+class _PolyticketRequest(GenericModel, GenericStateModel, GenericStateRootValidableModel, GenericGroupsModel, GenericContactableModel, GenericExternalUnitAllowed, UnitExternalEditableModel, SearchableModel):
+
+    class MetaRightsUnit(UnitExternalEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE','SECRETARIAT']
+        moderation_access = 'TRESORERIE'
+
+    title = models.CharField(_('Titre'), max_length=255)
+
+    start_date = models.DateTimeField(_(u'Date de début'))
+    end_date = models.DateTimeField(_(u'Date de fin'))
+
+    reason = models.TextField(_(u'Raison'), help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
+    remarks = models.TextField(_('Remarques'), blank=True, null=True)
+    
+    polyticket_by_unit = models.BooleanField(_(u'Est ce que ton unité se charge de créer/configurer le polyticket ?' ))
+
+    class MetaData:
+
+        list_display_base = [
+            ('title', _('Titre')),
+            ('get_unit_name', _(u'Nom de l\'unité')),
+            ('start_date', _(u'Date début')),
+            ('status', _('Statut')),
+        
+        forced_widths = {
+            '1': '15%',
+            '2': '25%',
+            '4': '150px',  # start date
+            '5': '150px',  # end date
+        }
+
+        forced_widths_related = {
+            '1': '15%',
+            '2': '25%',
+            '4': '90px',  # start date on two lines
+        }
+
+        details_display = list_display_base + [('get_display_infos', _(u'Affichage')), ('reason', _('Raison')), ('remarks', _('Remarques'))]
+        filter_fields = ('title', 'status', 'display__title')
+
+        base_title = _('Demande de Polyticket')
+        list_title = _(u'Liste de toutes les demande de polyticket')
+        list_related_title = _(u'Liste de toutes les demandes de polyticket de mon unité')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-clipboard'
+
+        safe_fields = ['get_unit_name', 'get_display_link'
+
+        default_sort = "[3, 'desc']"  # start_date
+
+        menu_id = 'menu-accounting-polyticket-request'
+        menu_id_related = ''
+        menu_id_directory = 'menu-accounting-polyticket-directory'
+
+        has_unit = True
+
+        html_fields = ('get_display_infos')
+        datetime_fields = ('start_date', 'end_date')
+
+        related_name = _(u'Polyticket')
+
+        help_list = _(u"""Les demande de polyticket sont soumises à modération par le CdD.
+            Tu peux gérer ici la liste de tes demandes pour l'unité active (ou une unité externe).""")
+        help_list_related = _(u"""Les réservation de polyticket de l'unité.                                                                                                                                                                                                                                                                                                                Les réservations sont soumises à modération par le CdD                                                                                                                                            Tu peux gérer ici la liste de réservation de polyticket de l'unité active.""")
+
+        trans_sort = {'get_unit_name': 'unit__name', 'get_display_link': 'display__title'}
+
+    class MetaEdit:
+        datetime_fields = ('start_date', 'end_date')
+
+        only_if = {
+            'remarks': lambda (obj, user): obj.status == '2_' and obj.rights_can('VALIDATE', user)
+        }
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'title',
+            'reason',
+            'remarks',
+        ]
+
+    class Meta:
+        abstract = True
+
+    def genericFormExtraClean(self, data, form):
+        """Check if form is correct"""
+        from django import forms
+
+        if 'start_date' in data and 'end_date' in data and data['start_date'] > data['end_date']:
+            raise forms.ValidationError(_(u'La date de fin ne peut pas être avant la date de début !'))
+
+
+
+
+class _SumupRequest(GenericModel, GenericStateModel, GenericStateRootValidableModel, GenericGroupsModel, GenericContactableModel, GenericExternalUnitAllowed, UnitExternalEditableModel, SearchableModel):
+
+    class MetaRightsUnit(UnitExternalEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE','SECRETARIAT']
+        moderation_access = 'TRESORERIE'
+
+    title = models.CharField(_('Titre'), max_length=255)
+
+    start_date = models.DateTimeField(_(u'Date de début'))
+    end_date = models.DateTimeField(_(u'Date de fin'))
+
+    reason = models.TextField(_(u'Raison'), help_text=_(u'Explique pourquoi tu as besoin (manifestation par ex.)'))
+    remarks = models.TextField(_('Remarques'), blank=True, null=True)
+    
+    number = models.IntegerField(_(u'Combien de sumup ?' ))
+
+    class MetaData:
+
+        list_display_base = [
+            ('title', _('Titre')),
+            ('get_unit_name', _(u'Nom de l\'unité')),
+            ('start_date', _(u'Date début')),
+            ('status', _('Statut')),
+            
+            ('number', _(u'Nombre'))
+        
+        forced_widths = {
+            
+        }
+
+        forced_widths_related = {
+            '1': '15%',
+            '2': '25%',
+            '4': '90px',  # start date on two lines
+            '5': '90px',  # end date on two lines
+
+        }
+
+        details_display = list_display_base + [('get_display_infos', _(u'Affichage')), ('reason', _('Raison')), ('remarks', _('Remarques'))]
+        filter_fields = ('title', 'status', 'display__title')
+
+        base_title = _('Demande de Sumup')
+        list_title = _(u'Liste de toutes les demande de sumup')
+        list_related_title = _(u'Liste de toutes les demandes de sumup de mon unité')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-clipboard'
+
+        safe_fields = ['get_unit_name', 'get_display_link'
+
+        default_sort = "[3, 'desc']"  # start_date
+
+        menu_id = 'menu-accounting-sumup-request'
+        menu_id_related = ''
+        menu_id_directory = 'menu-accounting-sumup-directory'
+
+        has_unit = True
+
+        html_fields = ('get_display_infos')
+        datetime_fields = ('start_date', 'end_date')
+
+        related_name = _(u'Affichage')
+
+        help_list = _(u"""Les demande de sumup sont soumises à modération par le CdD.
+            Tu peux gérer ici la liste de tes réservations pour l'unité active (ou une unité externe).""")
+        help_list_related = _(u"""Les réservation de sumup de l'unité.                                                                                                                                                                                                                                                                                                                Les réservations sont soumises à modération par le CdD                                                                                                                                            Tu peux gérer ici la liste de réservation de sumup de l'unité active.""")
+
+        trans_sort = {'get_unit_name': 'unit__name', 'get_display_link': 'display__title'}
+
+    class MetaEdit:
+        datetime_fields = ('start_date', 'end_date')
+
+        only_if = {
+            'remarks': lambda (obj, user): obj.status == '2_' and obj.rights_can('VALIDATE', user)
+            'nombre': lambda (obj, user): obj.status == '0_'
+        }
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u""
+
+        fields = [
+            'title',
+            'reason',
+            'remarks',
+        ]
+
+    class Meta:
+        abstract = True
+
+    def genericFormExtraClean(self, data, form):
+        """Check if form is correct"""
+        from django import forms
+
+        if 'start_date' in data and 'end_date' in data and data['start_date'] > data['end_date']:
+            raise forms.ValidationError(_(u'La date de fin ne peut pas être avant la date de début !'))
+
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Produits'),
+                'class': 'accounting_tools.models.SumupProduct',
+                'form': 'accounting_tools.forms.SumupProductForm',
+                'related_name': 'products',
+                'field': 'sumup',
+                'sortable': True,
+                'tva_fields': ['tva'],
+                'show_list': [
+                    ('label', _(u'Nom')),
+                    ('value', _(u'Prix (HT)')),
+                    ('get_tva', _(u'TVA')),
+                    ('total', _(u'Prix (TTC)')),
+                ]},
+        ]
+class SumupProduct(ModelUsedAsLine):
+
+    sumup = models.ForeignKey('SumupRequest', related_name="products"
+    label = models.CharField(_(u'Nom du Produit'), max_length=254))
+    price = models.DecimalField(_(u'Prix (HT)'), max_digits=20, decimal_places=2)
+    tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
+    price_ttc = models.DecimalField(_(u'Prix (TTC)'), max_digits=20, decimal_places=2)
+
+
