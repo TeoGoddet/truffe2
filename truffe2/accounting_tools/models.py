@@ -334,7 +334,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     address = models.CharField(_('Adresse'), help_text=_(u'Format: \'Rue Des Arc en Ciel 25 - Case Postale 2, CH-1015 Lausanne\''), max_length=140, blank=True, null=True)
 
     logo = FalseFK('communication.models.Logo', verbose_name=_(u'Logo de l\'entête'), default=settings.DEFAULT_LOGO_PK)
-    display_unit_name = models.BooleanField(_(u'Afficher le nom de l\'unité sous le logo'), default=True)
+    display_unit_name = models.BooleanField(_(u'Afficher le nom de l\'unité sous le logo'), default=False)
 
     date_and_place = models.CharField(_(u'Lieu et date'), max_length=512, blank=True, null=True)
     preface = models.TextField(_(u'Introduction'), help_text=_(u'Texte affiché avant la liste. Exemple: \'Pour l\'achat du Yearbook 2014\' ou \'Chère Madame, - Par la présente, je me permets de vous remettre notre facture pour le financement de nos activités associatives pour l\'année académique 2014-2015.\''), blank=True, null=True)
