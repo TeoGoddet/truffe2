@@ -103,25 +103,25 @@ class Address(object):
                 raise ValueError(u"City is mandatory")
             elif len(self.city) > 35:
                 raise ValueError(u"A city cannot have more than 35 characters.")
-            country = (country or u'').strip()
-            # allow users to write the country as if used in an address in the local language
-            if not country or country.lower() in [u'schweiz', u'suisse', u'svizzera', u'svizra']:
-                country = u'CH'
-            if country.lower() in [u'fürstentum liechtenstein']:
-                country = u'LI'
-            try:
-                self.country = countries.get(country).alpha2
-            except KeyError:
-                raise ValueError(u"The country code '%s' is not valid" % country)
-            self.country = countries.get(country).alpha2
             self.combined = False
-
+        
+        country = (country or u'').strip()
+        # allow users to write the country as if used in an address in the local language
+        if not country or country.lower() in [u'schweiz', u'suisse', u'svizzera', u'svizra']:
+            country = u'CH'
+        if country.lower() in [u'fürstentum liechtenstein']:
+            country = u'LI'
+        try:
+            self.country = countries.get(country).alpha2
+        except KeyError:
+            raise ValueError(u"The country code '%s' is not valid" % country)
+    
     def data_list(self):
         u"""Return address values as a list, appropriate for qr generation."""
         # 'S': structured address
         if self.combined:
             return [
-                u'K', self.name, self.line1, self.line2, '', '', ''
+                u'K', self.name, self.line1, self.line2, '', '', self.country
             ]
         else:
             return [

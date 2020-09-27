@@ -330,7 +330,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     title = models.CharField(max_length=140)
 
     client_name = models.CharField(_('Nom du client'), help_text=_(u'Exemple: \'Licorne SA - Monsieur Poney\''), max_length=70)
-    address = models.CharField(_('Adresse'), help_text=_(u'Exemple: \'Rue Des Arc en Ciel 25 - Case Postale 2, CH-1015 Lausanne\''), max_length=140, blank=True, null=True)
+    address = models.CharField(_('Adresse'), help_text=_(u'Format: \'Rue Des Arc en Ciel 25 - Case Postale 2, CH-1015 Lausanne\''), max_length=140, blank=True, null=True)
 
     date_and_place = models.CharField(_(u'Lieu et date'), max_length=512, blank=True, null=True)
     preface = models.TextField(_(u'Introduction'), help_text=_(u'Texte affiché avant la liste. Exemple: \'Pour l\'achat du Yearbook 2014\' ou \'Chère Madame, - Par la présente, je me permets de vous remettre notre facture pour le financement de nos activités associatives pour l\'année académique 2014-2015.\''), blank=True, null=True)
@@ -671,7 +671,8 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             debtor={
                 'name': self.client_name,
                 'line1': address[0][0:70],
-                'line2': address[1][0:70] if len(address) > 1 else ''
+                'line2': address[1][0:70] if len(address) > 1 else '',
+                'country': 'CH', #otherwise not accepted by some banks 
             },
             creditor={
                 'name': u'Ass. Genérale Des Etudiants de l\'EPFL', 'street': u'Case Postale', 'house_num': u'16', 'pcode': u'1015', 'city': u'Lausanne', u'country': u'CH',
