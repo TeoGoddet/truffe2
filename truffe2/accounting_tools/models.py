@@ -15,11 +15,12 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from django.template.defaultfilters import floatformat
 
 
+from schwifty import IBAN
 import datetime
 import string
 from PIL import Image, ImageDraw, ImageFont
 import os
-
+from iso4217 import Currency
 
 from accounting_core.models import AccountingGroupModels
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
@@ -317,6 +318,13 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
     class MetaRights(UnitEditableModel.MetaRights):
         linked_unit_property = 'costcenter.unit'
 
+    def __init__(self, *args, **kwargs):
+        super(_Invoice, self).__init__(*args, **kwargs)
+
+        self.MetaRights.rights_update({
+            'DOWNLOAD_PDF': _(u'Peut exporter la facture en PDF'),
+        })
+
     title = models.CharField(max_length=255)
 
     custom_bvr_number = models.CharField(_(u'Numéro de BVR manuel'), help_text=_(u'Ne PAS utiliser un numéro aléatoire, mais utiliser un VRAI et UNIQUE numéro de BVR. Seulement pour des BVR physiques. Si pas renseigné, un numéro sera généré automatiquement. Il est possible de demander des BVR à Marianne.'), max_length=59, blank=True, null=True)
@@ -363,8 +371,8 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
         ]
         filter_fields = ('title', )
 
-        base_title = _(u'Facture')
-        list_title = _(u'Liste de toutes les factures')
+        base_title = _(u'Facture (client)')
+        list_title = _(u'Liste de toutes les factures (client)')
         base_icon = 'fa fa-list'
         elem_icon = 'fa fa-pencil-square-o'
 
@@ -442,59 +450,91 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         states = {
             '0_preparing': _(u'En préparation'),
+            '0_correct': _(u'Corrections nécessaires'),
             '1_need_bvr': _(u'En attente d\'un numéro BVR'),
-            '2_sent': _(u'Envoyée / paiement en attente'),
-            '3_archived': _(u'Archivée / Paiement reçu'),
-            '4_canceled': _(u'Annulée'),
+            '2_ask_accord': _(u'Attente Accord AGEPoly'),
+            '2_accord': _(u'Attente Envoi'),
+            '3_sent': _(u'Envoyée / paiement en attente'),
+            '4_archived': _(u'Archivée / Paiement reçu'),
+            '5_canceled': _(u'Annulée'),
         }
 
         default = '0_preparing'
 
         states_texts = {
             '0_preparing': _(u'La facture est en cours de rédaction'),
+            '0_correct': _(u'La facture doit être corrigée'),
             '1_need_bvr': _(u'La facture nécessite un vrai BVR, en attente d\'attribution'),
-            '2_sent': _(u'La facture a été envoyée, le paiement est en attente. La facture n\'est plus éditable !'),
-            '3_archived': _(u'Le paiement de la facture a été reçu, le processus de facturation est terminé.'),
-            '4_canceled': _(u'La facture a été annulée'),
+            '2_ask_accord': _(u'Il faut attendre l\'accord de l\'AGEPoly'),
+            '2_accord': _(u'Il faut envoyer la facture'),
+            '3_sent': _(u'La facture a été envoyée, le paiement est en attente. La facture n\'est plus éditable !'),
+            '4_archived': _(u'Le paiement de la facture a été reçu, le processus de facturation est terminé.'),
+            '5_canceled': _(u'La facture a été annulée'),
         }
 
         states_links = {
-            '0_preparing': ['1_need_bvr', '2_sent', '4_canceled'],
-            '1_need_bvr': ['0_preparing'],
-            '2_sent': ['0_preparing', '3_archived', '4_canceled'],
-            '3_archived': [],
-            '4_canceled': [],
+            '0_preparing': ['1_need_bvr', '2_ask_accord', '5_canceled'],
+            '0_correct': ['1_need_bvr', '2_ask_accord', '5_canceled'],
+            '1_need_bvr': ['0_correct'],
+            '2_ask_accord': ['0_correct', '2_accord', '5_canceled'],
+            '2_accord': ['0_correct', '3_sent', '4_archived', '5_canceled'],
+            '3_sent': ['0_correct', '4_archived', '5_canceled'],
+            '4_archived': [],
+            '5_canceled': [],
         }
 
         states_colors = {
             '0_preparing': 'primary',
+            '0_correct': 'danger',
             '1_need_bvr': 'danger',
-            '2_sent': 'warning',
-            '3_archived': 'success',
-            '4_canceled': 'default',
+            '2_ask_accord': 'primary',
+            '2_accord': 'info',
+            '3_sent': 'warning',
+            '4_archived': 'success',
+            '5_canceled': 'default',
         }
 
         states_icons = {
         }
 
         list_quick_switch = {
-            '0_preparing': [('2_sent', 'fa fa-check', _(u'Marquer comme envoyée')), ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR')), ],
+            '0_preparing': [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly')),
+                            ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR'))],
+            '0_correct': [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly')),
+                          ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR'))],
             '1_need_bvr': [],
-            '2_sent': [('3_archived', 'fa fa-check', _(u'Marquer comme terminée')), ],
-            '3_archived': [],
-            '4_canceled': [],
+            '2_ask_accord': [('2_accord', 'fa fa-check', _(u'Donner l\'accord')),],
+            '2_accord': [('3_sent', 'fa fa-check', _(u'Marquer comme envoyée'))],
+            '3_sent': [('4_archived', 'fa fa-check', _(u'Marquer comme terminée')), ],
+            '4_archived': [],
+            '5_canceled': [],
         }
 
-        states_default_filter = '0_preparing,1_need_bvr,2_sent'
-        states_default_filter_related = '0_preparing,1_need_bvr,2_sent'
+        states_quick_switch = {
+            '0_preparing': [('2_ask_accord', _(u'Demande accord AGEPoly')),
+                            ('1_need_bvr', _(u'Demander un BVR'))],
+            '0_correct': [('2_ask_accord', _(u'Demande accord AGEPoly')),
+                          ('1_need_bvr', _(u'Demander un BVR'))],
+            '1_need_bvr': [],
+            '2_ask_accord': [('2_accord', _(u'Donner l\'accord'))],
+            '2_accord': [('3_sent', _(u'Marquer comme envoyée'))],
+            '3_sent': [('4_archived', _(u'Marquer comme terminée')), ],
+            '4_archived': [],
+            '5_canceled': [],
+        }
+        states_default_filter = '0_preparing,1_need_bvr,2_ask_accord,2_accord,3_sent'
+        states_default_filter_related = '0_preparing,1_need_bvr,2_ask_accord,2_accord,3_sent'
         status_col_id = 1
 
         forced_pos = {
-            '0_preparing': (0.2, 0.15),
-            '1_need_bvr': (0.2, 0.85),
-            '2_sent': (0.5, 0.15),
-            '3_archived': (0.8, 0.15),
-            '4_canceled': (0.8, 0.85),
+            '0_preparing': (0.1, 0.15),
+            '0_correct': (0.5, 0.85),
+            '1_need_bvr': (0.1, 0.85),
+            '2_ask_accord': (0.26, 0.15),
+            '2_accord': (0.5, 0.15),
+            '3_sent': (0.7, 0.35),
+            '4_archived': (0.9, 0.15),
+            '5_canceled': (0.9, 0.85),
         }
 
         class FormBVR(forms.Form):
@@ -514,7 +554,8 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         states_bonus_form = {
             '0_preparing': FormBVR,
-            '3_archived': build_form_date
+            '0_correct': FormBVR,
+            '4_archived': build_form_date
         }
 
     def switch_status_signal(self, request, old_status, dest_status):
@@ -555,10 +596,19 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
                     unotify_people('%s.need_bvr' % (self.__class__.__name__,), self)
                     notify_people(request, '%s.bvr_set' % (self.__class__.__name__,), 'invoices_bvr_set', self, self.build_group_members_for_editors())
 
-        if dest_status == '2_sent':
-            notify_people(request, '%s.sent' % (self.__class__.__name__,), 'invoices_sent', self, self.people_in_root_unit('SECRETARIAT'))
+        if dest_status == '0_correct':
+            notify_people(request, '%s.to_correct' % (self.__class__.__name__,), 'invoices_to_correct', self, self.build_group_members_for_editors())
 
-        if dest_status == '3_archived':
+        if dest_status == '2_ask_accord':
+            notify_people(request, '%s.validable' % (self.__class__.__name__,), 'accounting_validable', self, self.people_in_root_unit(['TRESORERIE', 'SECRETARIAT']))
+
+        if dest_status == '2_accord':
+            notify_people(request, '%s.accepted' % (self.__class__.__name__,), 'invoices_accepted', self, self.build_group_members_for_editors())
+
+        if dest_status == '3_sent':
+            notify_people(request, '%s.sent' % (self.__class__.__name__,), 'invoices_sent', self, self.build_group_members_for_editors())
+
+        if dest_status == '4_archived':
             unotify_people('%s.sent' % (self.__class__.__name__,), self)
             notify_people(request, '%s.done' % (self.__class__.__name__,), 'invoices_done', self, self.build_group_members_for_editors())
 
@@ -568,10 +618,13 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
     def may_switch_to(self, user, dest_state):
 
-        if self.status == '2_sent' and dest_state == '0_preparing' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+        if dest_state == '0_preparing' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return False
 
-        if dest_state == '3_archived' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+        if dest_state == '2_accord' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+            return False
+
+        if dest_state == '4_archived' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return False
 
         return super(_Invoice, self).rights_can_EDIT(user) and super(_Invoice, self).may_switch_to(user, dest_state)
@@ -581,10 +634,13 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
         if not super(_Invoice, self).rights_can_EDIT(user):
             return (False, _('Pas les droits.'))
 
-        if self.status == '2_sent' and dest_state == '0_preparing' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+        if self.status == '3_sent' and dest_state[0] == '0' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return (False, _('Seul l\'AGEPoly peut modifier une facture une fois qu\'elle a été envoyée.'))
 
-        if dest_state == '3_archived' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+        if dest_state == '2_accord' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
+            return (False, _('Seul l\'AGEPoly peut valider une facture.'))
+
+        if dest_state == '4_archived' and not user.is_superuser and not self.rights_in_root_unit(user, 'SECRETARIAT'):
             return (False, _('Seul l\'AGEPoly peut archiver une facture.'))
 
         return super(_Invoice, self).can_switch_to(user, dest_state)
@@ -592,7 +648,10 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
     def rights_can_EDIT(self, user):
         # On ne peut pas éditer les factures envoyés/reçues
 
-        if self.status in ['0_preparing', '1_need_bvr']:
+        if self.status == '2_accord' and (user.is_superuser or self.rights_in_root_unit(user, 'SECRETARIAT')):
+            return True
+
+        if self.status in ['0_preparing', '0_correct', '1_need_bvr']:
             return super(_Invoice, self).rights_can_EDIT(user)
 
         return False
@@ -600,6 +659,19 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
     def rights_can_DISPLAY_LOG(self, user):
         """Always display log, even if current state dosen't allow edit"""
         return super(_Invoice, self).rights_can_EDIT(user)
+
+    def rights_can_DOWNLOAD_PDF(self, user):
+        if user.is_superuser:
+            return True
+
+        if self.rights_in_root_unit(user, 'TRESORERIE') or self.rights_in_root_unit(user, 'SECRETARIAT'):
+            return True
+
+        if self.rights_can_SHOW(user) and self.status in ['2_accord', '3_sent', '4_archived']:
+            return True
+
+        return False
+
 
     class Meta:
         abstract = True
@@ -1371,6 +1443,266 @@ class ExpenseClaimLine(ModelUsedAsLine):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
 
 
+class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
+
+    name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
+    tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text=_(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>)'))
+
+    iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(<a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Convertir un numéro de compte en IBAN</a>) </br> Si la convertion ne fonctionne pas, noter CH00 et mettre le numéro de compte en remarque.'))
+    bic = models.CharField(_('BIC/SWIFT'), max_length=128, blank=True, help_text=_(u'Obligatoire si le fournisseur est étranger'))
+
+    address = models.CharField(_('Adresse'), max_length=255, help_text=_(u'Exemple: \'Rue Des Arc en Ciel 25 - Case Postale 2, CH-1015 Lausanne\''))
+
+    remarks = models.TextField(_(u'Remarques'), null=True, blank=True)
+
+    class MetaData:
+        list_display = [
+            ('name', _(u'Société')),
+            ('tva_number', _(u'Numéro TVA')),
+            ('iban_ou_ccp', _(u'IBAN/CCP')),
+            ('bic', _(u'BIC')),
+            ('address', _(u'Adresse')),
+        ]
+
+        details_display = list_display
+        filter_fields = ('name', 'tva_number', 'iban_ou_ccp', 'bic')
+
+        default_sort = "[0, 'name']"
+
+        base_title = _(u'Fournisseur')
+        list_title = _(u'Liste des Fournisseur')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-book'
+
+        menu_id = 'menu-compta-financial-provider'
+
+        forced_widths = {
+            '1': '350px',
+        }
+
+        help_list = _(u"""Les Fournisseurs sont liés aux facture fournisseurs.""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        files_title = _(u'Fournisseur')
+
+        all_users = True
+
+    def __unicode__(self):
+        return self.name
+
+    class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
+        access = ['TRESORERIE', 'SECRETARIAT']
+
+    def rights_can_CREATE(self, user):
+        return True
+
+    def rights_can_EDIT(self, user):
+        return self.get_creator() == user or self.rights_in_root_unit(user, access='TRESORERIE') or self.rights_in_root_unit(user, access='SECRETARIAT') or request.user.is_superuser
+
+    def genericFormExtraClean(self, data, form):
+        if 'iban_ou_ccp' in data and data['iban_ou_ccp']:
+            if data['iban_ou_ccp'] != "CH00":
+                try:  # IBAN correct ?
+                    iban = IBAN(data['iban_ou_ccp'])
+                    data['iban_ou_ccp'] = iban.formatted
+                except:
+                    raise forms.ValidationError(_(u'IBAN invalide'))
+
+                # IBAN déja dans la db ? (-> fournisseur déja entré) Pour éviter les doublons
+                if FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp'], deleted=False).exists():
+                    fournisseur = FinancialProvider.objects.filter(iban_ou_ccp=data['iban_ou_ccp'], deleted=False).first()
+                    if 'pk' not in data or fournisseur.pk != data['pk']:
+                        raise forms.ValidationError(_(u'Le fournisseur {} ({}) est déja dans la base de donnée !'.format(fournisseur.name, fournisseur.iban_ou_ccp)))
+
+            if data['iban_ou_ccp'][0:2] != 'CH':
+                if not('bic' in data and data['bic']):
+                    raise forms.ValidationError(_(u'BIC/SWIFT obligatoire pour un fournisseur étranger !'))
+
+
+class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
+    """Modèle pour les factures fournisseur"""
+
+    class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
+        access = ['TRESORERIE', 'SECRETARIAT']
+
+    class MetaRights(UnitEditableModel.MetaRights):
+        linked_unit_property = 'costcenter.unit'
+
+    name = models.CharField(_(u'Titre de la facture fournisseur'), max_length=255)
+    comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+
+    reference_number = models.CharField(_(u'Numéro de Référence'), null=True, blank=True, max_length=255)
+    raw_pay_code = models.TextField(_(u'Raw Swiss Payment Code'), null=True, blank=True)
+    currency = models.CharField(_(u'Devise'), max_length=3, choices=map(lambda i: (i.value, i.value), Currency), default=Currency.chf.code)
+
+    provider = FalseFK('accounting_tools.models.FinancialProvider', verbose_name=_(u'Fournisseur'), blank=False, null=False)
+
+    class MetaData:
+        list_display = [
+            ('name', _('Titre')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('provider', _(u'Fournisseur')),
+            ('get_total_ht', _(u'Total (HT)')),
+            ('get_total', _(u'Total (TTC)')),
+            ('status', _('Statut')),
+        ]
+
+        details_display = [
+            ('name', _('Titre')),
+            ('costcenter', _(u'Centre de coûts')),
+            ('provider', _(u'Fournisseur')),
+            ('reference_number', _(u'Numéro de référence')),
+            ('get_total_ht', _(u'Total (HT)')),
+            ('get_total', _(u'Total (TTC)')),
+            ('currency', _(u'Devise')),
+            ('status', _('Statut')),
+            ('accounting_year', _(u'Année comptable')),
+            ('comment', _(u'Commentaire')),
+            ('raw_pay_code', _(u'SPC'))
+        ]
+
+        filter_fields = ('name', 'costcenter__name', 'costcenter__account_number', 'reference_number', 'currency', 'provider__name', 'provider__tva_number', 'provider__iban_ou_ccp')
+
+        default_sort = "[0, 'desc']"  # Creation date (pk) descending
+        trans_sort = {'get_fullname': 'user__first_name'}
+        not_sortable_columns = ['get_total', 'get_total_ht']
+
+        base_title = _(u'Factures (fournisseur)')
+        list_title = _(u'Liste des factures (fournisseur)')
+        files_title = _(u'Justificatifs')
+        base_icon = 'fa fa-list'
+        elem_icon = 'fa fa-shopping-cart'
+
+        @staticmethod
+        def extra_filter_for_list(request, current_unit, current_year, filtering):
+            if current_unit.is_user_in_groupe(request.user, access=['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
+                return lambda x: filtering(x)
+            else:
+                return lambda x: filtering(x).filter(user=request.user)
+
+        has_unit = True
+
+        menu_id = 'menu-compta-provider-invoices'
+
+        forced_widths = {
+            '1': '350px',
+        }
+
+        help_list = _(u"""Les factures fournisseurs permettent à une unité de payer des factures.
+
+Il est nécéssaire de fournir la facture""")
+
+    class Meta:
+        abstract = True
+
+    class MetaEdit:
+        files_title = _(u'Scan')
+        files_help = _(u'scan de la facture')
+
+        all_users = True
+
+    class MetaLines:
+        lines_objects = [
+            {
+                'title': _(u'Lignes'),
+                'class': 'accounting_tools.models.ProviderInvoiceLine',
+                'form': 'accounting_tools.forms2.ProviderInvoiceLineForm',
+                'related_name': 'lines',
+                'field': 'providerInvoice',
+                'sortable': True,
+                'tva_fields': ['tva'],
+                'show_list': [
+                    ('label', _(u'Titre')),
+                    ('account', _(u'Compte')),
+                    ('value', _(u'Montant (HT)')),
+                    ('get_tva', _(u'TVA')),
+                    ('value_ttc', _(u'Montant (TTC)')),
+                ]},
+        ]
+
+    class MetaGroups(GenericGroupsModel.MetaGroups):
+        pass
+
+    class MetaState(GenericAccountingStateModel.MetaState):
+        pass
+
+    class MetaSearch(SearchableModel.MetaSearch):
+
+        extra_text = u"Factures Fournisseur"
+        index_files = True
+
+        fields = [
+            'name',
+            'provider',
+            'comment',
+            'get_total',
+        ]
+
+        linked_lines = {
+            'lines': ['label']
+        }
+
+    def __unicode__(self):
+        return u"{} - {}".format(self.name, self.costcenter)
+
+    def rights_can_EDIT(self, user):
+        if not self.pk or (self.get_creator() == user and self.status[0] == '0'):
+            return True
+
+        return super(_ProviderInvoice, self).rights_can_EDIT(user)
+
+    def rights_can_LIST(self, user):
+        return True  # Tout le monde peut lister les factures de n'importe quelle unité (à noter qu'il y a un sous filtre qui affiche que les factures que l'user peut voir dans la liste)
+
+    def genericFormExtraInit(self, form, current_user, *args, **kwargs):
+        del form.fields['user']
+        form.fields['user'] = forms.CharField(widget=forms.HiddenInput(), initial=current_user, required=False)
+
+    def get_lines(self):
+        return self.lines.order_by('order')
+
+    def get_total(self):
+        return sum([line.value_ttc for line in self.get_lines()])
+
+    def get_total_ht(self):
+        return sum([line.value for line in self.get_lines()])
+
+    def is_unit_validator(self, user):
+        """Check if user is a validator for the step '1_unit_validable'."""
+        return self.rights_in_linked_unit(user, self.MetaRightsUnit.access)
+
+    def genericFormExtraClean(self, data, form):
+        if self.get_creator():
+            data['user'] = self.get_creator()
+        else:
+            data['user'] = form.fields['user'].initial
+
+
+class ProviderInvoiceLine(ModelUsedAsLine):
+
+    providerInvoice = models.ForeignKey('ProviderInvoice', related_name="lines")
+
+    label = models.CharField(_(u'Concerne'), max_length=255)
+    account = models.ForeignKey('accounting_core.Account', verbose_name=_('Compte'))
+    value = models.DecimalField(_(u'Montant (HT)'), max_digits=20, decimal_places=2)
+    tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
+    value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
+
+    def __unicode__(self):
+        return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
+
+    def get_tva(self):
+        from accounting_core.models import TVA
+        return TVA.tva_format(self.tva)
+
+    def display_amount(self):
+        return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
+
+
 class _CashBook(GenericModel, GenericTaggableObject, GenericAccountingStateModel, GenericStateModel, GenericModelWithFiles, GenericModelWithLines, AccountingYearLinked, CostCenterLinked, UnitEditableModel, GenericGroupsModel, GenericContactableModel, LinkedInfoModel, AccountingGroupModels, SearchableModel):
     """Modèle pour les journaux de caisse (JdC)"""
 
@@ -1578,19 +1910,27 @@ class CashBookLine(ModelUsedAsLine):
         return u'{} + {}% == {}'.format(self.value, self.tva, self.value_ttc)
 
     def input_amount(self):
-        return self.value_ttc if self.helper[0] in ['0', '2', '6'] else 0
+        return self.value_ttc if self.is_input else 0
 
     def output_amount(self):
-        return self.value_ttc if self.helper[0] not in ['0', '2', '6'] else 0
+        return self.value_ttc if self.is_output else 0
 
     def get_line_delta(self):
         return self.input_amount() - self.output_amount()
 
+    @property
+    def is_input(self):
+        return self.helper[0] in ['0', '2', '6']
+
+    @property
+    def is_output(self):
+        return self.helper[0] not in ['0', '2', '6']
+
     def input_amount_ht(self):
-        return self.value if self.helper[0] in ['0', '2', '6'] else 0
+        return self.value if self.is_input else 0
 
     def output_amount_ht(self):
-        return self.value if self.helper[0] not in ['0', '2', '6'] else 0
+        return self.value if self.is_output else 0
 
     def get_line_delta_ht(self):
         return self.input_amount_ht() - self.output_amount_ht()

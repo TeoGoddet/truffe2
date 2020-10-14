@@ -11,6 +11,7 @@ from django.contrib.sites.models import get_current_site
 from django.shortcuts import render
 
 
+import logging
 import cgi
 import ho.pisa as pisa
 import cStringIO as StringIO
@@ -119,7 +120,12 @@ def send_templated_mail(request, subject, email_from, emails_to, template, conte
 
     msg = EmailMultiAlternatives(subject, text_content, settings.EMAIL_FROM, emails_to)
     msg.attach_alternative(html_content, "text/html")
-    msg.send()
+
+    try:
+        msg.send()
+    except Exception as e:
+        logger = logging.getLogger(__name__)
+        logger.exception(e)
 
 
 def get_property(obj, prop):
@@ -211,3 +217,24 @@ def pad_image(image, **kwargs):
 
     new_image.paste(image, (left, top))
     return new_image
+
+class UnicodeCSVWriter:
+    """
+    A CSV writer which will write rows to CSV stream "f", (formatted for sage import)
+    """
+
+    def __init__(self, f):
+        self.stream = f
+
+    def writerow(self, row):
+        for s in row: 
+            if not isinstance(s, unicode):
+                s = unicode(s)
+            s = s.encode("cp1252")
+            self.stream.write(s)
+            self.stream.write(u';')
+        self.stream.write(u'\r\n')
+        
+    def writerows(self, rows):
+        for row in rows:
+            self.writerow(row)  
