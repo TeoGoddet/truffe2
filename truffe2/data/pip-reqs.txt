@@ -18,7 +18,7 @@ django-jfu
 django-sendfile
 django-haystack==2.4.1
 whoosh
-pdfminer
+pdfminer==20140327
 textract
 celery-haystack
 celery
