@@ -1,0 +1,49 @@
+from os.path import join, dirname, abspath
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': join(dirname(dirname(abspath(__file__))), 'db.sqlite3'),
+    }
+}
+
+SECRET_KEY = "*=)2_8tuf5qym&6szbr%=xz)g8aw=w3z)ltc=+d)iy7v7grj#!"
+
+# Deactivate Haystack indexing on save
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
+
+# Logging to console, for debug :)
+LOGGING = {
+    'disable_existing_loggers': False,
+    'version': 1,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
+
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025

@@ -2,7 +2,13 @@
 .ropeproject
 *.swp
 *.sw?
+.project
+.pydevproject
+.settings/
 
+htmlcov/*
+truffe2/.coverage
 truffe2/db.sqlite3
 venv/*
 truffe2/.idea/*
+
