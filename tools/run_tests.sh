@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set +e
 set +x
 
 project_dir=$(dirname $(dirname $(readlink -f "$0")))
