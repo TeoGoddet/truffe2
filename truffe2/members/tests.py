@@ -1,3 +1,6 @@
 from django.test import TestCase
 
-# Create your tests here.
+class MembersNoLoginTest(TestCase):
+    
+    def test_basic(self):
+        self.assertTrue(False, "No tests implemented !")
