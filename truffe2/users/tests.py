@@ -14,13 +14,13 @@ from main.test_tools import TruffeTestAbstract
 class UsersNoLoginTest(TruffeTestAbstract):
     
     def test_login(self):
-        self.call_check_alert('/users/login', alert_expected="")
+        self.call_check_html('/users/login')
 
     def test_login_done(self):
-        self.call_check_alert('/users/login_done', alert_expected="")
+        self.call_check_html('/users/login_done')
 
     def test_login_cptd(self):
-        self.call_check_alert('/users/login_cptd', alert_expected="")
+        self.call_check_html('/users/login_cptd')
 
     def test_create_external(self):
         self.call_check_redirect('/users/create_external')
@@ -34,11 +34,11 @@ class UsersNoLoginTest(TruffeTestAbstract):
     def test_password_reset(self):
         # TODO : problem of template not found 'registration/password_reset_form.html'
         with self.assertRaises(TemplateDoesNotExist) as context:
-            self.call_check_alert('/users/password_reset/', alert_expected="")
+            self.call_check_html('/users/password_reset/')
         self.assertEqual(str(context.exception), 'registration/password_reset_form.html')
         
     def test_reset(self):
-        self.call_check_alert('/users/reset/abc123/azertdDESS45-fgsfs54545/', alert_expected="")
+        self.call_check_html('/users/reset/abc123/azertdDESS45-fgsfs54545/')
 
     def test_set_body(self):
         self.call_check_redirect('/users/set_body/m')
@@ -79,80 +79,80 @@ class UsersNoLoginTest(TruffeTestAbstract):
 
 class UsersWithLoginTest(TruffeTestAbstract):
 
-    def setUp(self):
-        TruffeTestAbstract.setUp(self)
-        self.connect_admin()   
+   
     
     def test_login(self):
-        self.call('/users/login', status_expected=302)
-        self.assertRedirects(self.response, '/')
+        self.call_check_redirect('/users/login', redirect_url='/')
 
     def test_login_done(self):
-        self.call('/users/login_done', status_expected=302)
-        self.assertRedirects(self.response, '/')
+        self.call_check_redirect('/users/login_done', redirect_url='/')
 
     def test_login_cptd(self):
-        self.call('/users/login_cptd', status_expected=302)
-        self.assertRedirects(self.response, '/')
+        self.call_check_redirect('/users/login_cptd', redirect_url='/')
 
     def test_create_external(self):
-        self.call_check_alert('/users/create_external', alert_expected="")
+        self.call_check_html('/users/create_external')
+        self.call_check_redirect('/users/create_external', data={'email':'charles.attand@zmail.com', 'first_name':'Charles', 'last_name':'attand'},
+                              method='post', redirect_url='/users/users/')
 
     def test_password_change_check(self):
-        self.call('/users/password_change_check', status_expected=302)
-        self.assertRedirects(self.response, '/users/users/1')
+        self.call_check_redirect('/users/password_change_check', redirect_url='/users/users/1')
 
     def test_password_change_done(self):
-        self.call('/users/password_change/done/', status_expected=302)
-        self.assertRedirects(self.response, '/users/users/1')
+        self.call_check_redirect('/users/password_change/done/', redirect_url='/users/users/1')
                 
     def test_password_reset(self):
         # TODO : problem of template not found 'registration/password_reset_form.html'
         with self.assertRaises(TemplateDoesNotExist) as context:
-            self.call_check_alert('/users/password_reset/', alert_expected="")
+            self.call_check_html('/users/password_reset/')
         self.assertEqual(str(context.exception), 'registration/password_reset_form.html')
         
     def test_reset(self):
-        self.call_check_alert('/users/reset/abc123/azertdDESS45-fgsfs54545/', alert_expected="")
+        self.call_check_html('/users/reset/abc123/azertdDESS45-fgsfs54545/')
 
     def test_set_body(self):
-        self.call_check_alert('/users/set_body/m', alert_expected="")
+        self.call_check_text('/users/set_body/m')
 
     def test_users(self):
-        self.call_check_alert('/users/users/', alert_expected="")
+        self.call_check_html('/users/users/')
 
     def test_users_json(self):
-        self.call_check_alert('/users/users/json', alert_expected="")
+        self.call_check_json('/users/users/json')
 
     def test_users_id(self):
-        self.call_check_alert('/users/users/1', alert_expected="")
+        self.call_check_html('/users/users/1')
 
     def test_users_vcard(self):
-        self.call_check_alert('/users/users/1/vcard', alert_expected="")
+        self.call_check_text('/users/users/1/vcard')
 
     def test_users_edit(self):
-        self.call_check_alert('/users/users/1/edit', alert_expected="")
+        self.call_check_html('/users/users/1/edit')
+        
+        self.call_check_redirect('/users/users/1/edit', method='post',
+                              data={'is_superuser':False, 'username':'admin', 'first_name':'admin', 'last_name':'admin', 'email':'admin@green.ch',
+                                    'priv_val_mobile': '0123456789', 'priv_val_email_perso': 'admin@green.ch',
+                                    'priv_val_iban_ou_ccp': 'ABCD1234', 'priv_val_adresse': 'aaa', 'priv_val_nom_banque': 'aaa'},
+                              redirect_url='/users/users/1')
 
     def test_users_profile_picture(self):
-        self.call('/users/users/1/profile_picture', status_expected=302)
-        self.assertRedirects(self.response, '/media/cache/users/1.png')
+        self.call_check_redirect('/users/users/1/profile_picture', redirect_url='/media/cache/users/1.png')
 
     def test_myunit(self):
-        self.call_check_alert('/users/myunit/',
+        self.call_check_html('/users/myunit/',
                              alert_expected=u"Malheureusement, tu ne disposes pas des droits nécessaires pour afficher cette liste, dans aucune unité !")                              
 
     def test_myunit_json(self):
-        self.call_check_alert('/users/myunit/json', alert_expected="")
+        self.call_check_json('/users/myunit/json')
 
     def test_myunit_vcard(self):
-        self.call_check_alert('/users/myunit/vcard', alert_expected="")
+        self.call_check_text('/users/myunit/vcard')
 
     def test_myunit_pdf(self):
-        self.call_check_alert('/users/myunit/pdf/', alert_expected="")
+        self.call_check_pdf('/users/myunit/pdf/')
 
     def test_ldap_search(self):
         # TODO : problem to test LDAP
         from _ldap import SERVER_DOWN
         with self.assertRaises(SERVER_DOWN) as context:
-            self.call_check_alert('/users/ldap/search', alert_expected="")
+            self.call_check_html('/users/ldap/search')
         self.assertIn(u"Can't contact LDAP server", str(context.exception))

@@ -12,5 +12,5 @@ cd $project_dir/truffe2
 python -m pip install -U coverage >/dev/null
 python -m coverage erase
 python -m coverage run --branch --source=. manage.py test
-python -m coverage report
+# python -m coverage report
 python -m coverage html -d $project_dir/htmlcov

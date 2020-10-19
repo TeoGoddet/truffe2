@@ -23,15 +23,17 @@ class LogisticsNoLoginTest(TruffeTestAbstract):
 
 class LogisticsWithLoginTest(TruffeTestAbstract):
     
-    def setUp(self):
-        TruffeTestAbstract.setUp(self)
-        self.connect_admin()
-    
     def test_room_search(self):
-        self.call_check_alert('/logistics/room/search',alert_expected="")
+        self.call_check_json('/logistics/room/search')
+        self.call_check_json('/logistics/room/search', data={'q':'room'})
+        self.call_check_json('/logistics/room/search', data={'init':1})
+        self.call_check_json('/logistics/room/search', data={'unit_pk':2})
 
     def test_supply_search(self):
-        self.call_check_alert('/logistics/supply/search',alert_expected="")
+        self.call_check_json('/logistics/supply/search')
+        self.call_check_json('/logistics/supply/search', data={'q':'room'})
+        self.call_check_json('/logistics/supply/search', data={'init':1})
+        self.call_check_json('/logistics/supply/search', data={'unit_pk':2})
 
     def test_loanagreement(self):
-        self.call_check_alert('/logistics/loanagreement/1/pdf/',alert_expected="")
+        self.call_check_pdf('/logistics/loanagreement/1/pdf/')

@@ -4,13 +4,18 @@ set -e
 set +x
 
 project_dir=$(dirname $(dirname $(readlink -f "$0")))
-rm -rf $project_dir/venv
 
-python2 -m virtualenv $project_dir/venv
+if [ "$1" != "noclean" ]
+then
+	rm -rf $project_dir/venv
+	python2 -m virtualenv $project_dir/venv
 
-. $project_dir/venv/bin/activate
-pip install -U pip
-pip install -r $project_dir/truffe2/data/pip-reqs.txt
+	. $project_dir/venv/bin/activate
+	pip install -U pip
+	pip install -r $project_dir/truffe2/data/pip-reqs.txt
+else
+	. $project_dir/venv/bin/activate
+fi
 
 rm -rf $project_dir/truffe2/db.sqlite3
 cp $project_dir/tools/settingsLocal.py.test $project_dir/truffe2/app/settingsLocal.py
@@ -19,5 +24,8 @@ cp $project_dir/tools/settingsLocal.py.test $project_dir/truffe2/app/settingsLoc
 	cd $project_dir/truffe2
 	python manage.py syncdb
 	python manage.py migrate
-	echo "update users_truffeuser set is_superuser=1 where id=1;" | sqlite3 truffe2/db.sqlite3
+	if [ "$2" == "demo" ]
+	then
+		echo 'from main.test_data import initial_data; initial_data()' | python manage.py shell
+	fi
 )
