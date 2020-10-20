@@ -9,6 +9,8 @@ from django.conf import settings
 from django.utils import timezone
 
 from users.models import TruffeUser
+from os.path import join, dirname
+from shutil import copyfile
 
 
 def initial_users_units():
@@ -39,15 +41,23 @@ def initial_users_units():
     user3.nom_banque = "Postfinance"
     user3.iban_ou_ccp = "0009876543210"
     user3.save()
+    user4 = TruffeUser.objects.create_user(username='user4', password='user4', first_name='user4', last_name='user4')
+    user4.mobile = "0123456789"
+    user4.adresse = "rue machin"
+    user4.nom_banque = "Postfinance"
+    user4.iban_ou_ccp = "0009876543210"
+    user4.save()
     
     Role(id=1, name="role0", order=1, need_validation=False).save()
     Role(id=2, name="role1", order=2, need_validation=False, access='PRESIDENCE').save()
     Role(id=3, name="role2", order=3, need_validation=False, access='TRESORERIE').save()
     Role(id=4, name="role3", order=4, need_validation=False, access='SECRETARIAT').save()
+    Role(id=5, name="role4", order=5, need_validation=False, access='INFORMATIQUE').save()
     Accreditation(unit_id=settings.ROOT_UNIT_PK, user=admin_user, role_id=1, need_validation=True).save()
     Accreditation(unit_id=2, user=user1, role_id=2, need_validation=False).save()
     Accreditation(unit_id=2, user=user2, role_id=3, need_validation=False).save()
     Accreditation(unit_id=2, user=user3, role_id=4, need_validation=False).save()
+    Accreditation(unit_id=2, user=user4, role_id=5, need_validation=False).save()
     system_user = TruffeUser(pk=settings.SYSTEM_USER_PK, username='system', first_name='system', last_name='system',
                              is_active=True, is_superuser=True, last_login=now, date_joined=now)
     system_user.set_password('system')
@@ -94,7 +104,7 @@ def initial_notifications(user):
 
 def initial_members(user):
     from members.models import MemberSet, Membership
-    MemberSet(pk=1, name='default set', unit_id=settings.ROOT_UNIT_PK, api_secret_key='Secret123!').save()
+    MemberSet(pk=1, name='default set', unit_id=settings.ROOT_UNIT_PK, api_secret_key='Secret123!', handle_fees=True).save()
     Membership(user=user, group_id=1, payed_fees=True).save()
 
 
@@ -102,40 +112,50 @@ def initial_accounting_core():
     from accounting_core.models import AccountingYear, Account, CostCenter, AccountCategory, TVA
     now = timezone.now()
     AccountingYear(id=1, name='current', start_date=datetime(now.year, 1, 1), end_date=datetime(now.year, 12, 31)).save()
-    CostCenter(id=1, name='center', account_number='123', unit_id=settings.ROOT_UNIT_PK, accounting_year_id=1).save()
+    CostCenter(id=1, name='center', account_number='1234', unit_id=settings.ROOT_UNIT_PK, accounting_year_id=1).save()
     AccountCategory(id=1, name="cat1", parent_hierarchique=None, order=1, accounting_year_id=1).save()
     AccountCategory(id=2, name="cat2", parent_hierarchique=None, order=2, accounting_year_id=1).save()
     AccountCategory(id=3, name="cat3", parent_hierarchique=None, order=3, accounting_year_id=1).save()
-    Account(id=1, name='account1', account_number='1000', visibility='all', category_id=1, accounting_year_id=1).save()
-    Account(id=2, name='account2', account_number='2000', visibility='cdd', category_id=1, accounting_year_id=1).save()
-    Account(id=3, name='account3', account_number='3000', visibility='root', category_id=1, accounting_year_id=1).save()
-    Account(id=4, name='account4', account_number='4000', visibility='all', category_id=2, accounting_year_id=1).save()
-    Account(id=5, name='account5', account_number='5000', visibility='cdd', category_id=2, accounting_year_id=1).save()
-    Account(id=6, name='account6', account_number='6000', visibility='root', category_id=2, accounting_year_id=1).save()
-    Account(id=7, name='account7', account_number='7000', visibility='all', category_id=3, accounting_year_id=1).save()
-    Account(id=8, name='account8', account_number='8000', visibility='cdd', category_id=3, accounting_year_id=1).save()
-    Account(id=9, name='account9', account_number='9000', visibility='root', category_id=3, accounting_year_id=1).save()
+    Account(id=1, name='account1', account_number='2850', visibility='all', category_id=1, accounting_year_id=1).save()
+    Account(id=2, name='account2', account_number='6340', visibility='cdd', category_id=1, accounting_year_id=1).save()
+    Account(id=3, name='account3', account_number='6550', visibility='root', category_id=1, accounting_year_id=1).save()
+    Account(id=4, name='account4', account_number='6560', visibility='all', category_id=2, accounting_year_id=1).save()
+    Account(id=5, name='account5', account_number='6410', visibility='cdd', category_id=2, accounting_year_id=1).save()
+    Account(id=6, name='account6', account_number='2229', visibility='root', category_id=2, accounting_year_id=1).save()
+    Account(id=7, name='account7', account_number='6710', visibility='all', category_id=3, accounting_year_id=1).save()
+    Account(id=8, name='account8', account_number='6730', visibility='cdd', category_id=3, accounting_year_id=1).save()
+    Account(id=9, name='account9', account_number='4230', visibility='root', category_id=3, accounting_year_id=1).save()
     TVA(id=1, name='TVA1', value=10.0, agepoly_only=True, account_id=3, code='aaa').save()
     TVA(id=2, name='TVA2', value=15.0, agepoly_only=False, account_id=7, code='bbb').save()
 
 
 def initial_accounting_main():    
     from accounting_main.models import Budget, BudgetLine, AccountingError, AccountingLine 
+    now = timezone.now()
     Budget(id=1, name='my budget', unit_id=settings.ROOT_UNIT_PK, accounting_year_id=1, costcenter_id=1).save()
     BudgetLine(budget_id=1, account_id=1, amount=11.11, description="budget #1").save()
-    BudgetLine(budget_id=1, account_id=2, amount=22.22, description="budget #2").save()
+    BudgetLine(budget_id=1, account_id=2, amount=-22.22, description="budget #2").save()
     BudgetLine(budget_id=1, account_id=3, amount=33.33, description="budget #3").save()
-    BudgetLine(budget_id=1, account_id=4, amount=44.44, description="budget #4").save()
+    BudgetLine(budget_id=1, account_id=4, amount=-44.44, description="budget #4").save()
     BudgetLine(budget_id=1, account_id=5, amount=55.55, description="budget #5").save()
-    BudgetLine(budget_id=1, account_id=6, amount=66.66, description="budget #6").save()
+    BudgetLine(budget_id=1, account_id=6, amount=-66.66, description="budget #6").save()
     BudgetLine(budget_id=1, account_id=7, amount=77.77, description="budget #7").save()
-    BudgetLine(budget_id=1, account_id=8, amount=88.88, description="budget #8").save()
+    BudgetLine(budget_id=1, account_id=8, amount=-88.88, description="budget #8").save()
     BudgetLine(budget_id=1, account_id=9, amount=99.99, description="budget #9").save()
     AccountingError(id=1, accounting_year_id=1, costcenter_id=1).save()
+    AccountingLine(account_id=1, date=now, tva=0.0, text='line #1', output=11.11, input=0.0, current_sum=0.0, order=1, accounting_year_id=1, costcenter_id=1).save()
+    AccountingLine(account_id=2, date=now, tva=0.0, text='line #2', output=0.0, input=22.22, current_sum=0.0, order=1, accounting_year_id=1, costcenter_id=1).save()
+    AccountingLine(account_id=3, date=now, tva=0.0, text='line #3', output=33.33, input=0.0, current_sum=0.0, order=1, accounting_year_id=1, costcenter_id=1).save()
+    AccountingLine(account_id=4, date=now, tva=0.0, text='line #4', output=0.0, input=44.44, current_sum=0.0, order=1, accounting_year_id=1, costcenter_id=1).save()
+    AccountingLine(account_id=5, date=now, tva=0.0, text='line #5', output=55.55, input=0.0, current_sum=0.0, order=1, accounting_year_id=1, costcenter_id=1).save()
+    AccountingLine(account_id=6, date=now, tva=0.0, text='line #6', output=0.0, input=66.66, current_sum=0.0, order=1, accounting_year_id=1, costcenter_id=1).save()
+    AccountingLine(account_id=7, date=now, tva=0.0, text='line #7', output=77.77, input=0.0, current_sum=0.0, order=1, accounting_year_id=1, costcenter_id=1).save()
+    AccountingLine(account_id=8, date=now, tva=0.0, text='line #8', output=0.0, input=88.88, current_sum=0.0, order=1, accounting_year_id=1, costcenter_id=1).save()
+    AccountingLine(account_id=9, date=now, tva=0.0, text='line #9', output=99.99, input=0.0, current_sum=0.0, order=1, accounting_year_id=1, costcenter_id=1).save()
 
 
 def initial_accounting_tools(user):
-    from accounting_tools.models import Withdrawal, InternalTransfer, FinancialProvider, Subvention
+    from accounting_tools.models import Withdrawal, InternalTransfer, FinancialProvider, Subvention, SubventionFile
     from accounting_tools.models import ProviderInvoice, Invoice, CashBook, CashBookLine, ExpenseClaim, ExpenseClaimLine, ExpenseClaimLogging
     now = timezone.now()
     Withdrawal(id=1, name='reason', user=user, amount=12.34, desired_date=now, withdrawn_date=None, accounting_year_id=1, costcenter_id=1).save()
@@ -150,6 +170,10 @@ def initial_accounting_tools(user):
     ExpenseClaim(id=1, name='expense', user=user, nb_proofs=1, accounting_year_id=1, costcenter_id=1, status='6_archived').save()
     ExpenseClaimLine(expense_claim_id=1, label='claim', account_id=5, value=54.65, tva=0, value_ttc=54.65).save()
     ExpenseClaimLogging(object_id=1, when=now, who=user, what='created').save()
+    media_path = join(dirname(dirname(__file__)), 'media')
+    copyfile(join(media_path, 'img/logo_testing.png') , join(media_path, 'uploads/files/logo_testing.png'))
+    copyfile(join(media_path, 'sound', 'bigbox.mp3') , join(media_path, 'uploads/files/bigbox.mp3'))
+    SubventionFile(id=1, uploader_id=1, file='uploads/files/logo_testing.png').save()
 
 
 def initial_data():

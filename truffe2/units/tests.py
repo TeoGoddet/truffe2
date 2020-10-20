@@ -6,7 +6,8 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
-from main.test_tools import TruffeTestAbstract
+from main.test_tools import TruffeTestAbstract, TruffeCmdTestAbstract
+from django.conf import settings
 
 
 class UnitsNoLoginTest(TruffeTestAbstract):
@@ -72,15 +73,13 @@ class UnitsNoLoginTest(TruffeTestAbstract):
 class UnitsWithLoginTest(TruffeTestAbstract):
         
     def test_accreds(self):
-        self.call_check_html('/units/accreds/',
-                              alert_expected=u"Malheureusement, tu ne disposes pas des droits nécessaires pour afficher cette liste, dans aucune unité !")
+        self.call_check_html('/units/accreds/')
 
     def test_accreds_json(self):
         self.call_check_json('/units/accreds/json')
 
     def test_accreds_logs(self):
-        self.call_check_html('/units/accreds/logs/',
-                              alert_expected=u"Malheureusement, tu ne disposes pas des droits nécessaires pour afficher cette liste, dans aucune unité !")
+        self.call_check_html('/units/accreds/logs/')
 
     def test_accreds_logs_json(self):
         self.call_check_json('/units/accreds/logs/json')
@@ -93,21 +92,21 @@ class UnitsWithLoginTest(TruffeTestAbstract):
         self.call_check_text('/units/accreds/1/edit')
         self.call_check_text('/units/accreds/1/edit', method='post',
                              data={'unit':1, 'role':1, 'display_name':'new', 'no_epfl_sync':False, 'hidden_in_epfl':False, 'hidden_in_truffe':False})
-        self.assertIn('window.location.reload();', self.content)
+        self.assertIn('window.location.reload();', self.response.content)
 
     def test_accreds_delete(self):
         self.call_check_html('/units/accreds/1/delete')
         self.call_check_redirect('/units/accreds/1/delete', method='post', redirect_url='/units/accreds/')
 
     def test_accreds_validate(self):
-        self.call_check_html('/units/accreds/1/validate')
-        self.call_check_redirect('/units/accreds/1/validate', method='post', redirect_url='/units/accreds/')
+        self.call_check_html('/units/accreds/2/validate')
+        self.call_check_redirect('/units/accreds/2/validate', method='post', redirect_url='/units/accreds/')
 
     def test_accreds_add(self):
         self.call_check_text('/units/accreds/add')
         self.call_check_text('/units/accreds/add', method='post',
                              data={'unit':1, 'role':1, 'display_name':'new', 'no_epfl_sync':False, 'hidden_in_epfl':False, 'hidden_in_truffe':False, 'user':'admin'})
-        self.assertIn('window.location.reload();', self.content)
+        self.assertIn('window.location.reload();', self.response.content)
 
     def test_role_users(self):
         self.call_check_html('/units/role/1/users')
@@ -147,3 +146,19 @@ class UnitsWithLoginTest(TruffeTestAbstract):
 
     def test_unit_show(self):
         self.call_check_html('/units/unit/2/')
+
+
+class UnitsCommandsTest(TruffeCmdTestAbstract):
+    
+    def test_cron_accreds(self):
+        self.call_command()
+        
+    def test_sync_dit(self):
+        self.call_command()
+        
+    def test_sync_rlc(self):
+        from units.models import Unit, Role
+        Unit(pk=settings.AUTO_RLC_UNIT_PK, name='RLC', description='RLC').save()
+        Role(pk=settings.AUTO_RLC_GIVEN_ROLE, name="RLC", order=1, need_validation=False).save()        
+        self.call_command()
+    

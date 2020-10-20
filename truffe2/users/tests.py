@@ -138,8 +138,7 @@ class UsersWithLoginTest(TruffeTestAbstract):
         self.call_check_redirect('/users/users/1/profile_picture', redirect_url='/media/cache/users/1.png')
 
     def test_myunit(self):
-        self.call_check_html('/users/myunit/',
-                             alert_expected=u"Malheureusement, tu ne disposes pas des droits nécessaires pour afficher cette liste, dans aucune unité !")                              
+        self.call_check_html('/users/myunit/')                              
 
     def test_myunit_json(self):
         self.call_check_json('/users/myunit/json')

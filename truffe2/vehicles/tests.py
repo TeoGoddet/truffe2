@@ -5,6 +5,7 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
+from south.utils.datetime_utils import datetime
 
 from main.test_tools import TruffeTestAbstract
 
@@ -57,7 +58,7 @@ class VehiculesNoLoginTest(TruffeTestAbstract):
         self.call_check_redirect('/vehicles/booking/related/calendar/json')
 
     def test_booking_contact(self):
-        self.call_check_redirect('/vehicles/booking/1/contact/aaa')
+        self.call_check_redirect('/vehicles/booking/1/contact/canedit')
 
 
 class VehiculesWithLoginTest(TruffeTestAbstract):
@@ -75,8 +76,11 @@ class VehiculesWithLoginTest(TruffeTestAbstract):
         self.call_check_json('/vehicles/booking/json', data={'upk':1})
 
     def test_booking_deleted(self):
+        from vehicles.models import Booking
+        Booking(id=2, unit_id=1, title="bad booking", responsible_id=1, reason="why not?", provider_id=1,
+                vehicletype_id=1, card_id=1, location_id=1, start_date=datetime(2000, 01, 01), end_date=datetime(2099, 12, 31), deleted=True).save()
         self.call_check_html('/vehicles/booking/deleted', data={'upk':1})
-        self.call_check_redirect('/vehicles/booking/deleted', method='post', data={'upk':1, 'pk':1}, redirect_url='/vehicles/booking/')
+        self.call_check_redirect('/vehicles/booking/deleted', method='post', data={'upk':1, 'pk':2}, redirect_url='/vehicles/booking/')
 
     def test_booking_logs(self):
         self.call_check_html('/vehicles/booking/logs')
@@ -86,7 +90,7 @@ class VehiculesWithLoginTest(TruffeTestAbstract):
 
     def test_booking_add(self):
         self.call_check_html('/vehicles/booking/~/edit')
-        self.call_check_redirect('/vehicles/booking/~/edit', method='post', redirect_url='/vehicles/booking/1/',
+        self.call_check_redirect('/vehicles/booking/~/edit', method='post', redirect_url='/vehicles/booking/2/',
                                  data={'unit':1, 'title':"booking", 'responsible':1, 'reason':"why not?",
                                        'start_date':'2020-01-01 00:00:00', 'end_date':'2020-12-31 23:59:59',
                                        'provider':1, 'vehicletype':1, 'card':1, 'location':1})
@@ -108,7 +112,7 @@ class VehiculesWithLoginTest(TruffeTestAbstract):
     def test_booking_switch_status(self):
         self.call_check_text('/vehicles/booking/1/switch_status', data={'dest_status':'2_online', 'from_list':'from_list'})
         self.call_check_text('/vehicles/booking/1/switch_status?dest_status=2_online&from_list=from_list', method='post', data={'do':'it'})
-        self.assertIn('window.location.reload();', self.content)
+        self.assertIn('window.location.reload();', self.response.content)
         
     def test_booking_calendar(self):
         self.call_check_html('/vehicles/booking/calendar/')
@@ -123,4 +127,5 @@ class VehiculesWithLoginTest(TruffeTestAbstract):
         self.call_check_json('/vehicles/booking/related/calendar/json', data={'upk':1, 'start':1577833200, 'end':1609455599})
 
     def test_booking_contact(self):
-        self.call_check_text('/vehicles/booking/1/contact/aaa')
+        self.call_check_text('/vehicles/booking/1/contact/canedit')
+        self.call_check_text('/vehicles/booking/1/contact/canedit', method='post', data={'key':'canedit', 'subject':'ask', 'message':'blabla', 'receive_copy':True})

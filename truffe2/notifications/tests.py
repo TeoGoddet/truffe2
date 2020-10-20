@@ -6,7 +6,7 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
-from main.test_tools import TruffeTestAbstract
+from main.test_tools import TruffeTestAbstract, TruffeCmdTestAbstract
 
 
 class NotificationsNoLoginTest(TruffeTestAbstract):
@@ -38,8 +38,6 @@ class NotificationsNoLoginTest(TruffeTestAbstract):
 
 class NotificationsWithLoginTest(TruffeTestAbstract):
     
-   
-    
     def test_dropdown(self):
         self.call_check_text('/notifications/dropdown', data={'read':1, 'allread':1})
 
@@ -64,3 +62,12 @@ class NotificationsWithLoginTest(TruffeTestAbstract):
     def test_read(self):
         self.call_check_text('/notifications/read', data={'pk':1})
 
+
+class NotificationsCommandsTest(TruffeCmdTestAbstract):
+    
+    def test_create_notifications_templates(self):
+        self.call_command("test_create", "drafted")
+        
+    def test_process_notifications(self):
+        self.call_command()
+    

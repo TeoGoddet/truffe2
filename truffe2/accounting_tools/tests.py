@@ -7,6 +7,7 @@ Replace this with more appropriate tests for your application.
 """
 
 from main.test_tools import TruffeTestAbstract
+from os.path import join, dirname
 
 
 class AccountingToolsNoLoginTest(TruffeTestAbstract):
@@ -56,6 +57,18 @@ class AccountingToolsNoLoginTest(TruffeTestAbstract):
     def test_cashbook_csv(self):
         self.call_check_redirect('/accounting/tools/cashbook/1/csv/')
 
+    def test_subventionfile_upload(self):
+        self.call_check_redirect('/accounting/tools/subventionfile/upload')
+
+    def test_subventionfile_delete(self):
+        self.call_check_redirect('/accounting/tools/subventionfile/1/delete')
+
+    def test_subventionfile_get(self):
+        self.call_check_redirect('/accounting/tools/subventionfile/1/get/')
+
+    def test_subventionfile_thumbnail(self):
+        self.call_check_redirect('/accounting/tools/subventionfile/1/thumbnail') 
+
 
 class AccountingToolsWithLoginTest(TruffeTestAbstract):
     
@@ -75,7 +88,7 @@ class AccountingToolsWithLoginTest(TruffeTestAbstract):
         self.call_check_pdf('/accounting/tools/withdrawal/1/pdf/')
 
     def test_withdrawal_list(self):
-        self.call_check_json('/accounting/tools/withdrawal/list/')
+        self.call_check_json('/accounting/tools/withdrawal/list/', data={'upk':1, 'ypk':1})
 
     def test_withdrawal_infos(self):
         self.call_check_json('/accounting/tools/withdrawal/1/infos/')
@@ -103,3 +116,22 @@ class AccountingToolsWithLoginTest(TruffeTestAbstract):
 
     def test_cashbook_csv(self):
         self.call_check_text('/accounting/tools/cashbook/1/csv/')
+
+    def test_subventionfile_upload(self):
+        sess = self.session
+        sess.update({'pca_files_abc': []})
+        sess.save()
+        with open(join(dirname(dirname(__file__)), 'media', 'uploads', 'files', 'bigbox.mp3'), 'rb') as file_upload:
+            self.call_check_json('/accounting/tools/subventionfile/upload?key=abc', data={'files[]':file_upload}, method="post")
+
+    def test_subventionfile_delete(self):
+        sess = self.session
+        sess.update({'pca_files_abc': [1]})
+        sess.save()
+        self.call_check_text('/accounting/tools/subventionfile/1/delete?key=abc')
+
+    def test_subventionfile_get(self):
+        self.call_check_text('/accounting/tools/subventionfile/1/get/', data={'down':1})
+
+    def test_subventionfile_thumbnail(self):
+        self.call_check_text('/accounting/tools/subventionfile/1/thumbnail') 

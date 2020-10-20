@@ -55,8 +55,7 @@ class MainWithLoginTest(TruffeTestAbstract):
         self.call_check_text('/get_to_moderate')
 
     def test_link_base(self):
-        self.call_check_html('/link/base',
-                              alert_expected=u"Malheureusement, tu ne disposes pas des droits nécessaires pour afficher cette liste, dans aucune unité !")
+        self.call_check_html('/link/base')
  
     def test_last_100_logging_entries(self):
         # TODO : problem of SQL ('UNION' syntax) to show the action '/last_100_logging_entries'
