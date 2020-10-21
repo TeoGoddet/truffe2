@@ -53,4 +53,8 @@ Deployment scripts using fabric are located in the `Deployment` folder.
 13. Give your user superuser rights with `echo "update users_truffeuser set is_superuser=1 where id=1;" | sqlite3 db.sqlite3`
 
 Those actions are setting in a script for Linux : `tools/install_venv.sh`.  
+2 Options for this script:
+ - `./tools/install_venv.sh noclean` : don't remove virtual Python environment, just delete SQLite DB file and reload a new DB.  
+ - `./tools/install_venv.sh "" demo` : add examples of data for testing in DB (5 users: admin, user1, user2, user3, user4 with username as password).  
+
 A new script, `tools/run_tests.sh`, allows to launch tests with code coverage.  
