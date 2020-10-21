@@ -78,8 +78,6 @@ class UsersNoLoginTest(TruffeTestAbstract):
 
 
 class UsersWithLoginTest(TruffeTestAbstract):
-
-   
     
     def test_login(self):
         self.call_check_redirect('/users/login', redirect_url='/')
