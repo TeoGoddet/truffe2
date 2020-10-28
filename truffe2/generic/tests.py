@@ -17,6 +17,8 @@ class GenericNoLoginTest(TruffeTestAbstract):
 
 class GenericWithLoginTest(TruffeTestAbstract):
     
+    login_username = 'admin'
+    
    
             
     def test_check_unit_name(self):

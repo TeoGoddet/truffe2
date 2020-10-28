@@ -102,6 +102,8 @@ class AccountingToolsNoLoginTest(TruffeTestAbstract):
 
 class AccountingToolsWithLoginTest(TruffeTestAbstract):
     
+    login_username = 'admin'
+    
     def test_subvention_mayi(self):
         self.call_check_json('/accounting/tools/subvention/mayi')
 

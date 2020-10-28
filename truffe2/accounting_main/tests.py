@@ -118,6 +118,8 @@ class AccountingMainNoLoginTest(TruffeTestAbstract):
 
 class AccountingMainWithLoginTest(TruffeTestAbstract):
     
+    login_username = 'admin'
+    
     def test_accounting_graph(self):
         self.call_check_text('/accounting/main/accounting/graph/', data={'costcenter':1})
 

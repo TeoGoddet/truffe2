@@ -31,6 +31,8 @@ class CommunicationNoLoginTest(TruffeTestAbstract):
 
 
 class CommunicationWithLoginTest(TruffeTestAbstract):
+    
+    login_username = "admin"    
 
     def test_ecrans(self):
         self.call_check_text('/communication/ecrans')

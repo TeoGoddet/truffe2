@@ -48,6 +48,8 @@ class MainNoLoginTest(TruffeTestAbstract):
 
 class MainWithLoginTest(TruffeTestAbstract):
     
+    login_username = 'admin'
+    
     def test_home(self):
         self.call_check_html('/')
         
@@ -86,18 +88,24 @@ class MainWithLoginTest(TruffeTestAbstract):
 
 
 class MainWithLog1Test(TruffeTestAbstract):
+
+    login_username = 'user1'
     
     def test_home(self):
         self.call_check_html('/')
 
 
 class MainWithLog2Test(TruffeTestAbstract):
+
+    login_username = 'user2'
     
     def test_home(self):
         self.call_check_html('/')
 
 
 class MainWithLog3Test(TruffeTestAbstract):
+
+    login_username = 'user3'
     
     def test_home(self):
         self.call_check_html('/')

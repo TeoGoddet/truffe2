@@ -13,7 +13,7 @@ from os.path import join, dirname
 from shutil import copyfile
 
 
-def initial_users_units():
+def setup_testing_users_units():
     from units.models import Unit, Role, Accreditation
     now = timezone.now()
     admin_user = TruffeUser.objects.create_superuser(username='admin', password='admin', first_name='admin', last_name='admin')
@@ -65,7 +65,7 @@ def initial_users_units():
     return admin_user
 
 
-def initial_main(user):
+def setup_testing_main(user):
     from main.models import File, SignableDocument, Signature
     File(id=1, title='title', description='descripption', file='sound/bigbox.mp3', access='all', group='misc').save()
     SignableDocument(id=1, title='unsigned', description='description', file='sound/messagebox.mp3', active=True).save()
@@ -73,7 +73,7 @@ def initial_main(user):
     Signature(user=user, document_id=2, ip='127.0.0.1', document_sha="e788144a95d952a46536b4731ae4624755aef9133a9e200e99fd2d8022a1795d").save()
 
 
-def initial_vehicles(user):
+def setup_testing_vehicles(user):
     from vehicles.models import Booking, Provider, VehicleType, Card, Location
     Provider(id=1, name="provider", description="---").save()
     Booking(id=1, unit_id=settings.ROOT_UNIT_PK, title="booking", responsible=user, reason="why not?", provider_id=1,
@@ -82,7 +82,7 @@ def initial_vehicles(user):
             location=Location.objects.create(name="place", description="---"), start_date=datetime(2000, 01, 01), end_date=datetime(2099, 12, 31)).save()
 
 
-def initial_logistics():
+def setup_testing_logistics():
     from logistics.models import Room, RoomReservation, Supply, SupplyReservation, SupplyReservationLine 
     Room(id=1, title='room', description='description', unit_id=settings.ROOT_UNIT_PK).save()
     Supply(id=1, title='supply', description='description', unit_id=settings.ROOT_UNIT_PK).save()
@@ -91,24 +91,24 @@ def initial_logistics():
     SupplyReservationLine(id=1, supply_reservation_id=1, supply_id=1).save()
 
 
-def initial_communication():
+def setup_testing_communication():
     from communication.models import AgepSlide, Display
     AgepSlide(title="slide", picture="img/logo_testing.png", unit_id=settings.ROOT_UNIT_PK, status='2_online').save()
     Display(id=1, title='display', description='display', unit_id=1).save()
 
     
-def initial_notifications(user):    
+def setup_testing_notifications(user):    
     from notifications.models import Notification
     Notification(pk=1, key="mynotifkey", species="moderation", linked_object=user, user=user).save()
 
 
-def initial_members(user):
+def setup_testing_members(user):
     from members.models import MemberSet, Membership
     MemberSet(pk=1, name='default set', unit_id=settings.ROOT_UNIT_PK, api_secret_key='Secret123!', handle_fees=True).save()
     Membership(user=user, group_id=1, payed_fees=True).save()
 
 
-def initial_accounting_core():
+def setup_testing_accounting_core():
     from accounting_core.models import AccountingYear, Account, CostCenter, AccountCategory, TVA
     now = timezone.now()
     AccountingYear(id=1, name='current', start_date=datetime(now.year, 1, 1), end_date=datetime(now.year, 12, 31)).save()
@@ -129,7 +129,7 @@ def initial_accounting_core():
     TVA(id=2, name='TVA2', value=15.0, agepoly_only=False, account_id=7, code='bbb').save()
 
 
-def initial_accounting_main():    
+def setup_testing_accounting_main():    
     from accounting_main.models import Budget, BudgetLine, AccountingError, AccountingLine 
     now = timezone.now()
     Budget(id=1, name='my budget', unit_id=settings.ROOT_UNIT_PK, accounting_year_id=1, costcenter_id=1).save()
@@ -154,7 +154,7 @@ def initial_accounting_main():
     AccountingLine(account_id=9, date=now, tva=0.0, text='line #9', output=99.99, input=0.0, current_sum=0.0, order=1, accounting_year_id=1, costcenter_id=1).save()
 
 
-def initial_accounting_tools(user):
+def setup_testing_accounting_tools(user):
     from accounting_tools.models import Withdrawal, InternalTransfer, FinancialProvider, Subvention, SubventionFile
     from accounting_tools.models import ProviderInvoice, Invoice, CashBook, CashBookLine, ExpenseClaim, ExpenseClaimLine, ExpenseClaimLogging
     now = timezone.now()
@@ -176,15 +176,18 @@ def initial_accounting_tools(user):
     SubventionFile(id=1, uploader_id=1, file='uploads/files/logo_testing.png').save()
 
 
-def initial_data():
-    admin_user = initial_users_units()
-    initial_main(admin_user)
-    initial_vehicles(admin_user)
-    initial_logistics()
-    initial_communication()
-    initial_notifications(admin_user)
-    initial_members(admin_user)
-    initial_accounting_core()
-    initial_accounting_main()
-    initial_accounting_tools(admin_user)
+def setup_testing_all_data():
+    """
+    Function to initialize truffe data for testing
+    """
+    admin_user = setup_testing_users_units()
+    setup_testing_main(admin_user)
+    setup_testing_vehicles(admin_user)
+    setup_testing_logistics()
+    setup_testing_communication()
+    setup_testing_notifications(admin_user)
+    setup_testing_members(admin_user)
+    setup_testing_accounting_core()
+    setup_testing_accounting_main()
+    setup_testing_accounting_tools(admin_user)
 

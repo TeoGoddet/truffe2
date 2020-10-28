@@ -38,6 +38,8 @@ class NotificationsNoLoginTest(TruffeTestAbstract):
 
 class NotificationsWithLoginTest(TruffeTestAbstract):
     
+    login_username = 'admin'
+    
     def test_dropdown(self):
         self.call_check_text('/notifications/dropdown', data={'read':1, 'allread':1})
 

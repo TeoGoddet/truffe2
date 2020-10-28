@@ -14,10 +14,12 @@ from django.test import TestCase, Client
 from django.test.client import MULTIPART_CONTENT
 from django.core.management import call_command
 
-from main.test_data import initial_data
+from main.test_data import setup_testing_all_data
 
 
 class TruffeTestAbstract(TestCase, Client):
+    
+    login_username = None
 
     def __init__(self, methodName):
         TestCase.__init__(self, methodName)
@@ -26,13 +28,9 @@ class TruffeTestAbstract(TestCase, Client):
 
     def setUp(self):
         TestCase.setUp(self)
-        initial_data()
-        class_name = self.__class__.__name__
-        if 'WithLogin' in class_name:
-            self.connect_to('admin')
-        elif 'WithLog' in class_name:
-            user_num = int(class_name[class_name.index('WithLog') + 7])
-            self.connect_to('user%d' % user_num)
+        setup_testing_all_data()
+        if self.login_username is not None:
+            self.connect_to(self.login_username)
 
     def connect_to(self, username):
         self.call_check_html('/users/login')
@@ -156,7 +154,7 @@ class TruffeCmdTestAbstract(TestCase):
     
     def setUp(self):
         TestCase.setUp(self)
-        initial_data()
+        setup_testing_all_data()
         self.old_stdin = sys.stdin
         os.chdir(dirname(dirname(__file__)))
         self.fileout = StringIO()

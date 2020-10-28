@@ -63,6 +63,8 @@ class VehiculesNoLoginTest(TruffeTestAbstract):
 
 class VehiculesWithLoginTest(TruffeTestAbstract):
     
+    login_username = 'admin'
+    
     def test_booking_pdf(self):
         self.call_check_pdf('/vehicles/booking/1/pdf/')
 

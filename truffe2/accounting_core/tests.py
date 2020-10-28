@@ -44,6 +44,8 @@ class AccountingCoreNoLoginTest(TruffeTestAbstract):
 
 class AccountingCoreWithLoginTest(TruffeTestAbstract):
     
+    login_username = 'admin'
+    
     def test_accountingyear_copy(self):
         self.call_check_redirect('/accounting/core/accountingyear/1/copy',
                                  redirect_url='/accounting/core/accountingyear/2/edit')

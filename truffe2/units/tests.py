@@ -71,6 +71,8 @@ class UnitsNoLoginTest(TruffeTestAbstract):
 
 
 class UnitsWithLoginTest(TruffeTestAbstract):
+    
+    login_username = 'admin'
         
     def test_accreds(self):
         self.call_check_html('/units/accreds/')

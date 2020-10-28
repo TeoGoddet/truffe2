@@ -1,6 +1,9 @@
-from django.test import TestCase
+# -*- coding: utf-8 -*-
+"""
+This file demonstrates writing tests using the unittest module. These will pass
+when you run "manage.py test".
 
-class RightsNoLoginTest(TestCase):
-    
-    def test_basic(self):
-        self.assertTrue(True, "No view")
+Replace this with more appropriate tests for your application.
+"""
+
+# No URL to tests for this pakages 

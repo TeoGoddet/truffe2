@@ -6,7 +6,7 @@ DATABASES = {
     }
 }
 
-SECRET_KEY = "*=)2_8tuf5qym&6szbr%=xz)g8aw=w3z)ltc=+d)iy7v7grj#!"
+SECRET_KEY = "_____________________________________________________"
 
 # Deactivate Haystack indexing on save
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'

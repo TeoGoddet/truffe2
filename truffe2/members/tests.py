@@ -42,6 +42,8 @@ class MembersNoLoginTest(TruffeTestAbstract):
 
 
 class MembersWithLoginTest(TruffeTestAbstract):
+    
+    login_username = "admin"    
 
     def test_export(self):
         self.call_check_json('/members/memberset/1/export')

@@ -86,6 +86,8 @@ class LogisticsNoLoginTest(TruffeTestAbstract):
 
 class LogisticsWithLoginTest(TruffeTestAbstract):
     
+    login_username = 'admin'
+    
     def test_room_search(self):
         self.call_check_json('/logistics/room/search')
         self.call_check_json('/logistics/room/search', data={'q':'room'})
