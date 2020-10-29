@@ -29,7 +29,6 @@ from app.utils import get_property
 from notifications.utils import notify_people, unotify_people
 from rights.utils import AutoVisibilityLevel
 
-
 moderable_things = []
 copiable_things = []
 
@@ -49,6 +48,8 @@ def build_models_list_of(Class):
     retour = []
     already_returned = []
     for app in settings.INSTALLED_APPS:
+        if app in ('impersonate',):
+            continue
         try:
             module = importlib.import_module(app)
             models_module = importlib.import_module('.models', app)
@@ -161,6 +162,7 @@ class GenericModel(models.Model):
 
             # Create the form module
             def generate_meta(Model):
+
                 class Meta():
                     model = Model
                     exclude = ('deleted', 'status', 'accounting_year')
@@ -797,6 +799,7 @@ class GenericStateValidable(GenericStateValidableOrModerable):
 
 class GenericAccountingStateModel(object):
     """Un système de statut générique pour les pièces comptables"""
+
     def get_unit_signer(self):
         return getattr(self.logs.filter(what='state_changed', extra_data__contains='"old_code": "1_unit_validable"').order_by('-when').first(), 'who', None)
 
@@ -1039,7 +1042,14 @@ class GenericStateUnitValidable(GenericStateValidable):
         return getattr(self, self.MetaState.unit_field.split('.')[0])
 
 
-class GenericGroupsModel():
+class GenericSerializable(object):
+
+    @classmethod
+    def deconstruct(cls):
+        return ('%s.%s' % (cls.__module__, cls.__name__), [], {})
+
+
+class GenericGroupsModel(GenericSerializable):  
 
     class MetaGroups(object):
         groups = {
@@ -1072,10 +1082,10 @@ class GenericGroupsModel():
         return retour
 
     def build_group_members_for_canedit(self):
-        return self.rights_peoples_in_EDIT()
+        return self.rights_peoples_in_EDIT()    
 
 
-class GenericGroupsValidableOrModerableModel(object):
+class GenericGroupsValidableOrModerableModel(GenericSerializable):
 
     generic_groups_moderable = True
 
@@ -1104,13 +1114,13 @@ class GenericGroupsValidableModel(GenericGroupsValidableOrModerableModel):
     generic_groups_moderable = False
 
 
-class GenericContactableModel():
+class GenericContactableModel(GenericSerializable):
 
     def contactables_groups(self):
         return self.MetaGroups.groups
 
 
-class GenericExternalUnitAllowed():
+class GenericExternalUnitAllowed(GenericSerializable):
     """Rend l'utilisation d'unités externes possibles"""
 
     @staticmethod
@@ -1131,7 +1141,7 @@ class GenericExternalUnitAllowed():
         return u'<span class="label label-warning label-crlf">%s (Externe, par %s)</span>' % (self.unit_blank_name, self.unit_blank_user)
 
 
-class GenericDelayValidableInfo():
+class GenericDelayValidableInfo(GenericSerializable):
 
     @staticmethod
     def do(module, models_module, model_class, cache):
@@ -1149,7 +1159,7 @@ class GenericDelayValidableInfo():
         }
 
 
-class GenericDelayValidable(object):
+class GenericDelayValidable(GenericSerializable):
 
     def can_switch_to(self, user, dest_state):
 
@@ -1181,7 +1191,7 @@ class GenericDelayValidable(object):
         return super(GenericDelayValidable, self).can_switch_to(user, dest_state)
 
 
-class GenericModelWithLines(object):
+class GenericModelWithLines(GenericSerializable):
 
     class MetaLines():
         lines_objects = [
@@ -1198,7 +1208,7 @@ class ModelUsedAsLine(models.Model):
         abstract = True
 
 
-class GenericTaggableObject(object):
+class GenericTaggableObject(GenericSerializable):
     """Un object taggable. Prend en compte l'année comptable et l'unité si présent pour la découverte de tag"""
     pass
 
@@ -1211,7 +1221,7 @@ class GenericTag(models.Model):
         abstract = True
 
 
-class LinkedInfoModel(object):
+class LinkedInfoModel(GenericSerializable):
 
     def __init__(self, *args, **kwargs):
 

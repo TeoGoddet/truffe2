@@ -12,7 +12,6 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Max, Q
 
-
 from easy_thumbnails.files import get_thumbnailer
 from jfu.http import upload_receive, UploadResponse, JFUResponse
 import json
@@ -20,13 +19,13 @@ import datetime
 import pytz
 import uuid
 import os
+from os.path import join
 from sendfile import sendfile
 import importlib
 import copy
 import inspect
 import urllib
 from wand.image import Image
-
 
 from accounting_core.utils import CostCenterLinked
 from generic.datatables import generic_list_json
@@ -458,7 +457,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
             for line_data in lines_objects:
 
-                for submited_id in request.POST.getlist('_LINES_LIST_%s[]' % (line_data['related_name'], )):
+                for submited_id in request.POST.getlist('_LINES_LIST_%s[]' % (line_data['related_name'],)):
                     if submited_id != '-ID-':
 
                         if submited_id.startswith('NEW-'):
@@ -1391,7 +1390,7 @@ def generate_logs_json(module, base_name, model_class, logging_class):
              'list_view': list_view,
              'show_view': show_view,
             },
-            not_sortable_columns=['unit',],
+            not_sortable_columns=['unit', ],
             filter_fields=['when', 'who__first_name', 'what'] + bonus_filter,
         )
 
@@ -1467,6 +1466,7 @@ def generate_file_delete(module, base_name, model_class, log_class, file_class):
             success = False
 
         return JFUResponse(request, success)
+
     return _generic_file_delete
 
 
@@ -1527,7 +1527,7 @@ def generate_file_get_thumbnail(module, base_name, model_class, log_class, file_
         if remove_me:
             os.unlink(remove_me)
 
-        return sendfile(request, '%s%s' % (settings.MEDIA_ROOT, thumb,))
+        return sendfile(request, join(settings.MEDIA_ROOT, str(thumb)))
 
     return _generic_file_thumbnail
 

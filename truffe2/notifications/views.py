@@ -43,7 +43,6 @@ def goto(request, pk):
     return HttpResponseRedirect(request.GET.get('next'))
 
 
-@login_required
 def notifications_count(request):
 
     if request.user.pk:

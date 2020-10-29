@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from json import loads
 import os
 import sys
-from _io import StringIO
+from cStringIO import StringIO
 from os.path import dirname
 
 from django.test import TestCase, Client

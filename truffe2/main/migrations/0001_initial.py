@@ -1,109 +1,212 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import generic.models
+from django.conf import settings
+import generic.search
+import rights.utils
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    depends_on = (
-        ("users", "0001_initial"),
-    )
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('units', '__first__'),
+    ]
 
-    def forwards(self, orm):
-        # Adding model 'HomePageNews'
-        db.create_table(u'main_homepagenews', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('content', self.gf('django.db.models.fields.TextField')()),
-            ('start_date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('end_date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('status', self.gf('django.db.models.fields.CharField')(default='draft', max_length=255)),
-        ))
-        db.send_create_signal(u'main', ['HomePageNews'])
-
-        # Adding model 'HomePageNewsLogging'
-        db.create_table(u'main_homepagenewslogging', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('when', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('extra_data', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('who', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.TruffeUser'])),
-            ('what', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('object', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.HomePageNews'])),
-        ))
-        db.send_create_signal(u'main', ['HomePageNewsLogging'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'HomePageNews'
-        db.delete_table(u'main_homepagenews')
-
-        # Deleting model 'HomePageNewsLogging'
-        db.delete_table(u'main_homepagenewslogging')
-
-
-    models = {
-        u'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        u'auth.permission': {
-            'Meta': {'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        u'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        u'main.homepagenews': {
-            'Meta': {'object_name': 'HomePageNews'},
-            'content': ('django.db.models.fields.TextField', [], {}),
-            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'end_date': ('django.db.models.fields.DateTimeField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'start_date': ('django.db.models.fields.DateTimeField', [], {}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'draft'", 'max_length': '255'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '255'})
-        },
-        u'main.homepagenewslogging': {
-            'Meta': {'object_name': 'HomePageNewsLogging'},
-            'extra_data': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'object': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['main.HomePageNews']"}),
-            'what': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'when': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'who': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.TruffeUser']"})
-        },
-        u'users.truffeuser': {
-            'Meta': {'object_name': 'TruffeUser'},
-            'adresse': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'body': ('django.db.models.fields.CharField', [], {'default': "'.'", 'max_length': '1'}),
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '255', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            'iban_ou_ccp': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'mobile': ('django.db.models.fields.CharField', [], {'max_length': '25', 'blank': 'True'}),
-            'nom_banque': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'})
-        }
-    }
-
-    complete_apps = ['main']
+    operations = [
+        migrations.CreateModel(
+            name='File',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('title', models.CharField(max_length=255, verbose_name='Titre')),
+                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                ('file', models.FileField(upload_to=b'uploads/files/')),
+                ('access', models.CharField(default=b'agep', max_length=64, verbose_name='Acc\xe8s', choices=[(b'agep', "Selement les membres d'une unit\xe9"), (b'all', 'Tous les utilisateurs')])),
+                ('group', models.CharField(default=b'misc', max_length=64, verbose_name='Groupe', choices=[(b'accounting', 'Finances'), (b'cs', 'Informatique'), (b'misc', 'Divers')])),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='FileLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='main.File')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='FileViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='main.File')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='HomePageNews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('title', models.CharField(max_length=255)),
+                ('content', models.TextField()),
+                ('start_date', models.DateTimeField(null=True, blank=True)),
+                ('end_date', models.DateTimeField(null=True, blank=True)),
+                ('status', models.CharField(default=b'0_draft', max_length=255, choices=[(b'2_archive', 'Archiv\xe9'), (b'0_draft', 'Brouillon'), (b'1_online', 'En ligne')])),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, generic.models.GenericStateModel, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='HomePageNewsLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='main.HomePageNews')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='HomePageNewsViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='main.HomePageNews')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Link',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('title', models.CharField(max_length=255, verbose_name='Titre')),
+                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                ('url', models.URLField()),
+                ('leftmenu', models.CharField(choices=[(b'/main/top', 'Principal / En haut'), (b'/main/bottom', 'Principal / En bas'), (b'/admin/', 'Admin'), (b'/gens/', 'Gens'), (b'/communication/', 'Communication'), (b'/logistics/', 'Logistique'), (b'/logistics/vehicles', 'Logistique / V\xe9hicules'), (b'/logistics/rooms', 'Logistique / Salles'), (b'/logistics/supply', 'Logistique / Mat\xe9riel'), (b'/units/', 'Unit\xe9s et Accreds'), (b'/accounting/', 'Finances'), (b'/accounting/accounting', 'Finances / Compta'), (b'/accounting/tools', 'Finances / Outils'), (b'/accounting/proofs', 'Finances / Justifications'), (b'/accounting/gestion', 'Finances / Gestion'), (b'/cs/', 'Informatique'), (b'/misc/', 'Divers')], max_length=128, blank=True, help_text="Laisser blanc pour faire un lien normal. R\xe9serv\xe9 au comit\xe9 de l'AGEPoly. Attention, cache de 15 minutes !", null=True, verbose_name='Position dans le menu de gauche')),
+                ('icon', models.CharField(default=b'fa-external-link-square', max_length=128, verbose_name='Icone FontAwesome')),
+                ('unit', models.ForeignKey(to='units.Unit')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, rights.utils.UnitEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='LinkLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='main.Link')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='LinkViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='main.Link')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SignableDocument',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('title', models.CharField(max_length=255, verbose_name='Titre')),
+                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                ('file', models.FileField(upload_to=b'uploads/signable_document/')),
+                ('active', models.BooleanField(default=False, verbose_name='Actif')),
+                ('sha', models.CharField(max_length=255)),
+                ('roles', models.ManyToManyField(to='units.Role')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='SignableDocumentLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='main.SignableDocument')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SignableDocumentViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='main.SignableDocument')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Signature',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('ip', models.IPAddressField()),
+                ('useragent', models.CharField(max_length=255)),
+                ('document_sha', models.CharField(max_length=255)),
+                ('document', models.ForeignKey(to='main.SignableDocument')),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+    ]

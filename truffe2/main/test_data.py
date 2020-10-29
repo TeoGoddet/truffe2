@@ -3,14 +3,18 @@
 Unit test tools for truffe
 
 '''
-from south.utils.datetime_utils import datetime
+from os.path import join, dirname
+from shutil import copyfile
+from datetime import datetime
 
 from django.conf import settings
 from django.utils import timezone
 
 from users.models import TruffeUser
-from os.path import join, dirname
-from shutil import copyfile
+
+
+def datetime_aware(year, mouth, day):
+    return timezone.make_aware(datetime(2000, 01, 01), timezone.get_default_timezone())
 
 
 def setup_testing_users_units():
@@ -79,15 +83,15 @@ def setup_testing_vehicles(user):
     Booking(id=1, unit_id=settings.ROOT_UNIT_PK, title="booking", responsible=user, reason="why not?", provider_id=1,
             vehicletype=VehicleType.objects.create(provider_id=1, name="type", description="---"),
             card=Card.objects.create(provider_id=1, name="card", number="12345", description="---"),
-            location=Location.objects.create(name="place", description="---"), start_date=datetime(2000, 01, 01), end_date=datetime(2099, 12, 31)).save()
+            location=Location.objects.create(name="place", description="---"), start_date=datetime_aware(2000, 01, 01), end_date=datetime_aware(2099, 12, 31)).save()
 
 
 def setup_testing_logistics():
     from logistics.models import Room, RoomReservation, Supply, SupplyReservation, SupplyReservationLine 
     Room(id=1, title='room', description='description', unit_id=settings.ROOT_UNIT_PK).save()
     Supply(id=1, title='supply', description='description', unit_id=settings.ROOT_UNIT_PK).save()
-    RoomReservation(id=1, room_id=1, title="needed", start_date=datetime(2000, 01, 01), end_date=datetime(2099, 12, 31), reason="because").save() 
-    SupplyReservation(id=1, title="needed", start_date=datetime(2000, 01, 01), end_date=datetime(2099, 12, 31), contact_phone="0123456789", reason="because").save()
+    RoomReservation(id=1, room_id=1, title="needed", start_date=datetime_aware(2000, 01, 01), end_date=datetime_aware(2099, 12, 31), reason="because").save() 
+    SupplyReservation(id=1, title="needed", start_date=datetime_aware(2000, 01, 01), end_date=datetime_aware(2099, 12, 31), contact_phone="0123456789", reason="because").save()
     SupplyReservationLine(id=1, supply_reservation_id=1, supply_id=1).save()
 
 
@@ -111,7 +115,7 @@ def setup_testing_members(user):
 def setup_testing_accounting_core():
     from accounting_core.models import AccountingYear, Account, CostCenter, AccountCategory, TVA
     now = timezone.now()
-    AccountingYear(id=1, name='current', start_date=datetime(now.year, 1, 1), end_date=datetime(now.year, 12, 31)).save()
+    AccountingYear(id=1, name='current', start_date=datetime_aware(now.year, 1, 1), end_date=datetime_aware(now.year, 12, 31)).save()
     CostCenter(id=1, name='center', account_number='1234', unit_id=settings.ROOT_UNIT_PK, accounting_year_id=1).save()
     AccountCategory(id=1, name="cat1", parent_hierarchique=None, order=1, accounting_year_id=1).save()
     AccountCategory(id=2, name="cat2", parent_hierarchique=None, order=2, accounting_year_id=1).save()

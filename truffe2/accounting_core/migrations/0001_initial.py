@@ -1,103 +1,274 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import accounting_core.utils
+import generic.search
+import rights.utils
+import generic.models
+from django.conf import settings
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'AccountingYear'
-        db.create_table(u'accounting_core_accountingyear', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
-            ('start_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('end_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='0_preparing', max_length=255)),
-        ))
-        db.send_create_signal(u'accounting_core', ['AccountingYear'])
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('units', '__first__'),
+    ]
 
-        # Adding model 'AccountingYearLogging'
-        db.create_table(u'accounting_core_accountingyearlogging', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('when', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('extra_data', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('who', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.TruffeUser'])),
-            ('what', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='logs', to=orm['accounting_core.AccountingYear'])),
-        ))
-        db.send_create_signal(u'accounting_core', ['AccountingYearLogging'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'AccountingYear'
-        db.delete_table(u'accounting_core_accountingyear')
-
-        # Deleting model 'AccountingYearLogging'
-        db.delete_table(u'accounting_core_accountingyearlogging')
-
-
-    models = {
-        u'accounting_core.accountingyear': {
-            'Meta': {'object_name': 'AccountingYear'},
-            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
-            'start_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'0_preparing'", 'max_length': '255'})
-        },
-        u'accounting_core.accountingyearlogging': {
-            'Meta': {'object_name': 'AccountingYearLogging'},
-            'extra_data': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'logs'", 'to': u"orm['accounting_core.AccountingYear']"}),
-            'what': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'when': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'who': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.TruffeUser']"})
-        },
-        u'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        u'auth.permission': {
-            'Meta': {'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        u'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        u'users.truffeuser': {
-            'Meta': {'object_name': 'TruffeUser'},
-            'adresse': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'body': ('django.db.models.fields.CharField', [], {'default': "'.'", 'max_length': '1'}),
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'unique': 'True', 'max_length': '255'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
-            'iban_ou_ccp': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'mobile': ('django.db.models.fields.CharField', [], {'max_length': '25', 'blank': 'True'}),
-            'nom_banque': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'})
-        }
-    }
-
-    complete_apps = ['accounting_core']
+    operations = [
+        migrations.CreateModel(
+            name='Account',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('name', models.CharField(max_length=255, verbose_name='Nom du compte')),
+                ('account_number', models.CharField(max_length=10, verbose_name='Num\xe9ro du compte')),
+                ('visibility', models.CharField(max_length=50, verbose_name='Visibilit\xe9 dans les documents comptables', choices=[(b'all', 'Visible \xe0 tous'), (b'cdd', 'Visible au Comit\xe9 de Direction uniquement'), (b'root', 'Visible aux personnes qui g\xe8re la comptabilit\xe9 g\xe9n\xe9rale'), (b'none', 'Visible \xe0 personne')])),
+                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, accounting_core.utils.AccountingYearLinked, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='AccountCategory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('name', models.CharField(max_length=255, verbose_name='Nom de la cat\xe9gorie')),
+                ('order', models.SmallIntegerField(default=0, help_text="Le plus petit d'abord", verbose_name='Ordre dans le plan comptable')),
+                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, accounting_core.utils.AccountingYearLinked, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='AccountCategoryLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='accounting_core.AccountCategory')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='AccountCategoryViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='accounting_core.AccountCategory')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='AccountingYear',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('name', models.CharField(unique=True, max_length=255, verbose_name='Nom')),
+                ('start_date', models.DateTimeField(null=True, verbose_name='Date de d\xe9but', blank=True)),
+                ('end_date', models.DateTimeField(null=True, verbose_name='Date de fin', blank=True)),
+                ('subvention_deadline', models.DateTimeField(null=True, verbose_name='D\xe9lai pour les subventions', blank=True)),
+                ('last_accounting_import', models.DateTimeField(null=True, verbose_name='Dernier import de la compta', blank=True)),
+                ('status', models.CharField(default=b'0_preparing', max_length=255, choices=[(b'1_active', 'Ann\xe9e active'), (b'3_archived', 'Ann\xe9e archiv\xe9e'), (b'0_preparing', 'En pr\xe9paration'), (b'2_closing', 'En cl\xf4ture')])),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, generic.models.GenericStateModel, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='AccountingYearLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='accounting_core.AccountingYear')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='AccountingYearViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='accounting_core.AccountingYear')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='AccountLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='accounting_core.Account')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='AccountViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='accounting_core.Account')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='CostCenter',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('name', models.CharField(max_length=255, verbose_name='Nom du centre de co\xfbt')),
+                ('account_number', models.CharField(max_length=10, verbose_name='Num\xe9ro associ\xe9 au centre de co\xfbt')),
+                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                ('accounting_year', models.ForeignKey(verbose_name='Ann\xe9e comptable', to='accounting_core.AccountingYear')),
+                ('unit', models.ForeignKey(verbose_name='Appartient \xe0', to='units.Unit')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, accounting_core.utils.AccountingYearLinked, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='CostCenterLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='accounting_core.CostCenter')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='CostCenterViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='accounting_core.CostCenter')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='TVA',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('name', models.CharField(max_length=255, verbose_name='Nom de la TVA')),
+                ('value', models.DecimalField(verbose_name='Valeur (%)', max_digits=20, decimal_places=2)),
+                ('agepoly_only', models.BooleanField(default=False, verbose_name="Limiter l'usage au comit\xe9 de l'AGEPoly")),
+                ('code', models.CharField(max_length=255, verbose_name='Code de TVA')),
+                ('account', models.ForeignKey(verbose_name='Compte de TVA', to='accounting_core.Account')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='TVALogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='accounting_core.TVA')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='TVAViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='accounting_core.TVA')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AlterUniqueTogether(
+            name='costcenter',
+            unique_together=set([('name', 'accounting_year'), ('account_number', 'accounting_year')]),
+        ),
+        migrations.AddField(
+            model_name='accountcategory',
+            name='accounting_year',
+            field=models.ForeignKey(verbose_name='Ann\xe9e comptable', to='accounting_core.AccountingYear'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='accountcategory',
+            name='parent_hierarchique',
+            field=models.ForeignKey(blank=True, to='accounting_core.AccountCategory', help_text='Cat\xe9gorie parente pour la hi\xe9rarchie', null=True),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='accountcategory',
+            unique_together=set([('name', 'accounting_year')]),
+        ),
+        migrations.AddField(
+            model_name='account',
+            name='accounting_year',
+            field=models.ForeignKey(verbose_name='Ann\xe9e comptable', to='accounting_core.AccountingYear'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='account',
+            name='category',
+            field=models.ForeignKey(verbose_name='Cat\xe9gorie', to='accounting_core.AccountCategory'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='account',
+            unique_together=set([('name', 'accounting_year'), ('account_number', 'accounting_year')]),
+        ),
+    ]

@@ -188,7 +188,7 @@ def generate_pdf(template, request, contexte, extra_pdf_files=None):
         output.write(result)
 
     if not pdf.err:
-        return http.HttpResponse(result.getvalue(), mimetype='application/pdf')
+        return http.HttpResponse(result.getvalue(), content_type='application/pdf')
 
     return http.HttpResponse('Gremlins ate your pdf! %s' % cgi.escape(html))
 

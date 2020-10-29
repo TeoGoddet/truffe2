@@ -24,7 +24,6 @@ cp "$project_dir/tools/settingsLocal.py.test" "$project_dir/truffe2/app/settings
 
 (
 	cd "$project_dir/truffe2"
-	python manage.py syncdb
 	python manage.py migrate
 	if [ "$2" == "demo" ]
 	then

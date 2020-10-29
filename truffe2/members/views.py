@@ -137,7 +137,7 @@ def export_members(request, pk):
 
     list_users = map(lambda mship: (mship.user.username, mship.payed_fees), memberset.membership_set.filter(end_date=None))
 
-    response = HttpResponse(json.dumps(list_users), mimetype='application/force-download')
+    response = HttpResponse(json.dumps(list_users), content_type='application/force-download')
     response['Content-Disposition'] = 'attachment; filename=export_%s_%s.json' % (filter(lambda x: x in string.ascii_letters + string.digits, memberset.name), filter(lambda x: x in string.ascii_letters + string.digits + '._', str(now())),)
     return response
 

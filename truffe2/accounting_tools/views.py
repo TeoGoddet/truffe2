@@ -110,7 +110,7 @@ def invoice_bvr(request, pk):
 
     img = invoice.generate_bvr()
 
-    response = HttpResponse(mimetype="image/png")
+    response = HttpResponse(content_type="image/png")
     img.save(response, 'png')
     return response
 

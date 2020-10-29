@@ -5,9 +5,8 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-from south.utils.datetime_utils import datetime
-
 from main.test_tools import TruffeTestAbstract
+from main.test_data import datetime_aware
 
 
 class VehiculesNoLoginTest(TruffeTestAbstract):
@@ -80,7 +79,7 @@ class VehiculesWithLoginTest(TruffeTestAbstract):
     def test_booking_deleted(self):
         from vehicles.models import Booking
         Booking(id=2, unit_id=1, title="bad booking", responsible_id=1, reason="why not?", provider_id=1,
-                vehicletype_id=1, card_id=1, location_id=1, start_date=datetime(2000, 01, 01), end_date=datetime(2099, 12, 31), deleted=True).save()
+                vehicletype_id=1, card_id=1, location_id=1, start_date=datetime_aware(2000, 01, 01), end_date=datetime_aware(2099, 12, 31), deleted=True).save()
         self.call_check_html('/vehicles/booking/deleted', data={'upk':1})
         self.call_check_redirect('/vehicles/booking/deleted', method='post', data={'upk':1, 'pk':2}, redirect_url='/vehicles/booking/')
 

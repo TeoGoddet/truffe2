@@ -1,101 +1,275 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+from django.conf import settings
+import generic.models
+import generic.search
+import rights.utils
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Provider'
-        db.create_table(u'vehicles_provider', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('deleted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('description', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal(u'vehicles', ['Provider'])
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('units', '0001_initial'),
+    ]
 
-        # Adding model 'ProviderLogging'
-        db.create_table(u'vehicles_providerlogging', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('when', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('extra_data', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('who', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.TruffeUser'])),
-            ('what', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('object', self.gf('django.db.models.fields.related.ForeignKey')(related_name='logs', to=orm['vehicles.Provider'])),
-        ))
-        db.send_create_signal(u'vehicles', ['ProviderLogging'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'Provider'
-        db.delete_table(u'vehicles_provider')
-
-        # Deleting model 'ProviderLogging'
-        db.delete_table(u'vehicles_providerlogging')
-
-
-    models = {
-        u'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        u'auth.permission': {
-            'Meta': {'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        u'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        u'users.truffeuser': {
-            'Meta': {'object_name': 'TruffeUser'},
-            'adresse': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'body': ('django.db.models.fields.CharField', [], {'default': "'.'", 'max_length': '1'}),
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '255'}),
-            'email_perso': ('django.db.models.fields.EmailField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
-            'iban_ou_ccp': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_betatester': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'mobile': ('django.db.models.fields.CharField', [], {'max_length': '25', 'blank': 'True'}),
-            'nom_banque': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'})
-        },
-        u'vehicles.provider': {
-            'Meta': {'object_name': 'Provider'},
-            'deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'description': ('django.db.models.fields.TextField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'})
-        },
-        u'vehicles.providerlogging': {
-            'Meta': {'object_name': 'ProviderLogging'},
-            'extra_data': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'object': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'logs'", 'to': u"orm['vehicles.Provider']"}),
-            'what': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'when': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'who': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.TruffeUser']"})
-        }
-    }
-
-    complete_apps = ['vehicles']
+    operations = [
+        migrations.CreateModel(
+            name='Booking',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('title', models.CharField(max_length=255, verbose_name='Titre')),
+                ('reason', models.TextField(verbose_name='Motif')),
+                ('remark', models.TextField(null=True, verbose_name='Remarques', blank=True)),
+                ('remark_agepoly', models.TextField(null=True, verbose_name='Remarques AGEPoly', blank=True)),
+                ('start_date', models.DateTimeField(verbose_name='D\xe9but de la r\xe9servation')),
+                ('end_date', models.DateTimeField(verbose_name='Fin de la r\xe9servation')),
+                ('status', models.CharField(default=b'0_draft', max_length=255, choices=[(b'4_deny', 'Refus\xe9'), (b'4_canceled', 'Annul\xe9'), (b'0_draft', 'Brouillon'), (b'3_archive', 'Archiv\xe9'), (b'1_asking', 'Validation en cours'), (b'2_online', 'Valid\xe9')])),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, generic.models.GenericGroupsModerableModel, generic.models.GenericGroupsModel, generic.models.GenericContactableModel, generic.models.GenericStateRootValidable, generic.models.GenericStateModel, rights.utils.UnitEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='BookingLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='vehicles.Booking')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='BookingViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='vehicles.Booking')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Card',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('name', models.CharField(max_length=255, verbose_name='Nom')),
+                ('number', models.CharField(max_length=255, verbose_name='Num\xe9ro')),
+                ('description', models.TextField(verbose_name='Description')),
+                ('exclusif', models.BooleanField(default=True, help_text='Ne peut pas \xeatre utilis\xe9 plusieurs fois en m\xeame temps ?', verbose_name='Usage exclusif')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='CardLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='vehicles.Card')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='CardViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='vehicles.Card')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Location',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('name', models.CharField(max_length=255, verbose_name='Nom')),
+                ('description', models.TextField(verbose_name='Description')),
+                ('url_location', models.URLField(null=True, verbose_name='URL carte lieu', blank=True)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='LocationLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='vehicles.Location')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='LocationViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='vehicles.Location')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Provider',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('name', models.CharField(max_length=255, verbose_name='Nom')),
+                ('description', models.TextField(verbose_name='Description')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='ProviderLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='vehicles.Provider')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ProviderViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='vehicles.Provider')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='VehicleType',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('deleted', models.BooleanField(default=False)),
+                ('name', models.CharField(max_length=255, verbose_name='Nom')),
+                ('description', models.TextField(verbose_name='Description')),
+                ('provider', models.ForeignKey(verbose_name='Fournisseur', to='vehicles.Provider')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model, rights.utils.AgepolyEditableModel, generic.search.SearchableModel),
+        ),
+        migrations.CreateModel(
+            name='VehicleTypeLogging',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('extra_data', models.TextField(blank=True)),
+                ('what', models.CharField(max_length=64, choices=[(b'imported', 'Import\xe9 depuis Truffe 1'), (b'created', 'Creation'), (b'edited', 'Edit\xe9'), (b'deleted', 'Supprim\xe9'), (b'restored', 'Restaur\xe9'), (b'state_changed', 'Statut chang\xe9'), (b'file_added', 'Fichier ajout\xe9'), (b'file_removed', 'Fichier supprim\xe9')])),
+                ('object', models.ForeignKey(related_name='logs', to='vehicles.VehicleType')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='VehicleTypeViews',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('when', models.DateTimeField(auto_now_add=True)),
+                ('object', models.ForeignKey(related_name='views', to='vehicles.VehicleType')),
+                ('who', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='card',
+            name='provider',
+            field=models.ForeignKey(verbose_name='Fournisseur', to='vehicles.Provider'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='booking',
+            name='card',
+            field=models.ForeignKey(verbose_name='Carte', blank=True, to='vehicles.Card', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='booking',
+            name='location',
+            field=models.ForeignKey(verbose_name='Lieu', blank=True, to='vehicles.Location', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='booking',
+            name='provider',
+            field=models.ForeignKey(verbose_name='Fournisseur', to='vehicles.Provider'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='booking',
+            name='responsible',
+            field=models.ForeignKey(verbose_name='Responsable', to=settings.AUTH_USER_MODEL),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='booking',
+            name='unit',
+            field=models.ForeignKey(to='units.Unit'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='booking',
+            name='vehicletype',
+            field=models.ForeignKey(verbose_name='Type de v\xe9hicule', to='vehicles.VehicleType'),
+            preserve_default=True,
+        ),
+    ]

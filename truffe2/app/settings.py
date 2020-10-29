@@ -4,18 +4,11 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from os.path import abspath, dirname, join, normpath
-DJANGO_ROOT = dirname(abspath(__file__)) + '/../'
-
+from os.path import abspath, dirname, join
+DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-)
-
-MANAGERS = ADMINS
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -37,7 +30,7 @@ LANGUAGES = (
 )
 
 LOCALE_PATHS = (
-    normpath(join(DJANGO_ROOT, 'locale')) + '/',
+    join(DJANGO_ROOT, 'locale'),
 )
 
 SITE_ID = 1
@@ -55,7 +48,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = normpath(join(DJANGO_ROOT, 'media')) + '/'
+MEDIA_ROOT = join(DJANGO_ROOT, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -66,7 +59,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = normpath(join(DJANGO_ROOT, 'static')) + '/'
+STATIC_ROOT = join(DJANGO_ROOT, 'static')
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
@@ -87,11 +80,29 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# List of callables that know how to import templates from various sources.
+# TEMPLATE configuration
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.Loader',
+)
+
+# Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+# Always use forward slashes, even on Windows.
+# Don't forget to use absolute paths, not relative paths.
+TEMPLATE_DIRS = (join(DJANGO_ROOT, 'templates'),)
+
+TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.request",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+    "app.utils.add_current_unit",
+    "app.utils.add_current_year",
+    "notifications.views.notifications_count",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -110,13 +121,6 @@ ROOT_URLCONF = 'app.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'app.wsgi.application'
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    normpath(join(DJANGO_ROOT, 'templates')) + '/'
-)
-
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -126,7 +130,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'south',
     'bootstrap3',
     'impersonate',
     'multiselectfield',
@@ -209,19 +212,6 @@ IMPERSONATE_REQUIRE_SUPERUSER = True
 DATETIME_FORMAT = "d.m.Y H:i:s"
 USE_TZ = True
 
-TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.request",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-    "app.utils.add_current_unit",
-    "app.utils.add_current_year",
-    "notifications.views.notifications_count",
-)
-
 LDAP = 'ldap://ldap.epfl.ch:389'
 
 ROOT_UNIT_PK = 1
@@ -235,11 +225,6 @@ AUTO_RLC_TAG = u"[Auto]"  # The tag to identify our accreds
 AUTO_RLC_COMS_ROLES = [1, 3]  # The roles used to give access for commissions
 AUTO_RLC_ROOT_ROLES = [1, ]  # The roles used to give access for root unit
 AUTO_RLC_GIVEN_ROLE = 15
-
-
-SOUTH_MIGRATION_MODULES = {
-    'easy_thumbnails': 'easy_thumbnails.south_migrations',
-}
 
 SENDFILE_BACKEND = 'sendfile.backends.simple'
 
