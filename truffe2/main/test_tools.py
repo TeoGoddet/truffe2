@@ -78,7 +78,7 @@ class TruffeTestAbstract(TestCase, Client):
             names = []
             if divitem is not None:
                 for sub_item in divitem:
-                    if sub_item.has_attr('name'):
+                    if 'name' in sub_item:
                         names.append(sub_item['name'])
                     if sub_item.name == 'div':
                         names.extend(extract_names(sub_item))
@@ -137,10 +137,10 @@ class TruffeTestAbstract(TestCase, Client):
             self.content = BeautifulSoup(self.response.content, "html.parser")
         except Exception:
             self.content = self.response.content        
-        self._check_formerror(formerror_expected)
+        self._check_warning(warning_expected)
         if isinstance(self.content, BeautifulSoup):
+            self._check_formerror(formerror_expected)
             self._check_alert(alert_expected)
-            self._check_warning(warning_expected)
 
     def get_div(self, class_to_find):
         try:

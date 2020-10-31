@@ -35,7 +35,7 @@
 
                 {% include "widget/footer.html" %}
 
-                <a class="btn btn-primary" style="margin-right: 5px; float: right;" href="{% url 'units.views.accreds_list' %}">
+                <a class="btn btn-primary" style="margin-right: 5px; float: right;" href="{% url 'units-views-accreds_list' %}">
                   <i class="fa fa-list"></i> {% trans "Retourner sur la liste" %}
                 </a>
             </div>
@@ -65,7 +65,7 @@
 
     </script>
 
-    {% with id="main_list_table" json_url="units.views.accreds_logs_list_json" with_upk=True %}{% include "datatables.html" %}{% endwith %}
+    {% with id="main_list_table" json_url="units-views-accreds_logs_list_json" with_upk=True %}{% include "datatables.html" %}{% endwith %}
 
   {% endblock %}
 

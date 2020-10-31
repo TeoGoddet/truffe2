@@ -39,9 +39,9 @@
                             {% trans "Effectuer une action sur les <span id='doable_nb'></span> accrédiations(s) sélectionné(s) :" %}
 
                             <div id="doable_buttons" style="text-align: right;">
-                                <a href="#" id="doable_delete" class="btn btn-danger" base_href="{% url "units.views.accreds_delete" 9904299 %}"><i class="fa fa-times"></i> {% trans "Supprimer" %}</a>
-                                <a href="#" id="doable_renew" class="btn btn-default" base_href="{% url "units.views.accreds_renew" 9904299 %}"><i class="fa fa-refresh"></i> {% trans "Renouveler" %}</a>
-                                <a href="#" id="doable_validate" class="btn btn-success" base_href="{% url "units.views.accreds_validate" 9904299 %}"><i class="fa fa-check"></i> {% trans "Valider" %}</a>
+                                <a href="#" id="doable_delete" class="btn btn-danger" base_href="{% url "units-views-accreds_delete" 9904299 %}"><i class="fa fa-times"></i> {% trans "Supprimer" %}</a>
+                                <a href="#" id="doable_renew" class="btn btn-default" base_href="{% url "units-views-accreds_renew" 9904299 %}"><i class="fa fa-refresh"></i> {% trans "Renouveler" %}</a>
+                                <a href="#" id="doable_validate" class="btn btn-success" base_href="{% url "units-views-accreds_validate" 9904299 %}"><i class="fa fa-check"></i> {% trans "Valider" %}</a>
                             </div>
 
                         </div>
@@ -53,11 +53,11 @@
 
                 <div style="float: right;">
 
-                    <a class="btn btn-info" href="{% url 'units.views.accreds_logs_list' %}">
+                    <a class="btn btn-info" href="{% url 'units-views-accreds_logs_list' %}">
                         <i class="fa fa-list"></i> {% trans "Logs" %}
                     </a>
 
-                    <button class="btn btn-primary" onclick="disp_add();" data-remote="{% url 'units.views.accreds_add' %}?upk={{CURRENT_UNIT.pk}}" base-data-remote="{% url 'units.views.accreds_add' %}?upk=" id="add-accred-button">
+                    <button class="btn btn-primary" onclick="disp_add();" data-remote="{% url 'units-views-accreds_add' %}?upk={{CURRENT_UNIT.pk}}" base-data-remote="{% url 'units-views-accreds_add' %}?upk=" id="add-accred-button">
                         <i class="fa fa-plus"></i> {% trans "Ajouter une accréditation" %}
                     </button>
                 </div>
@@ -212,7 +212,7 @@
 
     </script>
 
-    {% with id="main_list_table" json_url="units.views.accreds_list_json" with_upk=True with_extradata="accred_extra_data" force_first_width=True default_sort="[1, 'asc']" %}{% include "datatables.html" %}{% endwith %}
+    {% with id="main_list_table" json_url="units-views-accreds_list_json" with_upk=True with_extradata="accred_extra_data" force_first_width=True default_sort="[1, 'asc']" %}{% include "datatables.html" %}{% endwith %}
 
     <br /><br />
 

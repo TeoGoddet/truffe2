@@ -31,7 +31,7 @@
 
         <hr />
 
-        <form action="{% url 'accounting_main.views.accounting_budget_view' %}?costcenter={{costcenter.pk}}" method="POST" id="budget_view_form">
+        <form action="{% url 'accounting_main-views-accounting_budget_view' %}?costcenter={{costcenter.pk}}" method="POST" id="budget_view_form">
             {% csrf_token %}
             {% bootstrap_form form %}
         </form>

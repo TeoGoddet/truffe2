@@ -15,7 +15,7 @@
         });
 
         function update_parents(pk) {
-            $.ajax('{% url 'accounting_core.views.parents_cat_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+            $.ajax('{% url 'accounting_core-views-parents_cat_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
                 $('#id_parent_hierarchique option').remove();
                 $('#id_parent_hierarchique').append(
                     $('<option></option>').val('').html('---------')

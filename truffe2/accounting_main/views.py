@@ -82,9 +82,9 @@ def copy_budget(request, pk):
     messages.success(request, _(u'Copie terminée avec succès'))
 
     if len(budgets) == 1:
-        return redirect('accounting_main.views.budget_edit', budgets[0].pk)
+        return redirect('accounting_main-views-budget_edit', budgets[0].pk)
     else:
-        return redirect('accounting_main.views.budget_list')
+        return redirect('accounting_main-views-budget_list')
 
 
 @login_required
@@ -134,7 +134,7 @@ def accounting_import_step0(request):
 
     request.session[session_key] = {'is_valid': True, 'has_data': False}
 
-    return redirect('accounting_main.views.accounting_import_step1', key)
+    return redirect('accounting_main-views-accounting_import_step1', key)
 
 
 def _get_import_session_data(request, key):
@@ -150,7 +150,7 @@ def _get_import_session_data(request, key):
 
     if not session_data or not session_data['is_valid']:
         messages.warning(request, _(u'Session d\'importation invalide.'))
-        return (None, redirect('accounting_main.views.accounting_import_step0'))
+        return (None, redirect('accounting_main-views-accounting_import_step0'))
 
     return (session_key, session_data)
 
@@ -365,7 +365,7 @@ def accounting_import_step1(request, key):
         return session_data  # Not very clean ^^'
 
     if session_data['has_data']:
-        return redirect('accounting_main.views.accounting_import_step2', key)
+        return redirect('accounting_main-views-accounting_import_step2', key)
 
     from accounting_main.forms2 import ImportForm
 
@@ -382,7 +382,7 @@ def accounting_import_step1(request, key):
                     if user not in people:
                         people.append(user)
 
-            notify_people(request, 'Accounting.NewCompta', 'accounting_new_compta', request.user, people, {'notification_force_url': reverse('accounting_main.views.accountingline_list')})
+            notify_people(request, 'Accounting.NewCompta', 'accounting_new_compta', request.user, people, {'notification_force_url': reverse('accounting_main-views-accountingline_list')})
             messages.success(request, "Notification envoyée !")
 
             form = ImportForm()
@@ -414,7 +414,7 @@ def accounting_import_step1(request, key):
                         session_data['has_data'] = True
 
                         request.session[session_key] = session_data
-                        return redirect('accounting_main.views.accounting_import_step2', key)
+                        return redirect('accounting_main-views-accounting_import_step2', key)
 
     else:
         form = ImportForm()
@@ -434,7 +434,7 @@ def accounting_import_step2(request, key):
         return session_data  # Not very clean ^^'
 
     if not session_data['has_data']:
-        return redirect('accounting_main.views.accounting_import_step1', key)
+        return redirect('accounting_main-views-accounting_import_step1', key)
 
     year = get_object_or_404(AccountingYear, pk=session_data['year'])
 
@@ -480,7 +480,7 @@ def accounting_import_step2(request, key):
 
         request.session[session_key] = {}
         messages.success(request, _(u"Compta importée ! Si tout est ok, n'oublie pas de notifier les gens."))
-        return redirect('accounting_main.views.accounting_import_step0')
+        return redirect('accounting_main-views-accounting_import_step0')
 
     return render(request, "accounting_main/import/step2.html", {'key': key, 'diff': diff})
 

@@ -11,7 +11,7 @@
 
 <script type="text/javascript">
     $(function() {
-        $.ajax('{% url 'main.views.get_to_moderate' %}').success(function (data) {
+        $.ajax('{% url 'main-views-get_to_moderate' %}').success(function (data) {
             $('#elem-to-moderate').html(data);
         });
     });

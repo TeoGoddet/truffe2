@@ -6,13 +6,11 @@ from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Max, Q
 
-from easy_thumbnails.files import get_thumbnailer
 from jfu.http import upload_receive, UploadResponse, JFUResponse
 import json
 import datetime
@@ -88,14 +86,14 @@ def generate_generic_list(module, base_name, model_class, json_view_suffix, righ
     @login_required
     def _generic_generic_list(request, **bonus_args):
 
-        json_view = '%s.views.%s%s' % (module.__name__, base_name, json_view_suffix)
-        edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
-        show_view = '%s.views.%s_show' % (module.__name__, base_name)
-        deleted_view = '%s.views.%s_deleted' % (module.__name__, base_name)
-        status_view = '%s.views.%s_switch_status' % (module.__name__, base_name)
-        logs_view = '%s.views.%s_logs' % (module.__name__, base_name)
-        tag_search_view = '%s.views.%s_tag_search' % (module.__name__, base_name)
-        mayi_view = '%s.views.%s_mayi' % (module.__name__, base_name)
+        json_view = '%s-views-%s%s' % (module.__name__, base_name, json_view_suffix)
+        edit_view = '%s-views-%s_edit' % (module.__name__, base_name)
+        show_view = '%s-views-%s_show' % (module.__name__, base_name)
+        deleted_view = '%s-views-%s_deleted' % (module.__name__, base_name)
+        status_view = '%s-views-%s_switch_status' % (module.__name__, base_name)
+        logs_view = '%s-views-%s_logs' % (module.__name__, base_name)
+        tag_search_view = '%s-views-%s_tag_search' % (module.__name__, base_name)
+        mayi_view = '%s-views-%s_mayi' % (module.__name__, base_name)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=allow_blank, allow_all_units=allow_all_units)
@@ -173,10 +171,10 @@ def generate_list_json(module, base_name, model_class, tag_class):
     @login_required
     @csrf_exempt
     def _generic_list_json(request):
-        edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
-        show_view = '%s.views.%s_show' % (module.__name__, base_name)
-        delete_view = '%s.views.%s_delete' % (module.__name__, base_name)
-        logs_view = '%s.views.%s_logs' % (module.__name__, base_name)
+        edit_view = '%s-views-%s_edit' % (module.__name__, base_name)
+        show_view = '%s-views-%s_show' % (module.__name__, base_name)
+        delete_view = '%s-views-%s_delete' % (module.__name__, base_name)
+        logs_view = '%s-views-%s_logs' % (module.__name__, base_name)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_all_units=True)
@@ -256,10 +254,10 @@ def generate_list_related_json(module, base_name, model_class):
     @csrf_exempt
     def _generate_list_related_json(request):
 
-        edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
-        show_view = '%s.views.%s_show' % (module.__name__, base_name)
-        delete_view = '%s.views.%s_delete' % (module.__name__, base_name)
-        logs_view = '%s.views.%s_logs' % (module.__name__, base_name)
+        edit_view = '%s-views-%s_edit' % (module.__name__, base_name)
+        show_view = '%s-views-%s_show' % (module.__name__, base_name)
+        delete_view = '%s-views-%s_delete' % (module.__name__, base_name)
+        logs_view = '%s-views-%s_logs' % (module.__name__, base_name)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request, allow_blank=False)
@@ -314,14 +312,14 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
     @login_required
     def _generic_edit(request, pk):
 
-        list_view = '%s.views.%s_list' % (module.__name__, base_name)
-        list_related_view = '%s.views.%s_list_related' % (module.__name__, base_name)
-        show_view = '%s.views.%s_show' % (module.__name__, base_name)
-        file_upload_view = '%s.views.%s_file_upload' % (module.__name__, base_name)
-        file_delete_view = '%s.views.%s_file_delete' % (module.__name__, base_name)
-        file_get_view = '%s.views.%s_file_get' % (module.__name__, base_name)
-        file_get_thumbnail_view = '%s.views.%s_file_get_thumbnail' % (module.__name__, base_name)
-        tag_search_view = '%s.views.%s_tag_search' % (module.__name__, base_name)
+        list_view = '%s-views-%s_list' % (module.__name__, base_name)
+        list_related_view = '%s-views-%s_list_related' % (module.__name__, base_name)
+        show_view = '%s-views-%s_show' % (module.__name__, base_name)
+        file_upload_view = '%s-views-%s_file_upload' % (module.__name__, base_name)
+        file_delete_view = '%s-views-%s_file_delete' % (module.__name__, base_name)
+        file_get_view = '%s-views-%s_file_get' % (module.__name__, base_name)
+        file_get_thumbnail_view = '%s-views-%s_file_get_thumbnail' % (module.__name__, base_name)
+        tag_search_view = '%s-views-%s_tag_search' % (module.__name__, base_name)
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
@@ -484,7 +482,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                 obj = form.save(commit=False)
                 if not obj.rights_can(right, request.user):
                     messages.error(request, _(u'Tu n\'as pas le droit de créer/modifier cet objet.'))
-                    return redirect('{}.views.{}_edit'.format(module.__name__, base_name), pk='~' if right == 'CREATE' else obj.pk)
+                    return redirect('{}-views-{}_edit'.format(module.__name__, base_name), pk='~' if right == 'CREATE' else obj.pk)
 
                 obj.save()
                 if hasattr(form, 'save_m2m'):
@@ -556,6 +554,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                     tags_after = ', '.join([t.tag for t in obj.tags.order_by('tag')])
 
                 if linked_info_mode:
+                    from django.contrib.contenttypes.models import ContentType
                     object_ct = ContentType.objects.get(app_label=module.__name__, model=base_name)
                     infos, __ = LinkedInfo.objects.get_or_create(content_type=object_ct, object_id=obj.pk, defaults={'user_pk': obj.user.pk})
                     for (info_field, user_field) in (('first_name', 'first_name'), ('last_name', 'last_name'), ('address', 'adresse'), ('phone', 'mobile'), ('bank', 'nom_banque'), ('iban_ccp', 'iban_ou_ccp'), ('user_pk', 'pk')):
@@ -621,11 +620,11 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                 if request.POST.get('post-save-dest'):
                     if request.POST.get('post-save-dest') == 'new':
-                        return redirect(module.__name__ + '.views.' + base_name + '_edit', pk='~')
+                        return redirect(module.__name__ + '-views-' + base_name + '_edit', pk='~')
                     else:
-                        return redirect(module.__name__ + '.views.' + base_name + '_edit', pk=obj.pk)
+                        return redirect(module.__name__ + '-views-' + base_name + '_edit', pk=obj.pk)
 
-                return HttpResponseRedirect('%s%s' % (reverse(module.__name__ + '.views.' + base_name + '_show', args=(obj.pk,)), '?_upkns=_&_fromrelated=_' if related_mode else ''))
+                return HttpResponseRedirect('%s%s' % (reverse(module.__name__ + '-views-' + base_name + '_show', args=(obj.pk,)), '?_upkns=_&_fromrelated=_' if related_mode else ''))
             else:
                 if hasattr(obj, 'MetaEdit') and hasattr(obj.MetaEdit, 'do_extra_post_actions'):
                     extra_args = obj.MetaEdit.do_extra_post_actions(obj, request, request.POST, False)
@@ -689,15 +688,15 @@ def generate_show(module, base_name, model_class, log_class, tag_class):
     @login_required
     def _generic_show(request, pk):
 
-        edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
-        delete_view = '%s.views.%s_delete' % (module.__name__, base_name)
-        log_view = '%s.views.%s_log' % (module.__name__, base_name)
-        list_view = '%s.views.%s_list' % (module.__name__, base_name)
-        list_related_view = '%s.views.%s_list_related' % (module.__name__, base_name)
-        status_view = '%s.views.%s_switch_status' % (module.__name__, base_name)
-        contact_view = '%s.views.%s_contact' % (module.__name__, base_name)
-        file_get_view = '%s.views.%s_file_get' % (module.__name__, base_name)
-        file_get_thumbnail_view = '%s.views.%s_file_get_thumbnail' % (module.__name__, base_name)
+        edit_view = '%s-views-%s_edit' % (module.__name__, base_name)
+        delete_view = '%s-views-%s_delete' % (module.__name__, base_name)
+        log_view = '%s-views-%s_log' % (module.__name__, base_name)
+        list_view = '%s-views-%s_list' % (module.__name__, base_name)
+        list_related_view = '%s-views-%s_list_related' % (module.__name__, base_name)
+        status_view = '%s-views-%s_switch_status' % (module.__name__, base_name)
+        contact_view = '%s-views-%s_contact' % (module.__name__, base_name)
+        file_get_view = '%s-views-%s_file_get' % (module.__name__, base_name)
+        file_get_thumbnail_view = '%s-views-%s_file_get_thumbnail' % (module.__name__, base_name)
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
@@ -783,9 +782,9 @@ def generate_delete(module, base_name, model_class, log_class):
     @login_required
     def _generic_delete(request, pk):
 
-        list_view = '%s.views.%s_list' % (module.__name__, base_name)
-        list_related_view = '%s.views.%s_list_related' % (module.__name__, base_name)
-        show_view = '%s.views.%s_show' % (module.__name__, base_name)
+        list_view = '%s-views-%s_list' % (module.__name__, base_name)
+        list_related_view = '%s-views-%s_list_related' % (module.__name__, base_name)
+        show_view = '%s-views-%s_show' % (module.__name__, base_name)
 
         related_mode = request.GET.get('_fromrelated') == '_'
 
@@ -850,7 +849,7 @@ def generate_deleted(module, base_name, model_class, log_class):
     @login_required
     def _generic_deleted(request):
 
-        list_view = '%s.views.%s_list' % (module.__name__, base_name)
+        list_view = '%s-views-%s_list' % (module.__name__, base_name)
 
         year_mode, current_year, AccountingYear = get_year_data(model_class, request)
         unit_mode, current_unit, unit_blank = get_unit_data(model_class, request)
@@ -937,8 +936,8 @@ def generate_switch_status(module, base_name, model_class, log_class):
         prob_obj = None
         no_more_access = False
 
-        list_view = '%s.views.%s_list' % (module.__name__, base_name)
-        status_view = '%s.views.%s_switch_status' % (module.__name__, base_name)
+        list_view = '%s-views-%s_list' % (module.__name__, base_name)
+        status_view = '%s-views-%s_switch_status' % (module.__name__, base_name)
 
         dest_status = request.GET.get('dest_status')
         from_list = request.GET.get('from_list') == 'from_list'
@@ -1004,8 +1003,8 @@ def generate_contact(module, base_name, model_class, log_class):
     @login_required
     def _contact(request, pk, key):
 
-        contact_view = '%s.views.%s_contact' % (module.__name__, base_name)
-        show_view = '%s.views.%s_show' % (module.__name__, base_name)
+        contact_view = '%s-views-%s_contact' % (module.__name__, base_name)
+        show_view = '%s-views-%s_show' % (module.__name__, base_name)
 
         obj = get_object_or_404(model_class, pk=pk, deleted=False)
 
@@ -1317,8 +1316,8 @@ def generate_directory(module, base_name, model_class):
 
         from units.models import Unit
 
-        edit_view = '%s.views.%s_edit' % (module.__name__, base_name)
-        calendar_specific_view = '%s.views.%s_calendar_specific' % (module.__name__, base_name)
+        edit_view = '%s-views-%s_edit' % (module.__name__, base_name)
+        calendar_specific_view = '%s-views-%s_calendar_specific' % (module.__name__, base_name)
 
         units = model_class.get_linked_object_class().objects.order_by('unit__name').filter(deleted=False)
 
@@ -1355,8 +1354,8 @@ def generate_logs(module, base_name, model_class):
         if not request.user.is_superuser:
             raise Http404
 
-        logs_json_view = '%s.views.%s_logs_json' % (module.__name__, base_name)
-        list_view = '%s.views.%s_list' % (module.__name__, base_name)
+        logs_json_view = '%s-views-%s_logs_json' % (module.__name__, base_name)
+        list_view = '%s-views-%s_list' % (module.__name__, base_name)
 
         data = {
             'Model': model_class, 'logs_json_view': logs_json_view, 'list_view': list_view,
@@ -1376,8 +1375,8 @@ def generate_logs_json(module, base_name, model_class, logging_class):
         if not request.user.is_superuser:
             raise Http404
 
-        show_view = '%s.views.%s_show' % (module.__name__, base_name)
-        list_view = '%s.views.%s_list' % (module.__name__, base_name)
+        show_view = '%s-views-%s_show' % (module.__name__, base_name)
+        list_view = '%s-views-%s_list' % (module.__name__, base_name)
 
         bonus_filter = []
 
@@ -1402,9 +1401,9 @@ def generate_file_upload(module, base_name, model_class, log_class, file_class):
     @login_required
     def _generic_file_upload(request):
 
-        file_delete_view = '%s.views.%s_file_delete' % (module.__name__, base_name)
-        file_get_view = '%s.views.%s_file_get' % (module.__name__, base_name)
-        file_get_thumbnail_view = '%s.views.%s_file_get_thumbnail' % (module.__name__, base_name)
+        file_delete_view = '%s-views-%s_file_delete' % (module.__name__, base_name)
+        file_get_view = '%s-views-%s_file_get' % (module.__name__, base_name)
+        file_get_thumbnail_view = '%s-views-%s_file_get_thumbnail' % (module.__name__, base_name)
 
         key = request.GET.get('key')
 
@@ -1493,6 +1492,7 @@ def generate_file_get_thumbnail(module, base_name, model_class, log_class, file_
 
     @login_required
     def _generic_file_thumbnail(request, pk):
+        from easy_thumbnails.files import get_thumbnailer
 
         instance = get_object_or_404(file_class, pk=pk)
 

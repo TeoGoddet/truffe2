@@ -1,5 +1,5 @@
 
-from generic.models import GenericModel, GenericStateModel
+from generic.models import GenericModel
 
 
 def startup():

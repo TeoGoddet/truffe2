@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes import fields
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -20,7 +20,7 @@ class Notification(models.Model):
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    linked_object = generic.GenericForeignKey('content_type', 'object_id')
+    linked_object = fields.GenericForeignKey('content_type', 'object_id')
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
 

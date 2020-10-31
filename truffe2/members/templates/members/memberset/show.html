@@ -65,24 +65,24 @@
 
                                     <div style="float: right;">
                                         {% ifhasright obj user 'SHOW' %}
-                                          <a href="{% url 'members.views.export_members' obj.pk %}" class="btn btn-default">
+                                          <a href="{% url 'members-views-export_members' obj.pk %}" class="btn btn-default">
                                             <i class="fa fa-download"></i>
                                             {% trans "Exporter" %}
                                           </a>
                                         {% endifhasright %}
 
                                         {% ifhasright obj user 'EDIT' %}
-                                          <a href="#hr1" onclick="disp_import();" data-remote="{% url 'members.views.import_members' obj.pk %}" base-data-remote="{% url 'members.views.import_members' obj.pk %}" id="import-membership-button" class="btn btn-default">
+                                          <a href="#hr1" onclick="disp_import();" data-remote="{% url 'members-views-import_members' obj.pk %}" base-data-remote="{% url 'members-views-import_members' obj.pk %}" id="import-membership-button" class="btn btn-default">
                                             <i class="fa fa-upload"></i>
                                             {% trans "Importer (fichier)" %}
                                           </a>
 
-                                          <a href="#hr1" onclick="disp_import_list();" data-remote="{% url 'members.views.import_members_list' obj.pk %}" base-data-remote="{% url 'members.views.import_members_list' obj.pk %}" id="import-list-membership-button" class="btn btn-default">
+                                          <a href="#hr1" onclick="disp_import_list();" data-remote="{% url 'members-views-import_members_list' obj.pk %}" base-data-remote="{% url 'members-views-import_members_list' obj.pk %}" id="import-list-membership-button" class="btn btn-default">
                                             <i class="fa fa-upload"></i>
                                             {% trans "Importer (Liste)" %}
                                           </a>
 
-                                          <a href="#hr1" onclick="disp_add();" data-remote="{% url 'members.views.membership_add' obj.pk %}" base-data-remote="{% url 'members.views.membership_add' obj.pk %}" id="add-membership-button" class="btn btn-primary">
+                                          <a href="#hr1" onclick="disp_add();" data-remote="{% url 'members-views-membership_add' obj.pk %}" base-data-remote="{% url 'members-views-membership_add' obj.pk %}" id="add-membership-button" class="btn btn-primary">
                                             <i class="fa fa-plus"></i>
                                             {% trans "Ajouter" %}
                                           </a>
@@ -101,7 +101,7 @@
                                 {% endif %}
                             </div>
                         </section>
-                        {% url 'members.views.membership_list_json' obj.pk as json_url_memberset %}
+                        {% url 'members-views-membership_list_json' obj.pk as json_url_memberset %}
                         {% with id="main_list_table" json_url_manual=json_url_memberset %}{% include "datatables.html" %}{% endwith %}
 
                     </div>
@@ -138,7 +138,7 @@
         <h3  style="margin-bottom: 0px;">{% trans "API pour la gestion d'un groupe de membres" %}</h3>
         <small>{% trans "Il est possible de gérer avec une API un groupe de membres, pour automatiser certains processus." %}</small>
 
-        <a href="#hr2" onclick="disp_api();" data-remote="{% url 'members.views.memberset_info_api' obj.pk %}" base-data-remote="{% url 'members.views.memberset_info_api' obj.pk %}" id="info-api-button" class="btn btn-default">
+        <a href="#hr2" onclick="disp_api();" data-remote="{% url 'members-views-memberset_info_api' obj.pk %}" base-data-remote="{% url 'members-views-memberset_info_api' obj.pk %}" id="info-api-button" class="btn btn-default">
             <i class="fa fa-info"></i>
             {% trans "Informations sur l'API" %}
         </a>
@@ -233,7 +233,7 @@
         }
 
         function toggle_fees(mship_id) {
-            $.post("{% url "members.views.membership_toggle_fees" 99942999 %}".replace(99942999, mship_id), function(){
+            $.post("{% url "members-views-membership_toggle_fees" 99942999 %}".replace(99942999, mship_id), function(){
                 data_table_main_list_table._fnAjaxUpdate();
             });
         }

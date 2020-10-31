@@ -49,7 +49,7 @@
                 </tbody>
             </table>
 
-            {% with id="main_list_table" json_url="notifications.views.notification_json" datatable_notools="yes" default_sort="[0, 'desc']" with_extradata="function() {  return '&current_type=' + NOTIFICATIONS_CURRENT_TYPE}" %}{% include "datatables.html" %}{% endwith %}
+            {% with id="main_list_table" json_url="notifications-views-notification_json" datatable_notools="yes" default_sort="[0, 'desc']" with_extradata="function() {  return '&current_type=' + NOTIFICATIONS_CURRENT_TYPE}" %}{% include "datatables.html" %}{% endwith %}
         </div>
 
     </div>
@@ -61,7 +61,7 @@
 
         function load_types() {
 
-            $.ajax('{% url 'notifications.views.notification_keys' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE).done(
+            $.ajax('{% url 'notifications-views-notification_keys' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE).done(
                 function (data) {
                     $('#notification_types').html(data);
                 }
@@ -73,13 +73,13 @@
 
         function load_restrictions() {
 
-            $.ajax('{% url 'notifications.views.notification_restrictions' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE).done(
+            $.ajax('{% url 'notifications-views-notification_restrictions' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE).done(
                 function (data) {
                     $('#notification_restrictions').html(data);
 
                     $('#notifications_mute, #notifications_mail, #notifications_no_group').on('change', function (e) {
 
-                        $.ajax('{% url 'notifications.views.notification_restrictions_update' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE + '&mail=' + $('#notifications_mail').is(':checked') + '&mute=' + $('#notifications_mute').is(':checked') + '&no_group=' + $('#notifications_no_group').is(':checked') + '&elem=' + $(e.target).attr('id')).done(function() { load_restrictions(); });
+                        $.ajax('{% url 'notifications-views-notification_restrictions_update' %}?current_type=' + NOTIFICATIONS_CURRENT_TYPE + '&mail=' + $('#notifications_mail').is(':checked') + '&mute=' + $('#notifications_mute').is(':checked') + '&no_group=' + $('#notifications_no_group').is(':checked') + '&elem=' + $(e.target).attr('id')).done(function() { load_restrictions(); });
 
 
                     });
@@ -103,7 +103,7 @@
 
         function notification_list_ignore(notif_pk) {
 
-            $.ajax('{% url 'notifications.views.mark_as_read' %}?pk=' +notif_pk).done(
+            $.ajax('{% url 'notifications-views-mark_as_read' %}?pk=' +notif_pk).done(
                 function (data) {
                     reload_data();
                     load_types();

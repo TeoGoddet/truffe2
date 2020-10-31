@@ -40,7 +40,7 @@
                         list += $(e).attr("main_id") + ",";
                     });
 
-                    $.ajax('{% url 'main.views.set_homepage' %}?data=' + escape(list));
+                    $.ajax('{% url 'main-views-set_homepage' %}?data=' + escape(list));
 
                 },
             }

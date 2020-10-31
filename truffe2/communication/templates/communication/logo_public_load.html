@@ -2,11 +2,11 @@
 
 {% for logo in logos %}
     <span class="thumbnail" style="width: 210px; margin: 5px; float: left;">
-        <img src="{% url 'communication.views.logo_file_get_thumbnail' logo.get_best_image.pk %}?w=200&h=200" alt="" />
+        <img src="{% url 'communication-views-logo_file_get_thumbnail' logo.get_best_image.pk %}?w=200&h=200" alt="" />
         {{logo.name|truncatechars:25}}
 
         {% if logo.files.count == 1 %}
-            <a href="{% url 'communication.views.logo_file_get' logo.files.all.0.pk %}/{{logo.files.all.0.basename}}?down" class="btn btn-xs btn-primary pull-right">
+            <a href="{% url 'communication-views-logo_file_get' logo.files.all.0.pk %}/{{logo.files.all.0.basename}}?down" class="btn btn-xs btn-primary pull-right">
                 <i class="fa fa-download"></i>
             </a>
         {% else %}
@@ -18,7 +18,7 @@
                 <ul class="dropdown-menu">
                     {% for f in logo.files.all %}
                         <li>
-                            <a href="{% url 'communication.views.logo_file_get' f.pk %}/{{f.basename}}?down">{{f.basename}}</a>
+                            <a href="{% url 'communication-views-logo_file_get' f.pk %}/{{f.basename}}?down">{{f.basename}}</a>
                         </li>
                     {% endfor %}
                 </ul>

@@ -5,8 +5,8 @@
 
 {% block ribbon %}
     {{block.super}}
-    <li><a href="{% url 'units.views.role_list' %}"><i class="{{role.MetaData.base_icon}}"></i> {{role.MetaData.base_title}}</a></li>
-    <li><a href="{% url 'units.views.role_show' role.pk %}"><i class="{{role.MetaData.elem_icon}}"></i> {{obj}}</a></li>
+    <li><a href="{% url 'units-views-role_list' %}"><i class="{{role.MetaData.base_icon}}"></i> {{role.MetaData.base_title}}</a></li>
+    <li><a href="{% url 'units-views-role_show' role.pk %}"><i class="{{role.MetaData.elem_icon}}"></i> {{obj}}</a></li>
     <li><i class="fa fa-user"></i> {% trans "Utilisateurs" %}</li>
 {% endblock %}
 
@@ -31,12 +31,12 @@
                         {% for accred in accreds %}
                             <tr>
                                 <td>
-                                    <a href="{% url 'users.views.users_profile' accred.user.pk %}">
+                                    <a href="{% url 'users-views-users_profile' accred.user.pk %}">
                                         {{accred.user}}
                                     </a>
                                 </td>
                                 <td>
-                                    <a href="{% url 'units.views.unit_show' accred.unit.pk %}">
+                                    <a href="{% url 'units-views-unit_show' accred.unit.pk %}">
                                         {{accred.unit}}
                                     </a>
                                 </td>
@@ -56,7 +56,7 @@
             <div class="col-sm-12 col-md-2 col-lg-2">
                 {% with w_title="Role" %}{% include "widget/header.html" %}{% endwith %}
 
-                <select id="role_selection" onchange="window.location = '{% url 'units.views.role_userslist' '0000' %}'.replace('0000', $(this).val());">
+                <select id="role_selection" onchange="window.location = '{% url 'units-views-role_userslist' '0000' %}'.replace('0000', $(this).val());">
                     {% for srole in roles %}
                         <option value="{{srole.pk}}" {% if srole == role %}selected{% endif %}>{{srole}}</option>
                     {% endfor %}
@@ -67,7 +67,7 @@
 
 
     <div class="pull-right">
-        <a href="{% url 'units.views.role_list' %}" class="btn btn-info">
+        <a href="{% url 'units-views-role_list' %}" class="btn btn-info">
             <i class="fa fa-list"></i>
             {% trans "Retourner sur la liste" %}
         </a>

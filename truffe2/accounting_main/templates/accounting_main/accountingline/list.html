@@ -71,7 +71,7 @@
             $.fn.modal.Constructor.prototype.enforceFocus = function () {};
             $('#modal-graph').find('.modal-content').html('');
             $('#modal-graph').removeData('bs.modal');
-            $('#modal-graph').modal({remote: '{% url 'accounting_main.views.accounting_graph' %}?costcenter=' + $('#ccostcenter').val()});
+            $('#modal-graph').modal({remote: '{% url 'accounting_main-views-accounting_graph' %}?costcenter=' + $('#ccostcenter').val()});
         }
 
         function display_budget() {
@@ -79,7 +79,7 @@
             $.fn.modal.Constructor.prototype.enforceFocus = function () {};
             $('#modal-budget').find('.modal-content').html('');
             $('#modal-budget').removeData('bs.modal');
-            $('#modal-budget').modal({remote: '{% url 'accounting_main.views.accounting_budget_view' %}?costcenter=' + $('#ccostcenter').val()});
+            $('#modal-budget').modal({remote: '{% url 'accounting_main-views-accounting_budget_view' %}?costcenter=' + $('#ccostcenter').val()});
         }
 
     </script>

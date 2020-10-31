@@ -8,7 +8,6 @@ from os.path import abspath, dirname, join
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -81,29 +80,33 @@ STATICFILES_FINDERS = (
 )
 
 # TEMPLATE configuration
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
-
-# Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-# Always use forward slashes, even on Windows.
-# Don't forget to use absolute paths, not relative paths.
-TEMPLATE_DIRS = (join(DJANGO_ROOT, 'templates'),)
-
-TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.request",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-    "app.utils.add_current_unit",
-    "app.utils.add_current_year",
-    "notifications.views.notifications_count",
-)
+TEMPLATES = [{
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+        # Always use forward slashes, even on Windows.
+        # Don't forget to use absolute paths, not relative paths.
+        'DIRS' : (join(DJANGO_ROOT, 'templates'),),
+        'OPTIONS' : {
+            'debug' : DEBUG,
+            'loaders' : (
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            #     'django.template.loaders.eggs.Loader',
+            ),
+            'context_processors' : ("django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.request",
+                "django.template.context_processors.tz",
+                "django.contrib.messages.context_processors.messages",
+                "app.utils.add_current_unit",
+                "app.utils.add_current_year",
+                "notifications.views.notifications_count",
+            ),
+        }
+}]
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -135,10 +138,9 @@ INSTALLED_APPS = (
     'multiselectfield',
     'easy_thumbnails',
     'jfu',
-    'haystack',
-    'celery_haystack',
 
     'truffe',
+    'generic',
 
     'main',
     'users',
@@ -154,7 +156,6 @@ INSTALLED_APPS = (
     'members',
     'vehicles',
 
-    'generic',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
@@ -219,7 +220,6 @@ SYSTEM_USER_PK = 1572
 PRESIDENT_ROLE_PK = 1
 CS_ACCOUNT_NUMBER = "1020 -"  # Label of account for Credit Suisse
 
-
 AUTO_RLC_UNIT_PK = 7  # The EPFL "Acces RLC" unit truffe's pk
 AUTO_RLC_TAG = u"[Auto]"  # The tag to identify our accreds
 AUTO_RLC_COMS_ROLES = [1, 3]  # The roles used to give access for commissions
@@ -227,7 +227,6 @@ AUTO_RLC_ROOT_ROLES = [1, ]  # The roles used to give access for root unit
 AUTO_RLC_GIVEN_ROLE = 15
 
 SENDFILE_BACKEND = 'sendfile.backends.simple'
-
 
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
@@ -241,7 +240,6 @@ NOTIFS_MAXIMUM_WAIT = 15  # En minutes, le temps maximal avant d'envoyer une not
 NOTIFS_MINIMUM_BLANK = 5  # En minutes, le temps minimal sans notification avant d'envoyer une notification
 
 FORMAT_MODULE_PATH = 'app.formats'
-
 
 HAYSTACK_CONNECTIONS = {
     'default': {

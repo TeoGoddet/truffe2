@@ -21,7 +21,7 @@
         });
 
         function update_categories(pk) {
-            $.ajax('{% url 'accounting_core.views.leaves_cat_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+            $.ajax('{% url 'accounting_core-views-leaves_cat_by_year' 99942999 %}'.replace(99942999, pk)).done(function (data) {
                 $('#id_category option').remove();
                 $('#id_category').append(
                     $('<option></option>').val('').html('---------')

@@ -62,7 +62,7 @@
         });
 
         function update_budget() {
-            $.ajax('{% url 'accounting_main.views.budget_available_list' %}?ypk=' + $('#input_ypk').val() + '&upk=' + $('#input_upk').val()).done(function (data) {
+            $.ajax('{% url 'accounting_main-views-budget_available_list' %}?ypk=' + $('#input_ypk').val() + '&upk=' + $('#input_upk').val()).done(function (data) {
                 $('#id_linked_budget option').remove();
                 $('#id_linked_budget').append(
                     $('<option></option>').val('').html('---------')

@@ -40,7 +40,7 @@
 
 
             function changeImage() {
-                ajax.open("GET","{% url 'communication.views.random_slide' %}?_" + Date(), false);
+                ajax.open("GET","{% url 'communication-views-random_slide' %}?_" + Date(), false);
                 ajax.send();
 
                 if (last_image == 'image0')

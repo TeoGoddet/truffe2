@@ -23,7 +23,7 @@
             $('#id_display').width('92%').select2({
                 minimumInputLength: 0,
                 ajax: {
-                    url: "{% url 'communication.views.display_search' %}",
+                    url: "{% url 'communication-views-display_search' %}",
                     dataType: 'json',
                     data: function (term, page) {
                         return {
@@ -36,7 +36,7 @@
                     },
                 },
                 initSelection : function (element, callback) {
-                    $.ajax("{% url 'communication.views.display_search' %}?init=" + $(element).val() + '&unit_pk=' + $('#input_upk').val(), {'dataType': 'json'}).success(function (data) {
+                    $.ajax("{% url 'communication-views-display_search' %}?init=" + $(element).val() + '&unit_pk=' + $('#input_upk').val(), {'dataType': 'json'}).success(function (data) {
                         callback(data[0]);
                     });
                 },

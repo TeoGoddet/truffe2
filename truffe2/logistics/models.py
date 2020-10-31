@@ -250,7 +250,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
             return retour
 
     def get_room_link(self):
-        return u'<a href="{}">{}</a>'.format(reverse('logistics.views.room_show', args=(self.room.pk,)), self.room)
+        return u'<a href="{}">{}</a>'.format(reverse('logistics-views-room_show', args=(self.room.pk,)), self.room)
 
     def get_conflits_list(self):
 

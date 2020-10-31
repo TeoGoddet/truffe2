@@ -7,7 +7,7 @@
             {% for unit, data in lines_status_by_unit.iteritems %}
                 <tr>
                     <td>
-                        <a href="{% url 'accounting_main.views.accountingline_list' %}?upk={{unit.pk}}">{{unit}}</a>
+                        <a href="{% url 'accounting_main-views-accountingline_list' %}?upk={{unit.pk}}">{{unit}}</a>
                     </td>
 
                     {% if not data.0 and not data.1 %}

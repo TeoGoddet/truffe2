@@ -1,7 +1,9 @@
-from django.conf.urls import patterns, include, url
+
+import django.views.static
+from django.conf.urls import include, url
 from django.conf import settings
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'', include('main.urls')),
     url(r'^accounting/core/', include('accounting_core.urls')),
     url(r'^accounting/tools/', include('accounting_tools.urls')),
@@ -17,6 +19,6 @@ urlpatterns = patterns('',
 
     url(r'^impersonate/', include('impersonate.urls')),
 
-    (r'^' + settings.MEDIA_URL[1:] + '(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),  # In prod, use apache !
-    (r'^' + settings.STATIC_URL[1:] + '(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),  # In prod, use apache !
-)
+    url(r'^' + settings.MEDIA_URL[1:] + '(?P<path>.*)$', django.views.static.serve, {'document_root': settings.MEDIA_ROOT}),  # In prod, use apache !
+    url(r'^' + settings.STATIC_URL[1:] + '(?P<path>.*)$', django.views.static.serve, {'document_root': settings.STATIC_ROOT}),  # In prod, use apache !
+]

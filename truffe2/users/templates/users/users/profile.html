@@ -5,7 +5,7 @@
 
 {% block ribbon %}
     {{block.super}}
-    <li><a href="{% url 'users.views.users_list' %}"><i class="fa fa-group"></i> {% trans "Annuaire global" %}</a></li>
+    <li><a href="{% url 'users-views-users_list' %}"><i class="fa fa-group"></i> {% trans "Annuaire global" %}</a></li>
     <li><i class="fa fa-user"></i> {{user_to_display.get_full_name}}</li>
   {% endblock %}
 
@@ -16,7 +16,7 @@
             <div class="col-sm-12 col-md-12 col-lg-6">
                 {% with w_title="Informations de base" %}{% include "widget/header.html" %}{% endwith %}
 
-                  <img src="{% url 'users.views.users_profile_picture' user_to_display.pk %}" width="200" style="float: right; margin-bottom: 5px;">
+                  <img src="{% url 'users-views-users_profile_picture' user_to_display.pk %}" width="200" style="float: right; margin-bottom: 5px;">
 
                     <dl class="dl-horizontal">
                         <dt>{% trans "Username/sciper" %}</dt>
@@ -79,13 +79,13 @@
                     <dl class="dl-horizontal">
                         {% for accred in user_to_display.active_accreds %}
                             {% ifhasright accred user 'SHOW_ON_PROFILE' %}
-                                <dt><a href="{% url 'units.views.accreds_list' %}?upk={{accred.unit.pk}}">{{accred.unit}}</a></dt>
+                                <dt><a href="{% url 'units-views-accreds_list' %}?upk={{accred.unit.pk}}">{{accred.unit}}</a></dt>
                                 <dd><span class="label label-success">{{accred.role}}</span> {% trans "depuis le" %} {{accred.start_date|date:"d.m.Y"}} {% if accred.need_validation %} <span class="text-warning"><i class="fa fa-warning"></i> {% trans "Pas validé par le comité de l\'AGEPoly !" %}</span>{% endif %}</dd>
                             {% endifhasright %}
                         {% endfor %}
                         {% for accred in user_to_display.old_accreds %}
                             {% ifhasright accred user 'SHOW_ON_PROFILE' %}
-                                <dt><a href="{% url 'units.views.accreds_list' %}?upk={{accred.unit.pk}}">{{accred.unit}}</a></dt>
+                                <dt><a href="{% url 'units-views-accreds_list' %}?upk={{accred.unit.pk}}">{{accred.unit}}</a></dt>
                                 <dd><span class="label label-danger">{{accred.role}}</span> {% trans "du" %} {{accred.start_date|date:"d.m.Y"}} {% trans "au" %} {{accred.end_date|date:"d.m.Y"}}</dd>
                             {% endifhasright %}
                         {% endfor %}
@@ -98,12 +98,12 @@
     </section>
 
     <div style="float: right;">
-      <a href="{% url 'users.views.users_vcard' user_to_display.pk %}" class="btn btn-info">
+      <a href="{% url 'users-views-users_vcard' user_to_display.pk %}" class="btn btn-info">
           <i class="fa fa-download"></i>
           {% trans "VCard" %}
         </a>
         {% ifhasright user_to_display user 'EDIT' %}
-            <a href="{% url 'users.views.users_edit' user_to_display.pk %}" class="btn btn-primary">
+            <a href="{% url 'users-views-users_edit' user_to_display.pk %}" class="btn btn-primary">
               <i class="fa fa-pencil"></i>
               {% trans "Modifier" %}
             </a>

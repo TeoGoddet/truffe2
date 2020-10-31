@@ -71,7 +71,7 @@
         // Enable/disable select2 if rcash chosen
         $('#s2id_id_withdrawal').next('select').change(function(e) {
             if (e.val != "") {
-                $.ajax('{% url 'accounting_tools.views.get_withdrawal_infos' 99942999 %}'.replace(99942999, e.val)).done(function(data) {
+                $.ajax('{% url 'accounting_tools-views-get_withdrawal_infos' 99942999 %}'.replace(99942999, e.val)).done(function(data) {
 
                     $('#id_user').select2('val', data['user_pk']);
                     $('#id_user').attr('disabled', true);
@@ -130,7 +130,7 @@
     });
 
     function update_users(pk) {
-        $.ajax('{% url 'accounting_core.views.users_available_list_by_unit' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+        $.ajax('{% url 'accounting_core-views-users_available_list_by_unit' 99942999 %}'.replace(99942999, pk)).done(function (data) {
 
             var old_value = $('#id_user').val();
             var options = '<option value=""></option>';
@@ -147,7 +147,7 @@
     }
 
     function update_rcashs() {
-        $.ajax('{% url 'accounting_tools.views.withdrawal_available_list' %}?ypk=' + $('#input_ypk').val() + '&upk=' + $('#input_upk').val()).done(function (data) {
+        $.ajax('{% url 'accounting_tools-views-withdrawal_available_list' %}?ypk=' + $('#input_ypk').val() + '&upk=' + $('#input_upk').val()).done(function (data) {
             var old_value = $('#id_withdrawal').val();
             var options = '<option value="">-------------</option>';
 
@@ -163,7 +163,7 @@
     }
 
     function update_accounts() {
-        $.ajax('{% url 'accounting_core.views.account_available_list' %}?ypk=' + $('#input_ypk').val()).done(function (data) {
+        $.ajax('{% url 'accounting_core-views-account_available_list' %}?ypk=' + $('#input_ypk').val()).done(function (data) {
 
             var options = '<option value="">----------</option>';
             $.each(data.data, function (index, option) {

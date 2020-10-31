@@ -142,7 +142,7 @@ def accreds_renew(request, pk):
         else:
             messages.success(request, _(u'Accréditation renouvelée !'))
 
-        return redirect('units.views.accreds_list')
+        return redirect('units-views-accreds_list')
 
     return render(request, 'units/accreds/renew.html', {'accreds': accreds, 'multi_obj': multi_obj})
 
@@ -277,7 +277,7 @@ def accreds_delete(request, pk):
         else:
             messages.success(request, _(u'Accréditation supprimée !'))
 
-        return redirect('units.views.accreds_list')
+        return redirect('units-views-accreds_list')
 
     return render(request, 'units/accreds/delete.html', {'accreds': accreds, 'cannot_last_prez': cannot_last_prez, 'multi_obj': multi_obj, 'cannot_last_prez_accred': cannot_last_prez_accred})
 
@@ -314,7 +314,7 @@ def accreds_validate(request, pk):
         else:
             messages.success(request, _(u'Accréditation validée !'))
 
-        return redirect('units.views.accreds_list')
+        return redirect('units-views-accreds_list')
 
     return render(request, 'units/accreds/validate.html', {'accreds': accreds, 'multi_obj': multi_obj})
 

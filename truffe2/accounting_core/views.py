@@ -9,9 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 from django.conf import settings
 
-
 import json
-
 
 from accounting_core import models as accounting_models
 from app.utils import update_current_year, generate_pdf
@@ -65,9 +63,9 @@ def copy_accounting_year(request, pk):
 
     if len(accounting_years) == 1:
         update_current_year(request, accounting_years[0].pk)
-        return redirect('accounting_core.views.accountingyear_edit', accounting_years[0].pk)
+        return redirect('accounting_core-views-accountingyear_edit', accounting_years[0].pk)
     else:
-        return redirect('accounting_core.views.accountingyear_list')
+        return redirect('accounting_core-views-accountingyear_list')
 
 
 @login_required

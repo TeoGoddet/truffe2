@@ -5,8 +5,7 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-
-from django.template.base import TemplateDoesNotExist
+from django.template.exceptions import TemplateDoesNotExist
 
 from main.test_tools import TruffeTestAbstract
 

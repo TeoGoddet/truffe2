@@ -23,7 +23,7 @@
             $('#id_room').width('92%').select2({
                 minimumInputLength: 0,
                 ajax: {
-                    url: "{% url 'logistics.views.room_search' %}",
+                    url: "{% url 'logistics-views-room_search' %}",
                     dataType: 'json',
                     data: function (term, page) {
                         return {
@@ -36,7 +36,7 @@
                     },
                 },
                 initSelection : function (element, callback) {
-                    $.ajax("{% url 'logistics.views.room_search' %}?init=" + $(element).val() + '&unit_pk=' + $('#input_upk').val(), {'dataType': 'json'}).success(function (data) {
+                    $.ajax("{% url 'logistics-views-room_search' %}?init=" + $(element).val() + '&unit_pk=' + $('#input_upk').val(), {'dataType': 'json'}).success(function (data) {
                         callback(data[0]);
                     });
                 },

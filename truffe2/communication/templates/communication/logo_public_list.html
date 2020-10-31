@@ -54,7 +54,7 @@
         {% for unit in units %}
             // function load_unit_data_{{forloop.counter}}() {
 
-                $.ajax('{% url 'communication.views.logo_public_load' %}?pk={{unit.pk}}').done(function (data) {
+                $.ajax('{% url 'communication-views-logo_public_load' %}?pk={{unit.pk}}').done(function (data) {
                     $('#tab-{{unit.pk}}').html(data);
                     // load_unit_data_{{forloop.counter|add:"1"}}();
 

@@ -462,7 +462,7 @@ class Accreditation(models.Model, UnitEditableModel, SearchableModel):
         return u'{} ({})'.format(self.user, self.get_role_or_display_name())
 
     def display_url(self):
-        return '%s?upk=%s' % (reverse('units.views.accreds_list'), self.unit.pk,)
+        return '%s?upk=%s' % (reverse('units-views-accreds_list'), self.unit.pk,)
 
     class MetaData:
         base_title = _(u'Accréditation')

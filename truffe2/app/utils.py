@@ -10,7 +10,6 @@ from django.utils.timezone import now
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render
 
-
 import logging
 import cgi
 import ho.pisa as pisa
@@ -109,14 +108,13 @@ def update_current_year(request, year_pk):
 def send_templated_mail(request, subject, email_from, emails_to, template, context):
     """Send a email using an template (both in text and html format)"""
 
-    plaintext = get_template('%s_plain.txt' % (template, ))
-    htmly = get_template('%s_html.html' % (template, ))
+    plaintext = get_template('%s_plain.txt' % (template,))
+    htmly = get_template('%s_html.html' % (template,))
 
     context.update({'site': get_current_site(request), 'subject': subject})
 
-    d = Context(context)
-    text_content = plaintext.render(d)
-    html_content = htmly.render(d)
+    text_content = plaintext.render(context)
+    html_content = htmly.render(context)
 
     msg = EmailMultiAlternatives(subject, text_content, settings.EMAIL_FROM, emails_to)
     msg.attach_alternative(html_content, "text/html")
@@ -165,9 +163,7 @@ def append_pdf(input, output):
 def generate_pdf(template, request, contexte, extra_pdf_files=None):
     template = get_template(template)
     contexte.update({'MEDIA_ROOT': settings.MEDIA_ROOT, 'cdate': now(), 'user': request.user})
-    context = Context(contexte)
-
-    html = template.render(context)
+    html = template.render(contexte)
 
     result = StringIO.StringIO()
     pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
@@ -182,7 +178,7 @@ def generate_pdf(template, request, contexte, extra_pdf_files=None):
         for pdf_file in extra_pdf_files:
             try:
                 append_pdf(PdfFileReader(pdf_file), output)
-            except Exception as e:
+            except Exception:
                 return render(request, "pdf_error.html", {'pdf': pdf_file, 'error': traceback.format_exc()})
 
         output.write(result)
@@ -217,6 +213,7 @@ def pad_image(image, **kwargs):
 
     new_image.paste(image, (left, top))
     return new_image
+
 
 class UnicodeCSVWriter:
     """

@@ -26,7 +26,7 @@
                         {% for document in documents %}
                             <tr>
                                 <td>
-                                    <a href="{% url 'main.views.signabledocument_sign' document.pk %}">
+                                    <a href="{% url 'main-views-signabledocument_sign' document.pk %}">
                                         {{document.title}}
                                     </a>
                                 </td>
@@ -36,7 +36,7 @@
                                   {% endwith %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'main.views.signabledocument_sign' document.pk %}" class="btn btn-xs btn-primary">
+                                    <a href="{% url 'main-views-signabledocument_sign' document.pk %}" class="btn btn-xs btn-primary">
                                       {% if document.user_signed %}
                                         {% trans "Voir la signature" %}
                                       {% else %}
@@ -71,7 +71,7 @@
                         {% for signature in signatures %}
                             <tr>
                                 <td>
-                                    <a href="{% url 'main.views.signabledocument_sign' signature.document.pk %}">
+                                    <a href="{% url 'main-views-signabledocument_sign' signature.document.pk %}">
                                         {{signature.document.title}}
                                     </a>
                                 </td>
@@ -85,7 +85,7 @@
                                 </td>
                                 <td>
                                     {% if signature.is_valid %}
-                                      <a href="{% url 'main.views.signabledocument_sign' signature.document.pk %}" class="btn btn-xs btn-primary">
+                                      <a href="{% url 'main-views-signabledocument_sign' signature.document.pk %}" class="btn btn-xs btn-primary">
                                         {% trans "Voir la signature" %}
                                       </a>
                                     {% endif %}

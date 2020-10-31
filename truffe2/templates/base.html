@@ -47,7 +47,7 @@
                 <span id="logo"><a href="/"><img src="{{MEDIA_URL}}img/logo{% if request.META.HTTP_HOST == 'truffe2testing.agepoly.ch' %}_testing{% endif %}.png" alt="Truffe"></a></span>
                 <!-- END LOGO PLACEHOLDER -->
 
-                <span id="activity" class="activity-dropdown" url="{% url 'notifications.views.dropdown' %}">
+                <span id="activity" class="activity-dropdown" url="{% url 'notifications-views-dropdown' %}">
                     <i class="fa fa-bell"></i>
                     <b class="badge bounceIn animated">{{notifications_count}}</b>
                 </span>
@@ -67,7 +67,7 @@
 
                 <!-- logout button -->
                 <div id="logout" class="btn-header transparent pull-right">
-                    <span> <a href="{% url 'django.contrib.auth.views.logout' %}" title="{% trans "Logout" %}"><i class="fa fa-sign-out"></i></a> </span>
+                    <span> <a href="{% url 'django-contrib-auth-views-logout' %}" title="{% trans "Logout" %}"><i class="fa fa-sign-out"></i></a> </span>
                 </div>
                 <!-- end logout button -->
 
@@ -100,8 +100,8 @@
             <div class="login-info">
                 <span>
                     {% if user and user.pk %}
-                        <a href="{% url 'users.views.users_profile' user.pk %}">
-                            <img src="{% url 'users.views.users_profile_picture' user.pk %}" alt="" class="online" />
+                        <a href="{% url 'users-views-users_profile' user.pk %}">
+                            <img src="{% url 'users-views-users_profile_picture' user.pk %}" alt="" class="online" />
                             <span>
                                 {{user.get_full_name}}
                             </span>
@@ -113,7 +113,7 @@
             <nav>
                 <ul>
                     <li id="menu-home">
-                        <a href="{% url 'main.views.home' %}" title="{% trans "Accueil" %}"><i class="fa fa-lg fa-fw fa-home"></i> <span class="menu-item-parent">{% trans "Accueil" %}</span></a>
+                        <a href="{% url 'main-views-home' %}" title="{% trans "Accueil" %}"><i class="fa fa-lg fa-fw fa-home"></i> <span class="menu-item-parent">{% trans "Accueil" %}</span></a>
                     </li>
 
                     {% cache 900 "leftmenu-links-main-top" %}
@@ -133,7 +133,7 @@
                                 </li>
 
                                 <li id="menu-admin-logging">
-                                    <a href="{% url 'main.views.last_100_logging_entries' %}"><i class="fa fa-lg fa-fw fa-list"></i> {% trans "Logging général" %}</a>
+                                    <a href="{% url 'main-views-last_100_logging_entries' %}"><i class="fa fa-lg fa-fw fa-list"></i> {% trans "Logging général" %}</a>
                                 </li>
 
                                 {% cache 900 "leftmenu-links-admin" %}
@@ -146,14 +146,14 @@
                         <a href="#"><i class="fa fa-lg fa-fw fa-group"></i> <span class="menu-item-parent">{% trans "Gens" %}</span></a>
                         <ul>
                             <li id="menu-gens-annuaire">
-                                <a href="{% url 'users.views.users_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Annuaire global" %}</a>
+                                <a href="{% url 'users-views-users_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Annuaire global" %}</a>
                             </li>
                             <li id="menu-gens-myunit">
-                                <a href="{% url 'users.views.users_myunit_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Mon unité" %}</a>
+                                <a href="{% url 'users-views-users_myunit_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Mon unité" %}</a>
                             </li>
                             {% if user and user.pk %}
                                 <li id="menu-gens-monprofile">
-                                    <a href="{% url 'users.views.users_profile' user.pk %}"><i class="fa fa-lg fa-fw fa-user"></i> {% trans "Mon profil" %}</a>
+                                    <a href="{% url 'users-views-users_profile' user.pk %}"><i class="fa fa-lg fa-fw fa-user"></i> {% trans "Mon profil" %}</a>
                                 </li>
                             {% endif %}
 
@@ -167,17 +167,17 @@
                         <ul>
                             {% ifhasright 'main.models.HomePageNews' user 'LIST' %}
                                 <li id="menu-communication-homepagenews">
-                                    <a href="{% url 'main.views.homepagenews_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "News Truffe" %}</a>
+                                    <a href="{% url 'main-views-homepagenews_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "News Truffe" %}</a>
                                 </li>
                             {% endifhasright %}
                             {% ifhasright 'communication.models.WebsiteNews' user 'LIST' %}
                                 <li id="menu-communication-websitenews">
-                                    <a href="{% url 'communication.views.websitenews_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "News du site de l'AGEPoly" %}</a>
+                                    <a href="{% url 'communication-views-websitenews_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "News du site de l'AGEPoly" %}</a>
                                 </li>
                             {% endifhasright %}
                             {% ifhasright 'communication.models.AgepSlide' user 'LIST' %}
                                 <li id="menu-communication-agepslide">
-                                    <a href="{% url 'communication.views.agepslide_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "Slides des écrans de l'AGEPoly" %}</a>
+                                    <a href="{% url 'communication-views-agepslide_list' %}"><i class="fa fa-lg fa-fw fa-home"></i> {% trans "Slides des écrans de l'AGEPoly" %}</a>
                                 </li>
                             {% endifhasright %}
 
@@ -189,31 +189,31 @@
 
                                         {% ifhasright 'communication.models.DisplayReservation' user 'LIST' %}
                                             <li id="menu-communication-display-reservation">
-                                                <a href="{% url 'communication.views.displayreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations d'affichage" %}</a>
+                                                <a href="{% url 'communication-views-displayreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations d'affichage" %}</a>
                                             </li>
                                             <li id="menu-communication-display-reservation-calendar">
-                                                <a href="{% url 'communication.views.displayreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
+                                                <a href="{% url 'communication-views-displayreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
                                             </li>
                                         {% endifhasright %}
 
                                         {% ifhasright 'communication.models.DisplayReservation' user 'CREATE' %}
                                             <li id="menu-communication-display-reservation-directory">
-                                                <a href="{% url 'communication.views.displayreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste des affichages" %}</a>
+                                                <a href="{% url 'communication-views-displayreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste des affichages" %}</a>
                                             </li>
                                         {% endifhasright %}
 
                                         {% ifhasright 'communication.models.Display' user 'LIST' %}
                                             <li id="menu-communication-display">
-                                                <a href="{% url 'communication.views.display_list' %}"><i class="fa fa-lg fa-fw fa-clipboard"></i> {% trans "Gestion des affichages" %}</a>
+                                                <a href="{% url 'communication-views-display_list' %}"><i class="fa fa-lg fa-fw fa-clipboard"></i> {% trans "Gestion des affichages" %}</a>
                                             </li>
                                         {% endifhasright %}
 
                                         {% ifhasright 'communication.models.Display' user 'LIST' %}
                                             <li id="menu-communication-display-reservation-related">
-                                                <a href="{% url 'communication.views.displayreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mes affichages" %}</a>
+                                                <a href="{% url 'communication-views-displayreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mes affichages" %}</a>
                                             </li>
                                             <li id="menu-communication-display-reservation-calendar-related">
-                                                <a href="{% url 'communication.views.displayreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mes affichages" %}</a>
+                                                <a href="{% url 'communication-views-displayreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mes affichages" %}</a>
                                             </li>
                                         {% endifhasright %}
 
@@ -225,11 +225,11 @@
                             {% endifhasright %}
 
                             <li id="menu-communication-logo-public">
-                                <a href="{% url 'communication.views.logo_public_list' %}"><i class="fa fa-lg fa-fw fa-picture-o"></i> {% trans "Logos" %}</a>
+                                <a href="{% url 'communication-views-logo_public_list' %}"><i class="fa fa-lg fa-fw fa-picture-o"></i> {% trans "Logos" %}</a>
                             </li>
                             {% ifhasright 'communication.models.Logo' user 'LIST' %}
                                 <li id="menu-communication-logo">
-                                    <a href="{% url 'communication.views.logo_list' %}"><i class="fa fa-lg fa-fw fa-picture-o"></i> {% trans "Gestion des logos" %}</a>
+                                    <a href="{% url 'communication-views-logo_list' %}"><i class="fa fa-lg fa-fw fa-picture-o"></i> {% trans "Gestion des logos" %}</a>
                                 </li>
                             {% endifhasright %}
 
@@ -249,31 +249,31 @@
 
                                         {% ifhasright 'logistics.models.SupplyReservation' user 'LIST' %}
                                             <li id="menu-logistics-supply-reservation">
-                                                <a href="{% url 'logistics.views.supplyreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de matériel" %}</a>
+                                                <a href="{% url 'logistics-views-supplyreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de matériel" %}</a>
                                             </li>
                                             <li id="menu-logistics-supply-reservation-calendar">
-                                                <a href="{% url 'logistics.views.supplyreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
+                                                <a href="{% url 'logistics-views-supplyreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
                                             </li>
                                         {% endifhasright %}
 
                                         {% ifhasright 'logistics.models.SupplyReservation' user 'CREATE' %}
                                             <li id="menu-logistics-supply-reservation-directory">
-                                                <a href="{% url 'logistics.views.supplyreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste du matériel" %}</a>
+                                                <a href="{% url 'logistics-views-supplyreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste du matériel" %}</a>
                                             </li>
                                         {% endifhasright %}
 
                                         {% ifhasright 'logistics.models.Supply' user 'LIST' %}
                                             <li id="menu-logistics-supply">
-                                                <a href="{% url 'logistics.views.supply_list' %}"><i class="fa fa-lg fa-fw fa-umbrella"></i> {% trans "Gestion du matériel" %}</a>
+                                                <a href="{% url 'logistics-views-supply_list' %}"><i class="fa fa-lg fa-fw fa-umbrella"></i> {% trans "Gestion du matériel" %}</a>
                                             </li>
                                         {% endifhasright %}
 
                                         {% ifhasright 'logistics.models.Supply' user 'LIST' %}
                                             <li id="menu-logistics-supply-reservation-related">
-                                                <a href="{% url 'logistics.views.supplyreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mon matériel" %}</a>
+                                                <a href="{% url 'logistics-views-supplyreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mon matériel" %}</a>
                                             </li>
                                             <li id="menu-logistics-supply-reservation-calendar-related">
-                                                <a href="{% url 'logistics.views.supplyreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mon matériel" %}</a>
+                                                <a href="{% url 'logistics-views-supplyreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mon matériel" %}</a>
                                             </li>
                                         {% endifhasright %}
 
@@ -292,30 +292,30 @@
 
                                         {% ifhasright 'logistics.models.RoomReservation' user 'LIST' %}
                                             <li id="menu-logistics-room-reservation">
-                                                <a href="{% url 'logistics.views.roomreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de salle" %}</a>
+                                                <a href="{% url 'logistics-views-roomreservation_list' %}"><i class="fa fa-lg fa-fw fa-bookmark"></i> {% trans "Réservations de salle" %}</a>
                                             </li>
                                             <li id="menu-logistics-room-reservation-calendar">
-                                                <a href="{% url 'logistics.views.roomreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
+                                                <a href="{% url 'logistics-views-roomreservation_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
                                             </li>
                                         {% endifhasright %}
                                         {% ifhasright 'logistics.models.RoomReservation' user 'CREATE' %}
                                             <li id="menu-logistics-room-reservation-directory">
-                                                <a href="{% url 'logistics.views.roomreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste des salles" %}</a>
+                                                <a href="{% url 'logistics-views-roomreservation_directory' %}"><i class="fa fa-lg fa-fw fa-folder"></i> {% trans "Liste des salles" %}</a>
                                             </li>
                                         {% endifhasright %}
 
                                         {% ifhasright 'logistics.models.Room' user 'LIST' %}
                                             <li id="menu-logistics-room">
-                                                <a href="{% url 'logistics.views.room_list' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Gestion des salles" %}</a>
+                                                <a href="{% url 'logistics-views-room_list' %}"><i class="fa fa-lg fa-fw fa-hospital"></i> {% trans "Gestion des salles" %}</a>
                                             </li>
                                         {% endifhasright %}
 
                                         {% ifhasright 'logistics.models.Room' user 'LIST' %}
                                             <li id="menu-logistics-room-reservation-related">
-                                                <a href="{% url 'logistics.views.roomreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mes salles" %}</a>
+                                                <a href="{% url 'logistics-views-roomreservation_list_related' %}"><i class="fa fa-lg fa-fw fa-bookmark-o"></i> {% trans "Réservations de mes salles" %}</a>
                                             </li>
                                             <li id="menu-logistics-room-reservation-calendar-related">
-                                                <a href="{% url 'logistics.views.roomreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mes salles" %}</a>
+                                                <a href="{% url 'logistics-views-roomreservation_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier des réservation de mes salles" %}</a>
                                             </li>
                                         {% endifhasright %}
 
@@ -333,37 +333,37 @@
 
                                     {% ifhasright 'vehicles.models.Booking' user 'LIST' %}
                                         <li id="menu-vehicles-booking">
-                                            <a href="{% url 'vehicles.views.booking_list' %}"><i class="fa fa-lg fa-fw fa-ambulance"></i> {% trans "Réservations" %}</a>
+                                            <a href="{% url 'vehicles-views-booking_list' %}"><i class="fa fa-lg fa-fw fa-ambulance"></i> {% trans "Réservations" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'vehicles.models.Booking' user 'LIST' %}
                                         <li id="menu-vehicles-booking-calendar">
-                                            <a href="{% url 'vehicles.views.booking_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
+                                            <a href="{% url 'vehicles-views-booking_calendar' %}"><i class="fa fa-lg fa-fw fa-calendar"></i> {% trans "Calendrier de mes réservations" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'vehicles.models.Booking' user 'VALIDATE' %}
                                         <li id="menu-vehicles-booking-calendar-related">
-                                            <a href="{% url 'vehicles.views.booking_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier de toutes les réservations" %}</a>
+                                            <a href="{% url 'vehicles-views-booking_calendar_related' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Calendrier de toutes les réservations" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'vehicles.models.Provider' user 'LIST' %}
                                         <li id="menu-vehicles-provider">
-                                            <a href="{% url 'vehicles.views.provider_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Fournisseurs" %}</a>
+                                            <a href="{% url 'vehicles-views-provider_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Fournisseurs" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'vehicles.models.VehicleType' user 'LIST' %}
                                         <li id="menu-vehicles-type">
-                                            <a href="{% url 'vehicles.views.vehicletype_list' %}"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Types de véhicules" %}</a>
+                                            <a href="{% url 'vehicles-views-vehicletype_list' %}"><i class="fa fa-lg fa-fw fa-truck"></i> {% trans "Types de véhicules" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'vehicles.models.Card' user 'LIST' %}
                                         <li id="menu-vehicles-cards">
-                                            <a href="{% url 'vehicles.views.card_list' %}"><i class="fa fa-lg fa-fw fa-credit-card"></i> {% trans "Cartes" %}</a>
+                                            <a href="{% url 'vehicles-views-card_list' %}"><i class="fa fa-lg fa-fw fa-credit-card"></i> {% trans "Cartes" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'vehicles.models.Location' user 'LIST' %}
                                         <li id="menu-vehicles-location">
-                                            <a href="{% url 'vehicles.views.location_list' %}"><i class="fa fa-lg fa-fw fa-location-arrow"></i> {% trans "Lieux" %}</a>
+                                            <a href="{% url 'vehicles-views-location_list' %}"><i class="fa fa-lg fa-fw fa-location-arrow"></i> {% trans "Lieux" %}</a>
                                         </li>
                                     {% endifhasright %}
 
@@ -384,27 +384,27 @@
                         <ul>
                             {% ifhasright 'units.models.Unit' user 'LIST' %}
                                 <li id="menu-units-units">
-                                    <a href="{% url 'units.views.unit_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Unités" %}</a>
+                                    <a href="{% url 'units-views-unit_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Unités" %}</a>
                                 </li>
                             {% endifhasright %}
                             {% ifhasright 'units.models.Role' user 'LIST' %}
                                 <li id="menu-units-roles">
-                                    <a href="{% url 'units.views.role_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Rôles" %}</a>
+                                    <a href="{% url 'units-views-role_list' %}"><i class="fa fa-lg fa-fw fa-group"></i> {% trans "Rôles" %}</a>
                                 </li>
                             {% endifhasright %}
                             {% ifhasright 'units.models.Accreditation' user 'LIST' %}
                                 <li id="menu-units-accreds">
-                                    <a href="{% url 'units.views.accreds_list' %}"><i class="fa fa-lg fa-fw fa-key"></i> {% trans "Accréditations" %}</a>
+                                    <a href="{% url 'units-views-accreds_list' %}"><i class="fa fa-lg fa-fw fa-key"></i> {% trans "Accréditations" %}</a>
                                 </li>
                             {% endifhasright %}
                             {% ifhasright 'units.models.AccessDelegation' user 'LIST' %}
                                 <li id="menu-units-delegations">
-                                    <a href="{% url 'units.views.accessdelegation_list' %}"><i class="fa fa-lg fa-fw fa-key"></i> {% trans "Délégations d'accès" %}</a>
+                                    <a href="{% url 'units-views-accessdelegation_list' %}"><i class="fa fa-lg fa-fw fa-key"></i> {% trans "Délégations d'accès" %}</a>
                                 </li>
                             {% endifhasright %}
                             {% ifhasright 'members.models.MemberSet' user 'LIST' %}
                                 <li id="menu-members-memberset">
-                                    <a href="{% url 'members.views.memberset_list' %}"><i class="fa fa-lg fa-fw fa-male"></i> {% trans "Membres de l'unité" %}</a>
+                                    <a href="{% url 'members-views-memberset_list' %}"><i class="fa fa-lg fa-fw fa-male"></i> {% trans "Membres de l'unité" %}</a>
                                 </li>
                             {% endifhasright %}
 
@@ -421,17 +421,17 @@
                                 <ul>
                                     {% ifhasright 'accounting_main.models.AccountingLine' user 'LIST' %}
                                         <li id="menu-compta-compta">
-                                            <a href="{% url 'accounting_main.views.accountingline_list' %}"><i class="fa fa-lg fa-fw fa-ellipsis-horizontal"></i> {% trans "Ma compta" %}</a>
+                                            <a href="{% url 'accounting_main-views-accountingline_list' %}"><i class="fa fa-lg fa-fw fa-ellipsis-horizontal"></i> {% trans "Ma compta" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'accounting_main.models.AccountingError' user 'LIST' %}
                                         <li id="menu-compta-errors">
-                                            <a href="{% url 'accounting_main.views.accountingerror_list' %}"><i class="fa fa-lg fa-fw fa-warning"></i> {% trans "Erreurs" %}</a>
+                                            <a href="{% url 'accounting_main-views-accountingerror_list' %}"><i class="fa fa-lg fa-fw fa-warning"></i> {% trans "Erreurs" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'accounting_main.models.AccountingLine' user 'IMPORT' %}
                                         <li id="menu-compta-import">
-                                            <a href="{% url 'accounting_main.views.accounting_import_step0' %}"><i class="fa-lg fa-fw glyphicon glyphicon-import"></i> {% trans "Importer la compta" %}</a>
+                                            <a href="{% url 'accounting_main-views-accounting_import_step0' %}"><i class="fa-lg fa-fw glyphicon glyphicon-import"></i> {% trans "Importer la compta" %}</a>
                                         </li>
                                     {% endifhasright %}
 
@@ -445,35 +445,35 @@
                                 <ul>
                                     {% ifhasright 'accounting_tools.models.InternalTransfer' user 'LIST' %}
                                         <li id="menu-compta-transfert">
-                                            <a href="{% url 'accounting_tools.views.internaltransfer_list' %}"><i class="fa fa-lg fa-fw fa-exchange"></i> {% trans "Transferts internes" %}</a>
+                                            <a href="{% url 'accounting_tools-views-internaltransfer_list' %}"><i class="fa fa-lg fa-fw fa-exchange"></i> {% trans "Transferts internes" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'accounting_tools.models.Withdrawal' user 'LIST' %}
                                         <li id="menu-compta-rcash">
-                                            <a href="{% url 'accounting_tools.views.withdrawal_list' %}"><i class="fa fa-lg fa-fw fa-share-square-o"></i> {% trans "Retraits cash" %}</a>
+                                            <a href="{% url 'accounting_tools-views-withdrawal_list' %}"><i class="fa fa-lg fa-fw fa-share-square-o"></i> {% trans "Retraits cash" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'accounting_tools.models.Invoice' user 'LIST' %}
                                         <li id="menu-compta-invoice">
-                                            <a href="{% url 'accounting_tools.views.invoice_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Factures (Client)" %}</a>
+                                            <a href="{% url 'accounting_tools-views-invoice_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Factures (Client)" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     
                                     {% ifhasright 'accounting_tools.models.ProviderInvoice' user 'LIST' %}
                                         <li id="menu-compta-provider-invoice">
-                                            <a href="{% url 'accounting_tools.views.providerinvoice_list' %}"><i class="fa fa-lg fa-fw fa-shopping-cart"></i> {% trans "Factures (Fournisseur)" %}</a>
+                                            <a href="{% url 'accounting_tools-views-providerinvoice_list' %}"><i class="fa fa-lg fa-fw fa-shopping-cart"></i> {% trans "Factures (Fournisseur)" %}</a>
                                         </li>
                                     {% endifhasright %}
                                    
                                     {% ifhasright 'accounting_tools.models.FinancialProvider' user 'LIST' %}
                                         <li id="menu-compta-financial-provider">
-                                            <a href="{% url 'accounting_tools.views.financialprovider_list' %}"><i class="fa fa-lg fa-fw fa-book"></i> {% trans "Fournisseurs" %}</a>
+                                            <a href="{% url 'accounting_tools-views-financialprovider_list' %}"><i class="fa fa-lg fa-fw fa-book"></i> {% trans "Fournisseurs" %}</a>
                                         </li>
                                     {% endifhasright %}
 
                                     {% ifhasright 'accounting_main.models.Budget' user 'LIST' %}
                                         <li id="menu-compta-budget">
-                                            <a href="{% url 'accounting_main.views.budget_list' %}"><i class="fa fa-lg fa-fw fa-briefcase"></i> {% trans "Budgets" %}</a>
+                                            <a href="{% url 'accounting_main-views-budget_list' %}"><i class="fa fa-lg fa-fw fa-briefcase"></i> {% trans "Budgets" %}</a>
                                         </li>
                                     {% endifhasright %}
 
@@ -487,12 +487,12 @@
                                 <ul>
                                     <li id="menu-compta-ndf">
                                         {% ifhasright 'accounting_tools.models.ExpenseClaim' user 'LIST' %}
-                                            <a href="{% url 'accounting_tools.views.expenseclaim_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Notes de frais" %}</a>
+                                            <a href="{% url 'accounting_tools-views-expenseclaim_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Notes de frais" %}</a>
                                         {% endifhasright %}
                                     </li>
                                     {% ifhasright 'accounting_tools.models.CashBook' user 'LIST' %}
                                         <li id="menu-compta-jdc">
-                                            <a href="{% url 'accounting_tools.views.cashbook_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Journaux de caisse" %}</a>
+                                            <a href="{% url 'accounting_tools-views-cashbook_list' %}"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i> {% trans "Journaux de caisse" %}</a>
                                         </li>
                                     {% endifhasright %}
 
@@ -503,7 +503,7 @@
                             </li>
                             {% ifhasright 'accounting_tools.models.Subvention' user 'LIST' %}
                                 <li id="menu-compta-subventions">
-                                    <a href="{% url 'accounting_tools.views.subvention_list' %}"><i class="fa fa-lg fa-fw fa-gift"></i> {% trans "Demandes de subvention" %}</a>
+                                    <a href="{% url 'accounting_tools-views-subvention_list' %}"><i class="fa fa-lg fa-fw fa-gift"></i> {% trans "Demandes de subvention" %}</a>
                                 </li>
                             {% endifhasright %}
                             <li>
@@ -511,27 +511,27 @@
                                 <ul>
                                     {% ifhasright 'accounting_core.models.AccountingYear' user 'LIST' %}
                                         <li id="menu-compta-anneecomptable">
-                                            <a href="{% url 'accounting_core.views.accountingyear_list' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Années Comptables" %}</a>
+                                            <a href="{% url 'accounting_core-views-accountingyear_list' %}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> {% trans "Années Comptables" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'accounting_core.models.CostCenter' user 'LIST' %}
                                         <li id="menu-compta-centrecouts">
-                                            <a href="{% url 'accounting_core.views.costcenter_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Centres de coût" %}</a>
+                                            <a href="{% url 'accounting_core-views-costcenter_list' %}"><i class="fa fa-lg fa-fw fa-suitcase"></i> {% trans "Centres de coût" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'accounting_core.models.Account' user 'LIST' %}
                                         <li id="menu-compta-comptesCG">
-                                            <a href="{% url 'accounting_core.views.account_list' %}"><i class="fa fa-lg fa-fw fa-money"></i> {% trans "Comptes de CG" %}</a>
+                                            <a href="{% url 'accounting_core-views-account_list' %}"><i class="fa fa-lg fa-fw fa-money"></i> {% trans "Comptes de CG" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'accounting_core.models.AccountCategory' user 'LIST' %}
                                         <li id="menu-compta-categoriescompteCG">
-                                            <a href="{% url 'accounting_core.views.accountcategory_list' %}"><i class="fa fa-lg fa-fw fa-folder-open"></i> {% trans "Catégories des comptes" %}</a>
+                                            <a href="{% url 'accounting_core-views-accountcategory_list' %}"><i class="fa fa-lg fa-fw fa-folder-open"></i> {% trans "Catégories des comptes" %}</a>
                                         </li>
                                     {% endifhasright %}
                                     {% ifhasright 'accounting_core.models.TVA' user 'LIST' %}
                                         <li id="menu-compta-tva">
-                                            <a href="{% url 'accounting_core.views.tva_list' %}"><i class="fa fa-lg fa-fw fa-filter"></i> {% trans "TVAs" %}</a>
+                                            <a href="{% url 'accounting_core-views-tva_list' %}"><i class="fa fa-lg fa-fw fa-filter"></i> {% trans "TVAs" %}</a>
                                         </li>
                                     {% endifhasright %}
 
@@ -543,7 +543,7 @@
 
                             {% ifhasright 'main.models.File' user '!LIST_ACCOUNTING' %}
                                 <li id="menu-_files-accounting">
-                                    <a href="{% url 'main.views.file_download_list' %}?group=accounting"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
+                                    <a href="{% url 'main-views-file_download_list' %}?group=accounting"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
                                 </li>
                             {% endifhasright %}
 
@@ -558,7 +558,7 @@
                         <ul>
                             {% ifhasright 'main.models.File' user '!LIST_CS' %}
                                 <li id="menu-_files-cs">
-                                    <a href="{% url 'main.views.file_download_list' %}?group=cs"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
+                                    <a href="{% url 'main-views-file_download_list' %}?group=cs"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
                                 </li>
                             {% endifhasright %}
 
@@ -573,36 +573,36 @@
                         <ul>
                             {% ifhasright 'main.models.Link' user '!SHOW_BASE' %}
                                 <li id="menu-misc-link-base">
-                                    <a href="{% url 'main.views.link_base' %}"><i class="fa fa-lg fa-fw fa-link"></i> {% trans "Liens" %}</a>
+                                    <a href="{% url 'main-views-link_base' %}"><i class="fa fa-lg fa-fw fa-link"></i> {% trans "Liens" %}</a>
                                 </li>
                             {% endifhasright %}
 
                             {% ifhasright 'main.models.Link' user 'LIST' %}
                                 <li id="menu-misc-links">
-                                    <a href="{% url 'main.views.link_list' %}"><i class="fa fa-lg fa-fw fa-link"></i> {% trans "Gestion des liens" %}</a>
+                                    <a href="{% url 'main-views-link_list' %}"><i class="fa fa-lg fa-fw fa-link"></i> {% trans "Gestion des liens" %}</a>
                                 </li>
                             {% endifhasright %}
 
                             {% ifhasright 'main.models.File' user '!LIST_MISC' %}
                                 <li id="menu-_files-misc">
-                                    <a href="{% url 'main.views.file_download_list' %}?group=misc"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
+                                    <a href="{% url 'main-views-file_download_list' %}?group=misc"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Fichiers" %}</a>
                                 </li>
                             {% endifhasright %}
 
                             {% ifhasright 'main.models.File' user 'LIST' %}
                                 <li id="menu-misc-files">
-                                    <a href="{% url 'main.views.file_list' %}"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Gestion des fichiers" %}</a>
+                                    <a href="{% url 'main-views-file_list' %}"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Gestion des fichiers" %}</a>
                                 </li>
                             {% endifhasright %}
 
                             {% ifhasright 'main.models.SignableDocument' user 'LIST' %}
                                 <li id="menu-misc-documents">
-                                    <a href="{% url 'main.views.signabledocument_list' %}"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Gestion des documents à signer" %}</a>
+                                    <a href="{% url 'main-views-signabledocument_list' %}"><i class="fa fa-lg fa-fw fa-file-text-o"></i> {% trans "Gestion des documents à signer" %}</a>
                                 </li>
                             {% endifhasright %}
 
                             <li id="menu-misc-mydocuments">
-                                <a href="{% url 'main.views.signabledocument_signs' %}"><i class="fa fa-lg fa-fw fa-thumbs-up"></i> {% trans "Documents à signer" %}</a>
+                                <a href="{% url 'main-views-signabledocument_signs' %}"><i class="fa fa-lg fa-fw fa-thumbs-up"></i> {% trans "Documents à signer" %}</a>
                             </li>
 
                             {% cache 900 "leftmenu-links-misc" %}
@@ -611,7 +611,7 @@
                         </ul>
                     </li>
                     <li id="menu-notifications">
-                        <a href="{% url 'notifications.views.notification_center' %}">
+                        <a href="{% url 'notifications-views-notification_center' %}">
                             <i class="fa fa-lg fa-fw fa-bell"></i>
                             <span class="menu-item-parent">{% trans "Centre de notifications" %}</span>
                         </a>
@@ -638,7 +638,7 @@
                 <!-- breadcrumb -->
                 <ol class="breadcrumb">
                     {% block ribbon %}
-                        <li><a href="{% url 'main.views.home' %}"><i class="fa fa-home"></i> {% trans "Accueil" %}</a></li>
+                        <li><a href="{% url 'main-views-home' %}"><i class="fa fa-home"></i> {% trans "Accueil" %}</a></li>
                     {% endblock %}
                 </ol>
                 <!-- end breadcrumb -->
@@ -653,7 +653,7 @@
                     <div class="alert alert-danger">
                         {% trans "Ton profil n'est pas correctement rempli : il faut au moins indiquer ton téléphone portable, ton adresse, ta banque et ton IBAN !" %}
 
-                        <a href="{% url 'users.views.users_profile' user.pk %}" class="btn btn-xs btn-primary">{% trans "Modifier" %}</a>
+                        <a href="{% url 'users-views-users_profile' user.pk %}" class="btn btn-xs btn-primary">{% trans "Modifier" %}</a>
                     </div>
                 {% endif %}
 
@@ -737,11 +737,11 @@
             })
 
             function notification_ignore(pk) {
-                $.ajax('{% url 'notifications.views.dropdown' %}?read=' + pk).done(function(data) {$('#activity').next('.ajax-dropdown').html(data); });
+                $.ajax('{% url 'notifications-views-dropdown' %}?read=' + pk).done(function(data) {$('#activity').next('.ajax-dropdown').html(data); });
             }
 
             function mark_all_as_ok() {
-                $.ajax('{% url 'notifications.views.dropdown' %}?allread=jeu').done(function(data) {$('#activity').next('.ajax-dropdown').html(data); });
+                $.ajax('{% url 'notifications-views-dropdown' %}?allread=jeu').done(function(data) {$('#activity').next('.ajax-dropdown').html(data); });
 
             }
 

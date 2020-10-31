@@ -38,16 +38,16 @@
                 {% include "widget/footer.html" %}
 
                 <div class="pull-right">
-                    <a href="{% url 'users.views.users_myunit_vcard' %}" class="btn btn-info">
+                    <a href="{% url 'users-views-users_myunit_vcard' %}" class="btn btn-info">
                         <i class="fa fa-download"></i>
                         {% trans "VCARD de l'unité" %}
                     </a>
-                    <a href="{% url 'users.views.users_myunit_pdf' %}" class="btn btn-primary" target="_blank">
+                    <a href="{% url 'users-views-users_myunit_pdf' %}" class="btn btn-primary" target="_blank">
                         <i class="fa fa-file-text"></i>
                         {% trans "PDF de l'unité" %}
                     </a>
 
-                    <a href="{% url 'users.views.users_myunit_pdf' %}?no_display=1" class="btn btn-primary" target="_blank">
+                    <a href="{% url 'users-views-users_myunit_pdf' %}?no_display=1" class="btn btn-primary" target="_blank">
                         <i class="fa fa-file-text"></i>
                         {% trans "PDF de l'unité (sans titres)" %}
                     </a>
@@ -76,7 +76,7 @@
 
     </script>
 
-    {% with id="main_list_table" json_url="users.views.users_myunit_list_json" with_upk=True default_sort="[4, 'asc']" %}{% include "datatables.html" %}{% endwith %}
+    {% with id="main_list_table" json_url="users-views-users_myunit_list_json" with_upk=True default_sort="[4, 'asc']" %}{% include "datatables.html" %}{% endwith %}
 
 {% endblock %}
 

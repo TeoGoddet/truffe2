@@ -175,7 +175,7 @@ FN:%s
         return self.iban_ou_ccp and self.mobile and self.nom_banque and self.adresse and self.first_name and self.last_name
 
     def display_url(self):
-        return reverse('users.views.users_profile', args=(self.pk,))
+        return reverse('users-views-users_profile', args=(self.pk,))
 
     class MetaData:
         base_title = _(u'Utilisateur')

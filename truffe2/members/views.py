@@ -9,12 +9,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
-
 from app.ldaputils import get_attrs_of_sciper
 from members.forms2 import MembershipAddForm, MembershipImportForm, MembershipImportListForm
 from generic.datatables import generic_list_json
 from users.models import TruffeUser
-
 
 import json
 import re
@@ -83,7 +81,7 @@ def membership_delete(request, pk):
         MemberSetLogging(who=request.user, what='edited', object=membership.group, extra_data='{"edited": {"%s": ["Membre", "None"]}}' % (membership.user.get_full_name(),)).save()
         messages.success(request, _(u'Membre retiré !'))
 
-        return redirect('members.views.memberset_show', membership.group.pk)
+        return redirect('members-views-memberset_show', membership.group.pk)
 
     return render(request, 'members/membership/delete.html', {'membership': membership})
 
@@ -104,7 +102,7 @@ def membership_toggle_fees(request, pk):
                      extra_data='{"edited": {"Cotisation %s": ["%s ", "%s"]}}' % (membership.user.get_full_name(), not membership.payed_fees, membership.payed_fees)).save()
     messages.success(request, _(u'Cotisation mise à jour !'))
 
-    return redirect('members.views.memberset_show', membership.group.pk)
+    return redirect('members-views-memberset_show', membership.group.pk)
 
 
 @login_required

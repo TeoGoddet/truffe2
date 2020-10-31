@@ -2,5 +2,5 @@
 {% load i18n generic_extras rights_extras %}
 
 {% block bonus_buttons %}
-    {% ifhasright elem user 'DISPLAY_ACTIVE_USERS' %}<a href=\"{% url 'units.views.role_userslist' elem.pk %}\" style=\"margin-left: 3px;\" class=\"btn btn-xs btn-info\" title=\"{% trans "Utilisateurs avec ce rôle" %}\" rel=\"tooltip\"><i class=\"fa fa-user\"></i></a>{% endifhasright %}
+    {% ifhasright elem user 'DISPLAY_ACTIVE_USERS' %}<a href=\"{% url 'units-views-role_userslist' elem.pk %}\" style=\"margin-left: 3px;\" class=\"btn btn-xs btn-info\" title=\"{% trans "Utilisateurs avec ce rôle" %}\" rel=\"tooltip\"><i class=\"fa fa-user\"></i></a>{% endifhasright %}
 {% endblock %}

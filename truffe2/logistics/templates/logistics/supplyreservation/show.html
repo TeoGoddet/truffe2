@@ -62,7 +62,7 @@
 
 {% block bonus_buttons %}
     {% if related_mode %}
-        <a href="{% url 'logistics.views.loanagreement_pdf' obj.pk %}{% if obj.unit %}{{obj.unit|urlencode}}{% else %}{{obj.unit_blank_name|safe}}{% endif %}_{{obj.title|urlencode}}.pdf?\" class="btn btn-info" target=\"blank\"><i class="fa fa-download"></i>{% trans " Convention de prêt" %}</a>
+        <a href="{% url 'logistics-views-loanagreement_pdf' obj.pk %}{% if obj.unit %}{{obj.unit|urlencode}}{% else %}{{obj.unit_blank_name|safe}}{% endif %}_{{obj.title|urlencode}}.pdf?\" class="btn btn-info" target=\"blank\"><i class="fa fa-download"></i>{% trans " Convention de prêt" %}</a>
     {% endif %}
 {% endblock %}
 

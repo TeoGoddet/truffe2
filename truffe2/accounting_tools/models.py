@@ -4,7 +4,7 @@ from django import forms
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes import fields
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.template.defaultfilters import date as _date
@@ -1266,7 +1266,7 @@ class LinkedInfo(models.Model):
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    linked_object = generic.GenericForeignKey('content_type', 'object_id')
+    linked_object = fields.GenericForeignKey('content_type', 'object_id')
 
     user_pk = models.PositiveIntegerField()
     first_name = models.CharField(_(u'Prénom'), max_length=50)
@@ -1719,7 +1719,7 @@ class _CashBook(GenericModel, GenericTaggableObject, GenericAccountingStateModel
 
     content_type = models.ForeignKey(ContentType, blank=True, null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
-    proving_object = generic.GenericForeignKey('content_type', 'object_id')
+    proving_object = fields.GenericForeignKey('content_type', 'object_id')
 
     class MetaData:
         list_display = [

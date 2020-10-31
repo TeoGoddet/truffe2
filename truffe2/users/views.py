@@ -7,7 +7,7 @@ from django.utils.encoding import smart_str
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
-from django.contrib.sites.models import get_current_site
+from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 from django.contrib import messages
@@ -124,7 +124,7 @@ def users_edit(request, pk):
 
             messages.success(request, _(u'Profil sauvegardé !'))
 
-            return redirect('users.views.users_profile', pk=user.pk)
+            return redirect('users-views-users_profile', pk=user.pk)
     else:
         form = TruffeUserForm(request.user, instance=user)
 
@@ -219,7 +219,7 @@ def users_create_external(request):
             user = TruffeUser.objects.create_user('{}{}'.format(trial, int_trial), password=password, **form.cleaned_data)
             send_templated_mail(request, _('Truffe :: Nouveau compte'), 'nobody@truffe.agepoly.ch', [user.email], 'users/users/mail/newuser', {'username': user.username, 'psw': password, 'domain': get_current_site(request).name})
 
-            return redirect('users.views.users_list')
+            return redirect('users-views-users_list')
 
     else:
         form = TruffeCreateUserForm()
@@ -230,7 +230,7 @@ def users_create_external(request):
 def password_change_check(request):
     """Check that user has no sciper before allowing to change password"""
     if request.user.username_is_sciper:
-        return redirect('users.views.users_profile', pk=request.user.pk)
+        return redirect('users-views-users_profile', pk=request.user.pk)
     return redirect('password_change')
 
 
@@ -238,7 +238,7 @@ def password_change_check(request):
 def password_change_done(request):
     """Display validation message after changing password"""
     messages.success(request, _(u'Profil sauvegardé !'))
-    return redirect('users.views.users_profile', pk=request.user.pk)
+    return redirect('users-views-users_profile', pk=request.user.pk)
 
 
 @login_required

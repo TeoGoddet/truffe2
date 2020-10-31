@@ -37,7 +37,7 @@
         $('#id_currency').removeClass('form-control');
         $('#id_currency').css('width', '100%').select2();
     
-        $('#id_provider').parent().before().append('<a href="{% url 'accounting_tools.views.financialprovider_edit' '~' %}" id="new_provider" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> Ajouter un fournisseur</a>');
+        $('#id_provider').parent().before().append('<a href="{% url 'accounting_tools-views-financialprovider_edit' '~' %}" id="new_provider" class="btn btn-xs btn-success pull-right"><i class="fa fa-plus"></i> Ajouter un fournisseur</a>');
 
         update_accounts();
         update_provider();
@@ -45,7 +45,7 @@
 
    
     function update_accounts() {
-        $.ajax('{% url 'accounting_core.views.account_available_list' %}?ypk=' + $('#input_ypk').val()).done(function (data) {
+        $.ajax('{% url 'accounting_core-views-account_available_list' %}?ypk=' + $('#input_ypk').val()).done(function (data) {
 
             var options = '<option value="">----------</option>';
             $.each(data.data, function (index, option) {
@@ -67,7 +67,7 @@
     }
     
     function update_provider() {
-        $.ajax('{% url 'accounting_tools.views.provider_available_list' %}').done(function (data) {
+        $.ajax('{% url 'accounting_tools-views-provider_available_list' %}').done(function (data) {
 
             var old_value = $('#id_provider').val();
 

@@ -36,7 +36,7 @@
     });
 
     function update_users(pk) {
-        $.ajax('{% url 'accounting_core.views.users_available_list_by_unit' 99942999 %}'.replace(99942999, pk)).done(function (data) {
+        $.ajax('{% url 'accounting_core-views-users_available_list_by_unit' 99942999 %}'.replace(99942999, pk)).done(function (data) {
 
             var old_value = $('#id_user').val();
             var options = '<option value=""></option>';
@@ -53,7 +53,7 @@
     }
 
     function update_accounts() {
-        $.ajax('{% url 'accounting_core.views.account_available_list' %}?ypk=' + $('#input_ypk').val()).done(function (data) {
+        $.ajax('{% url 'accounting_core-views-account_available_list' %}?ypk=' + $('#input_ypk').val()).done(function (data) {
 
             var options = '<option value="">----------</option>';
             $.each(data.data, function (index, option) {

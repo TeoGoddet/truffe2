@@ -20,7 +20,7 @@
         });
 
         function update_accounts(pk) {
-            $.ajax('{% url 'accounting_core.views.account_available_list' %}?ypk=' + pk).done(function (data) {
+            $.ajax('{% url 'accounting_core-views-account_available_list' %}?ypk=' + pk).done(function (data) {
                 $('#id_account option').remove();
                 $('#id_account').append(
                     $('<option></option>').val('').html('---------')
@@ -35,7 +35,7 @@
         }
 
         function update_cost_centers_from(pk) {
-            $.ajax('{% url 'accounting_core.views.costcenter_available_list' %}?ypk=' + pk).done(function (data) {
+            $.ajax('{% url 'accounting_core-views-costcenter_available_list' %}?ypk=' + pk).done(function (data) {
                 $('#id_cost_center_from option').remove();
                 $('#id_cost_center_from').append(
                     $('<option></option>').val('').html('---------')
@@ -50,7 +50,7 @@
         }
 
         function update_cost_centers_to(pk) {
-            $.ajax('{% url 'accounting_core.views.costcenter_available_list' %}?ypk=' +  pk).done(function (data) {
+            $.ajax('{% url 'accounting_core-views-costcenter_available_list' %}?ypk=' +  pk).done(function (data) {
                 $('#id_cost_center_to option').remove();
                 $('#id_cost_center_to').append(
                     $('<option></option>').val('').html('---------')

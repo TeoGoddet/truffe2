@@ -2,9 +2,8 @@
 
 from django.db import models
 from django.conf import settings
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.core.urlresolvers import reverse
-from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, Textarea, Form
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
@@ -21,12 +20,10 @@ from haystack import indexes
 import textract
 from celery_haystack.indexes import CelerySearchIndex
 
-from users.models import TruffeUser
 from generic import views
 from generic.forms import GenericForm
 from generic.search import SearchableModel
 from app.utils import get_property
-from notifications.utils import notify_people, unotify_people
 from rights.utils import AutoVisibilityLevel
 
 moderable_things = []
@@ -201,43 +198,43 @@ class GenericModel(models.Model):
                 setattr(views_module, '%s_mayi' % (base_views_name,), views.generate_mayi(module, base_views_name, real_model_class, logging_class))
 
                 # Add urls to views
-                urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^%s/$' % (base_views_name,), '%s_list' % (base_views_name,)),
-                    url(r'^%s/mayi$' % (base_views_name,), '%s_mayi' % (base_views_name,)),
-                    url(r'^%s/json$' % (base_views_name,), '%s_list_json' % (base_views_name,)),
-                    url(r'^%s/deleted$' % (base_views_name,), '%s_deleted' % (base_views_name,)),
-                    url(r'^%s/logs$' % (base_views_name,), '%s_logs' % (base_views_name,)),
-                    url(r'^%s/logs/json$' % (base_views_name,), '%s_logs_json' % (base_views_name,)),
-                    url(r'^%s/(?P<pk>[0-9~]+)/edit$' % (base_views_name,), '%s_edit' % (base_views_name,)),
-                    url(r'^%s/(?P<pk>[0-9,]+)/delete$' % (base_views_name,), '%s_delete' % (base_views_name,)),
-                    url(r'^%s/(?P<pk>[0-9]+)/$' % (base_views_name,), '%s_show' % (base_views_name,)),
-                )
+                urls_module.urlpatterns.extend([ 
+                    url(r'^%s/$' % (base_views_name,), getattr(views_module, '%s_list' % (base_views_name,)), name='%s-%s_list' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/mayi$' % (base_views_name,), getattr(views_module, '%s_mayi' % (base_views_name,)), name='%s-%s_mayi' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/json$' % (base_views_name,), getattr(views_module, '%s_list_json' % (base_views_name,)), name='%s-%s_list_json' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/deleted$' % (base_views_name,), getattr(views_module, '%s_deleted' % (base_views_name,)), name='%s-%s_deleted' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/logs$' % (base_views_name,), getattr(views_module, '%s_logs' % (base_views_name,)), name='%s-%s_logs' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/logs/json$' % (base_views_name,), getattr(views_module, '%s_logs_json' % (base_views_name,)), name='%s-%s_logs_json' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/(?P<pk>[0-9~]+)/edit$' % (base_views_name,), getattr(views_module, '%s_edit' % (base_views_name,)), name='%s-%s_edit' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/(?P<pk>[0-9,]+)/delete$' % (base_views_name,), getattr(views_module, '%s_delete' % (base_views_name,)), name='%s-%s_delete' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/(?P<pk>[0-9]+)/$' % (base_views_name,), getattr(views_module, '%s_show' % (base_views_name,)), name='%s-%s_show' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                ])
 
-                setattr(real_model_class, '_show_view', '%s.%s_show' % (views_module.__name__, base_views_name,))
+                setattr(real_model_class, '_show_view', '%s-%s_show' % (views_module.__name__.replace('.', '-'), base_views_name,))
 
             if issubclass(model_class, GenericStateModel):
                 setattr(views_module, '%s_switch_status' % (base_views_name,), views.generate_switch_status(module, base_views_name, real_model_class, logging_class))
-                urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^%s/(?P<pk>[0-9,]+)/switch_status$' % (base_views_name,), '%s_switch_status' % (base_views_name,)),
-                )
+                urls_module.urlpatterns.extend([
+                    url(r'^%s/(?P<pk>[0-9,]+)/switch_status$' % (base_views_name,), getattr(views_module, '%s_switch_status' % (base_views_name,)), name='%s-%s_switch_status' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__)
+                ])
 
             if hasattr(model_class.MetaData, 'menu_id_calendar'):
                 setattr(views_module, '%s_calendar' % (base_views_name,), views.generate_calendar(module, base_views_name, real_model_class))
                 setattr(views_module, '%s_calendar_json' % (base_views_name,), views.generate_calendar_json(module, base_views_name, real_model_class))
 
-                urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^%s/calendar/$' % (base_views_name,), '%s_calendar' % (base_views_name,)),
-                    url(r'^%s/calendar/json$' % (base_views_name,), '%s_calendar_json' % (base_views_name,)),
-                )
+                urls_module.urlpatterns.extend([
+                    url(r'^%s/calendar/$' % (base_views_name,), getattr(views_module, '%s_calendar' % (base_views_name,)), name='%s-%s_calendar' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/calendar/json$' % (base_views_name,), getattr(views_module, '%s_calendar_json' % (base_views_name,)), name='%s-%s_calendar_json' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                ])
 
             if hasattr(model_class.MetaData, 'menu_id_calendar_related'):
                 setattr(views_module, '%s_calendar_related' % (base_views_name,), views.generate_calendar_related(module, base_views_name, real_model_class))
                 setattr(views_module, '%s_calendar_related_json' % (base_views_name,), views.generate_calendar_related_json(module, base_views_name, real_model_class))
 
-                urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^%s/related/calendar/$' % (base_views_name,), '%s_calendar_related' % (base_views_name,)),
-                    url(r'^%s/related/calendar/json$' % (base_views_name,), '%s_calendar_related_json' % (base_views_name,)),
-                )
+                urls_module.urlpatterns.extend([
+                    url(r'^%s/related/calendar/$' % (base_views_name,), getattr(views_module, '%s_calendar_related' % (base_views_name,)), name='%s-%s_calendar_related' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/related/calendar/json$' % (base_views_name,), getattr(views_module, '%s_calendar_related_json' % (base_views_name,)), name='%s-%s_calendar_related_json' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                ])
 
             if issubclass(model_class, GenericStateUnitValidable):
                 setattr(views_module, '%s_list_related' % (base_views_name,), views.generate_list_related(module, base_views_name, real_model_class))
@@ -246,14 +243,14 @@ class GenericModel(models.Model):
                 setattr(views_module, '%s_calendar_specific_json' % (base_views_name,), views.generate_calendar_specific_json(module, base_views_name, real_model_class))
                 setattr(views_module, '%s_directory' % (base_views_name,), views.generate_directory(module, base_views_name, real_model_class))
 
-                urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^%s/related/$' % (base_views_name,), '%s_list_related' % (base_views_name,)),
-                    url(r'^%s/related/json$' % (base_views_name,), '%s_list_related_json' % (base_views_name,)),
+                urls_module.urlpatterns.extend([
+                    url(r'^%s/related/$' % (base_views_name,), getattr(views_module, '%s_list_related' % (base_views_name,)), name='%s-%s_list_related' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/related/json$' % (base_views_name,), getattr(views_module, '%s_list_related_json' % (base_views_name,)), name='%s-%s_list_related_json' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
 
-                    url(r'^%s/specific/(?P<pk>[0-9~]+)/calendar/$' % (base_views_name,), '%s_calendar_specific' % (base_views_name,)),
-                    url(r'^%s/specific/(?P<pk>[0-9~]+)/calendar/json$' % (base_views_name,), '%s_calendar_specific_json' % (base_views_name,)),
-                    url(r'^%s/directory/$' % (base_views_name,), '%s_directory' % (base_views_name,)),
-                )
+                    url(r'^%s/specific/(?P<pk>[0-9~]+)/calendar/$' % (base_views_name,), getattr(views_module, '%s_calendar_specific' % (base_views_name,)), name='%s-%s_calendar_specific' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/specific/(?P<pk>[0-9~]+)/calendar/json$' % (base_views_name,), getattr(views_module, '%s_calendar_specific_json' % (base_views_name,)), name='%s-%s_calendar_specific_json' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%s/directory/$' % (base_views_name,), getattr(views_module, '%s_directory' % (base_views_name,)), name='%s-%s_directory' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                ])
 
             if issubclass(model_class, GenericStateValidableOrModerable) and real_model_class not in moderable_things:
                 moderable_things.append(real_model_class)
@@ -263,28 +260,28 @@ class GenericModel(models.Model):
 
             if issubclass(model_class, GenericContactableModel):
                 setattr(views_module, '%s_contact' % (base_views_name,), views.generate_contact(module, base_views_name, real_model_class, logging_class))
-                urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^%s/(?P<pk>[0-9]+)/contact/(?P<key>.+)$' % (base_views_name,), '%s_contact' % (base_views_name,)),
-                )
+                urls_module.urlpatterns.extend([
+                    url(r'^%s/(?P<pk>[0-9]+)/contact/(?P<key>.+)$' % (base_views_name,), getattr(views_module, '%s_contact' % (base_views_name,)), name='%s-%s_contact' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                ])
 
             if file_class:
                 setattr(views_module, '%s_file_upload' % (base_views_name,), views.generate_file_upload(module, base_views_name, real_model_class, logging_class, file_class))
                 setattr(views_module, '%s_file_delete' % (base_views_name,), views.generate_file_delete(module, base_views_name, real_model_class, logging_class, file_class))
                 setattr(views_module, '%s_file_get' % (base_views_name,), views.generate_file_get(module, base_views_name, real_model_class, logging_class, file_class))
                 setattr(views_module, '%s_file_get_thumbnail' % (base_views_name,), views.generate_file_get_thumbnail(module, base_views_name, real_model_class, logging_class, file_class))
-                urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^%sfile/upload$' % (base_views_name,), '%s_file_upload' % (base_views_name,)),
-                    url(r'^%sfile/(?P<pk>[0-9]+)/delete$' % (base_views_name,), '%s_file_delete' % (base_views_name,)),
-                    url(r'^%sfile/(?P<pk>[0-9]+)/get/.*$' % (base_views_name,), '%s_file_get' % (base_views_name,)),
-                    url(r'^%sfile/(?P<pk>[0-9]+)/thumbnail$' % (base_views_name,), '%s_file_get_thumbnail' % (base_views_name,)),
-                )
+                urls_module.urlpatterns.extend([
+                    url(r'^%sfile/upload$' % (base_views_name,), getattr(views_module, '%s_file_upload' % (base_views_name,)), name='%s-%s_file_upload' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%sfile/(?P<pk>[0-9]+)/delete$' % (base_views_name,), getattr(views_module, '%s_file_delete' % (base_views_name,)), name='%s-%s_file_delete' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%sfile/(?P<pk>[0-9]+)/get/.*$' % (base_views_name,), getattr(views_module, '%s_file_get' % (base_views_name,)), name='%s-%s_file_get' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                    url(r'^%sfile/(?P<pk>[0-9]+)/thumbnail$' % (base_views_name,), getattr(views_module, '%s_file_get_thumbnail' % (base_views_name,)), name='%s-%s_file_get_thumbnail' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                ])
 
             if tag_class:
                 setattr(views_module, '%s_tag_search' % (base_views_name,), views.generate_tag_search(module, base_views_name, real_model_class, logging_class, tag_class))
-                urls_module.urlpatterns += patterns(views_module.__name__,
-                    url(r'^%stags/search$' % (base_views_name,), '%s_tag_search' % (base_views_name,)),
-                )
-
+                urls_module.urlpatterns.extend([
+                    url(r'^%stags/search$' % (base_views_name,), getattr(views_module, '%s_tag_search' % (base_views_name,)), name='%s-%s_tag_search' % (views_module.__name__.replace('.', '-') , base_views_name) , prefix=views_module.__name__),
+                ])
+                
             if issubclass(model_class, SearchableModel):
                 if not search_indexes_module:
                     raise(Exception("{} need a search_indexes.py, please create it in {}/".format(model_class.__name__, module.__name__)))
@@ -375,7 +372,7 @@ class GenericFile(models.Model):
 
     # NB: The ForgienKey AND the file field are generated dynamicaly
     upload_date = models.DateTimeField(auto_now_add=True)
-    uploader = models.ForeignKey(TruffeUser)
+    uploader = models.ForeignKey('users.TruffeUser')
 
     def basename(self):
         return os.path.basename(self.file.path)
@@ -471,7 +468,7 @@ class GenericLogEntry(models.Model):
 
     when = models.DateTimeField(auto_now_add=True)
     extra_data = models.TextField(blank=True)
-    who = models.ForeignKey(TruffeUser)
+    who = models.ForeignKey('users.TruffeUser')
 
     LOG_TYPES = (
         ('imported', _(u'Importé depuis Truffe 1')),
@@ -496,7 +493,7 @@ class GenericLogEntry(models.Model):
 class GenericObjectView(models.Model):
 
     when = models.DateTimeField(auto_now_add=True)
-    who = models.ForeignKey(TruffeUser)
+    who = models.ForeignKey('users.TruffeUser')
 
     class Meta:
         abstract = True
@@ -661,6 +658,7 @@ class GenericStateValidableOrModerable(object):
         return super(GenericStateValidableOrModerable, self).rights_can_EDIT(user)
 
     def switch_status_signal(self, request, old_status, dest_status):
+        from notifications.utils import notify_people, unotify_people
 
         s = super(GenericStateValidableOrModerable, self)
 
@@ -698,6 +696,7 @@ class GenericStateValidableOrModerable(object):
         return people
 
     def delete_signal(self, request):
+        from notifications.utils import notify_people
 
         if hasattr(super(GenericStateValidableOrModerable, self), 'delete_signal'):
             super(GenericStateValidableOrModerable, self).delete_signal(request)
@@ -982,6 +981,7 @@ class GenericAccountingStateModel(object):
         return super(GenericAccountingStateModel, self).rights_can_EDIT(user)
 
     def switch_status_signal(self, request, old_status, dest_status):
+        from notifications.utils import notify_people, unotify_people
         s = super(GenericAccountingStateModel, self)
 
         if hasattr(s, 'switch_status_signal'):
@@ -1231,6 +1231,7 @@ class LinkedInfoModel(GenericSerializable):
             self.MetaEdit.set_linked_info = True
 
     def linked_info(self):
+        from django.contrib.contenttypes.models import ContentType
         from accounting_tools.models import LinkedInfo
 
         object_ct = ContentType.objects.get(app_label=self._meta.app_label, model=self._meta.model_name)

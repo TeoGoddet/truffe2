@@ -92,7 +92,7 @@
             var new_select = $('#' + table_id + ' select:last');
 
             // Load the list of Costcenters available and put a default value if given
-            $.ajax(('{% url 'accounting_core.views.accounts_by_year' 99942999 %}?' + table_id + '=true').replace(99942999, $('#input_ypk').val())).done(function (data) {
+            $.ajax(('{% url 'accounting_core-views-accounts_by_year' 99942999 %}?' + table_id + '=true').replace(99942999, $('#input_ypk').val())).done(function (data) {
                 new_select.find('option').remove();
 
                 for (var i = 0; i < data.length; i++) {
@@ -241,7 +241,7 @@
                 setTimeout("$('#form-actions').show();", 2000); //Ugly hack to wait on selects2
             {% else %}
                 {% if form.instance.pk %}
-                    $.ajax('{% url 'accounting_main.views.budget_getinfos' form.instance.pk %}').done(function (data) {
+                    $.ajax('{% url 'accounting_main-views-budget_getinfos' form.instance.pk %}').done(function (data) {
 
                         $.each(data, function (index, block) {
                             new_row_id = add_line(block[0].table_id, block[0].account_id);
