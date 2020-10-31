@@ -199,7 +199,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('when', models.DateTimeField(auto_now_add=True)),
-                ('ip', models.IPAddressField()),
+                ('ip', models.GenericIPAddressField()),
                 ('useragent', models.CharField(max_length=255)),
                 ('document_sha', models.CharField(max_length=255)),
                 ('document', models.ForeignKey(to='main.SignableDocument')),

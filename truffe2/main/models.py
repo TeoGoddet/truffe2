@@ -320,7 +320,7 @@ class Signature(models.Model):
     user = models.ForeignKey('users.TruffeUser')
     document = models.ForeignKey('main.SignableDocument')
     when = models.DateTimeField(auto_now_add=True)
-    ip = models.IPAddressField()
+    ip = models.GenericIPAddressField()
     useragent = models.CharField(max_length=255)
     document_sha = models.CharField(max_length=255)
 

@@ -7,13 +7,14 @@ import shutil
 class Command(BaseCommand):
     help = 'Create a new set of template for a given notification key. Need a source template. Syntaxe: new_key base_key'
 
-    def handle(self, *args, **options):
+    def add_arguments(self, parser):
+        parser.add_argument('new_template', type=str)
+        parser.add_argument('base_template', type=str)
 
-        if len(args) != 2:
-            raise CommandError("Need new_key and base_key")
+    def handle(self, new_template, base_template, *args, **options):
 
-        new_key = '{}.html'.format(args[0])
-        base_key = '{}.html'.format(args[1])
+        new_key = '{}.html'.format(new_template)
+        base_key = '{}.html'.format(base_template)
 
         BASE_PATH = 'notifications/templates/notifications/species/'
 
