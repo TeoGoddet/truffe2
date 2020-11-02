@@ -19,7 +19,7 @@ def get_attrs_of_sciper(sciper):
         email = someone[1].get('mail', [''])[0]
 
     if not name:
-        print "No user in LDAP with sciper {}".format(sciper)
+        print("No user in LDAP with sciper {}".format(sciper))
 
     return (name, firstname, email)
 

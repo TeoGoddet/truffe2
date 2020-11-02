@@ -31,26 +31,26 @@ class Command(BaseCommand):
             try:
                 ay = AccountingYear.objects.get(name=ndf_data['accounting_year__name'])
             except:
-                print u"AccountingYear not found !!", ndf_data['accounting_year__name']
+                print(u"AccountingYear not found !!", ndf_data['accounting_year__name'])
                 ay = None
 
             if ay:
                 try:
                     costcenter = CostCenter.objects.get(account_number=ndf_data['costcenter__account_number'], accounting_year=ay)
                 except:
-                    print u"CostCenter not found !!", ndf_data['costcenter__account_number']
+                    print(u"CostCenter not found !!", ndf_data['costcenter__account_number'])
                     costcenter = None
 
                 if costcenter:
                     try:
                         user = TruffeUser.objects.get(username=ndf_data['creator_username'])
                     except TruffeUser.DoesNotExist:
-                        print "Creation of user {!r}".format(ndf_data['creator_username'])
+                        print("Creation of user {!r}".format(ndf_data['creator_username']))
                         user = TruffeUser(username=ndf_data['creator_username'], is_active=True)
                         user.last_name, user.first_name, user.email = get_attrs_of_sciper(ndf_data['creator_username'])
                         user.save()
                     except Exception as e:
-                        print "user is root_user", e
+                        print("user is root_user", e)
                         user = root_user
 
                     ndf, created = ExpenseClaim.objects.get_or_create(costcenter=costcenter, accounting_year=ay, user=user, status=status_mapping[ndf_data['status']],
@@ -58,24 +58,24 @@ class Command(BaseCommand):
 
                     if created:
                         ExpenseClaimLogging(who=user, what='imported', object=ndf).save()
-                        print "+ {!r}".format(ndf.name)
+                        print("+ {!r}".format(ndf.name))
 
                     if ndf_data['linked_info']:
                         linked, created = LinkedInfo.objects.get_or_create(object_id=ndf.pk, content_type=expenseclaim_ct, user_pk=user.pk, **ndf_data['linked_info'])
                         if created:
-                            print "  (I) {!r} {!r}".format(linked.first_name, linked.last_name)
+                            print("  (I) {!r} {!r}".format(linked.first_name, linked.last_name))
 
                     for line_data in ndf_data['lines']:
                         account = Account.objects.get(account_number=line_data['account__account_number'], accounting_year=ay)
                         __, created = ExpenseClaimLine.objects.get_or_create(expense_claim=ndf, label=line_data['name'], account=account, proof=line_data['just'],
                                                                              order=line_data['order'], value=line_data['amount'], value_ttc=line_data['amount'], tva=0)
                         if created:
-                            print "  (+) {!r}".format(line_data['name'])
+                            print("  (+) {!r}".format(line_data['name']))
 
                     for file_data in ndf_data['uploads']:
                         if not os.path.isfile(os.path.join('media', 'uploads', '_generic', 'ExpenseClaim', file_data.split('/')[-1])):
-                            print "   (!) Missing file {}".format(file_data)
+                            print("   (!) Missing file {}".format(file_data))
                         else:
                             __, created = ExpenseClaimFile.objects.get_or_create(uploader=user, object=ndf, file=os.path.join('uploads', '_generic', 'ExpenseClaim', file_data.split('/')[-1]), defaults={'upload_date': now()})
                             if created:
-                                print "  (L) {!r}".format(file_data)
+                                print("  (L) {!r}".format(file_data))

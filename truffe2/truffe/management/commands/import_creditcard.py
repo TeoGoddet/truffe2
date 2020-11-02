@@ -23,7 +23,7 @@ class Command(BaseCommand):
                 name = cc_data.pop('accounting_year__name')
                 ay = AccountingYear.objects.get(name=name)
             except:
-                print u"AccountingYear not found !!", name
+                print(u"AccountingYear not found !!", name)
                 ay = None
 
             if ay:
@@ -31,7 +31,7 @@ class Command(BaseCommand):
                     account_number = cc_data.pop('costcenter__account_number')
                     costcenter = CostCenter.objects.get(account_number=account_number, accounting_year=ay)
                 except:
-                    print u"CostCenter not found !!", account_number
+                    print(u"CostCenter not found !!", account_number)
                     costcenter = None
 
                 if costcenter:
@@ -51,4 +51,4 @@ class Command(BaseCommand):
                         cc.name = cc_name
                         cc.save()
 
-                        print "+ {!r}".format(cc.name)
+                        print("+ {!r}".format(cc.name))

@@ -73,10 +73,10 @@ class MembersWithLoginTest(TruffeTestAbstract):
         self.assertNotIn('error', self.content)
         self.send_content_type = "application/json"
         self.call_check_json('/members/memberset/1/api/v1/?key=Secret123!', method='post',
-                             data=dumps({'members':[{'sciper':'user1', 'payed_fees':12.34}]}))
+                             data=dumps({'members':[{'sciper':'user1', 'payed_fees': False}]}))
         self.assertNotIn('error', self.content)
         self.call_check_json('/members/memberset/1/api/v1/?key=Secret123!', method='put',
-                             data=dumps({'member':{'sciper':'user1', 'payed_fees':12.34}}))
+                             data=dumps({'member':{'sciper':'user1', 'payed_fees': True}}))
         self.assertNotIn('error', self.content)
         self.call_check_json('/members/memberset/1/api/v1/?key=Secret123!', method='delete',
                              data=dumps({'member':{'sciper':'user1'}}))

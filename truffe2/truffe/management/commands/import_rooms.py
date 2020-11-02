@@ -75,8 +75,8 @@ class Command(BaseCommand):
                     RoomReservationLogging(who=creator, what='created', object=rr).save()
 
             except TruffeUser.DoesNotExist:
-                print "Cannot find", rdata['creator']
+                print("Cannot find", rdata['creator'])
             except Unit.DoesNotExist:
-                print "Cannot find", rdata['unit']
+                print("Cannot find", rdata['unit'])
             except Exception as e:
-                print e
+                print(e)

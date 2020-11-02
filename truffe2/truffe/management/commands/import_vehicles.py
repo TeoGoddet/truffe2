@@ -104,7 +104,7 @@ class Command(BaseCommand):
                     external_user = None
                     external_unit = None
                 else:
-                    print "!!!!", rdata['forWho']
+                    print("!!!!", rdata['forWho'])
                     external_user = creator
                     external_unit = rdata['forWho']
                     unit = None
@@ -123,8 +123,8 @@ class Command(BaseCommand):
                     BookingLogging(who=creator, what='created', object=booking).save()
 
             except TruffeUser.DoesNotExist:
-                print "Cannot find", rdata['user']
+                print("Cannot find", rdata['user'])
             except Unit.DoesNotExist:
-                print "Cannot find", rdata['unit']
+                print("Cannot find", rdata['unit'])
             except Exception as e:
-                print e
+                print(e)

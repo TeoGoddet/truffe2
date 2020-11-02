@@ -38,7 +38,7 @@ class Command(BaseCommand):
                     blank_unit_name = subvention_data['forWho']
                 unit_name = blank_unit_name or unit.name
             except:
-                print u"Unit not found !!", subvention_data['groupe_name'], subvention_data['forWho']
+                print(u"Unit not found !!", subvention_data['groupe_name'], subvention_data['forWho'])
                 unit_name = None
 
             if unit_name:
@@ -64,7 +64,7 @@ class Command(BaseCommand):
 
                     if created:
                         SubventionLogging(who=user, what='imported', object=subv).save()
-                        print "+ {!r}".format(subv.name)
+                        print("+ {!r}".format(subv.name))
 
                     order = 0
                     for line_data in subvention_data['lines']:
@@ -74,13 +74,13 @@ class Command(BaseCommand):
                             start_date = paris_tz.localize(datetime.datetime.strptime(line_data['date'], '%Y-%m-%d'))
                             subvline, created = SubventionLine.objects.get_or_create(subvention=subv, name=line_data['name'], start_date=start_date, end_date=start_date, nb_spec=0, order=order)
                             if created:
-                                print "  + {!r}".format(subvline.name)
+                                print("  + {!r}".format(subvline.name))
                             order += 1
 
                     for file_data in subvention_data['uploads']:
                         if not os.path.isfile(os.path.join('media', 'uploads', '_generic', 'Subvention', file_data.split('/')[-1])):
-                            print "   (!) Missing file {}".format(file_data)
+                            print("   (!) Missing file {}".format(file_data))
                         else:
                             __, created = SubventionFile.objects.get_or_create(uploader=user, object=subv, file=os.path.join('uploads', '_generic', 'Subvention', file_data.split('/')[-1]), defaults={'upload_date': now()})
                             if created:
-                                print "  (L)", file_data
+                                print("  (L)", file_data)

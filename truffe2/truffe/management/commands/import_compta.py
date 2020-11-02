@@ -33,14 +33,14 @@ class Command(BaseCommand):
             try:
                 ay = AccountingYear.objects.get(name=line_data['year'])
             except:
-                print u"AccountingYear not found !!", line_data['year']
+                print(u"AccountingYear not found !!", line_data['year'])
                 ay = None
 
             if ay:
                 try:
                     costcenter = CostCenter.objects.get(account_number=line_data['numero'], accounting_year=ay)
                 except:
-                    print u"CostCenter not found !!", line_data['numero']
+                    print(u"CostCenter not found !!", line_data['numero'])
                     costcenter = None
 
                 if costcenter:
@@ -48,7 +48,7 @@ class Command(BaseCommand):
                     try:
                         account = Account.objects.get(account_number=line_data['compte'], accounting_year=ay)
                     except:
-                        print u"Account not found !!", line_data['compte']
+                        print(u"Account not found !!", line_data['compte'])
                         account = None
 
                     if account:
@@ -58,7 +58,7 @@ class Command(BaseCommand):
 
                         if created:
 
-                            print "(+/", created, ")", line
+                            print("(+/", created, ")", line)
                             AccountingLineLogging(object=line, who=root_user, what='created').save()
 
                         line_mapping[line_data['pk']] = line
@@ -68,14 +68,14 @@ class Command(BaseCommand):
             try:
                 ay = AccountingYear.objects.get(name=error_data['year'])
             except:
-                print u"AccountingYear not found !!", error_data['year']
+                print(u"AccountingYear not found !!", error_data['year'])
                 ay = None
 
             if ay:
                 try:
                     costcenter = CostCenter.objects.get(account_number=error_data['numero'], accounting_year=ay)
                 except:
-                    print u"CostCenter not found !!", error_data['numero']
+                    print(u"CostCenter not found !!", error_data['numero'])
                     costcenter = None
 
                 if costcenter:
@@ -91,11 +91,11 @@ class Command(BaseCommand):
                     try:
                         user = TruffeUser.objects.get(username=error_data['creator'])
                     except:
-                        print "(!) User not found", error_data['creator']
+                        print("(!) User not found", error_data['creator'])
                         user = root_user
 
                     if created:
-                        print "(+/", created, ")", error
+                        print("(+/", created, ")", error)
                         ael = AccountingErrorLogging(object=error, who=user, when=date, what='created')
                         ael.save()
                         # Hack pour forcer la date

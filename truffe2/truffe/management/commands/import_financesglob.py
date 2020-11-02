@@ -38,38 +38,38 @@ class Command(BaseCommand):
             ay.save()
             if created:
                 AccountingYearLogging(who=root_user, what="imported", object=ay).save()
-                print "(+)", ay
+                print("(+)", ay)
 
             for tcb_data in data['typeCompteBilan']:
                 ac, created = AccountCategory.objects.get_or_create(name=tcb_data['name'], description=tcb_data['description'], accounting_year=ay)
 
                 if created:
                     AccountCategoryLogging(who=root_user, what="imported", object=ac).save()
-                    print "  (+)", ac
+                    print("  (+)", ac)
 
                 for ct_data in tcb_data['compte_types']:
                     sub_ac, created = AccountCategory.objects.get_or_create(name=ct_data['name'], description=ct_data['description'], parent_hierarchique=ac, accounting_year=ay)
 
                     if created:
                         AccountCategoryLogging(who=root_user, what="imported", object=sub_ac).save()
-                        print "    (+)", sub_ac
+                        print("    (+)", sub_ac)
 
-            print "*" * 20
+            print("*" * 20)
 
             for num_data in year_data['numeros']:
                 try:
                     unit = Unit.objects.get(name=num_data['unit_name'])
                 except:
                     unit = Unit.objects.get(pk=1)
-                    print u"Cost Center {!r} from Year {!r} has no Unit. Set to Comite de Direction. Edit manually?".format(num_data['name'], ay)
+                    print(u"Cost Center {!r} from Year {!r} has no Unit. Set to Comite de Direction. Edit manually?".format(num_data['name'], ay))
 
                 cc, created = CostCenter.objects.get_or_create(name=num_data['name'], account_number=num_data['account_number'], description=num_data['description'], accounting_year=ay, defaults={'unit': unit})
 
                 if created:
                     CostCenterLogging(who=root_user, what="imported", object=cc).save()
-                    print "  (+)", cc
+                    print("  (+)", cc)
 
-            print "*" * 20
+            print("*" * 20)
 
             for cc_data in year_data['compte_cats']:
                 try:
@@ -78,9 +78,9 @@ class Command(BaseCommand):
 
                     if created:
                         AccountCategoryLogging(who=root_user, what="imported", object=leaf_ac).save()
-                        print "  (+)", leaf_ac
+                        print("  (+)", leaf_ac)
                 except:
-                    print "Parent not found !!"
+                    print("Parent not found !!")
 
                 for comp_data in cc_data['comptes']:
                     try:
@@ -95,6 +95,6 @@ class Command(BaseCommand):
                         acc.save()
                         if created:
                             AccountLogging(who=root_user, what="imported", object=acc).save()
-                            print "    (+)", acc
+                            print("    (+)", acc)
                     except IntegrityError:
-                        print u"Duplicate with name {!r} number {!r} and year {!r}".format(acc.name, acc.account_number, ay)
+                        print(u"Duplicate with name {!r} number {!r} and year {!r}".format(acc.name, acc.account_number, ay))

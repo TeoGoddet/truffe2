@@ -24,9 +24,9 @@ class Command(BaseCommand):
             dest_path = os.path.join(BASE_PATH, sub_path, new_key)
 
             if not os.path.isfile(source_path):
-                print "Source file {} doesn't exists !".format(source_path)
+                print("Source file {} doesn't exists !".format(source_path))
             elif os.path.isfile(dest_path):
-                print "Destination file {} already exists !".format(dest_path)
+                print("Destination file {} already exists !".format(dest_path))
             else:
-                print "{} -> {}".format(source_path, dest_path)
+                print("{} -> {}".format(source_path, dest_path))
                 shutil.copyfile(source_path, dest_path)

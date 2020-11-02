@@ -40,4 +40,4 @@ class Command(BaseCommand):
 
             retour.append(data)
 
-        print json.dumps({'data': retour})
+        print(json.dumps({'data': retour}))
