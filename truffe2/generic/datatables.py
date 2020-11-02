@@ -1,7 +1,5 @@
 from django.db.models import Q
-from django.template import RequestContext
 from django.shortcuts import render
-from django.utils.datastructures import MultiValueDictKeyError
 
 
 def generic_list_json(request, model, columns, templates, bonus_data={}, check_deleted=False, filter_fields=[], bonus_filter_function=None, bonus_filter_function_with_parameters=None, deca_one_status=False, not_sortable_columns=[], selector_column=False, columns_mapping=None, bonus_total_filter_function=None):
@@ -14,9 +12,11 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
     columns_mapping_local = model.MetaData.trans_sort if hasattr(model, 'MetaData') and hasattr(model.MetaData, 'trans_sort') else (columns_mapping or {})
     
     def request_get(key, default):
-        try:
+        if key in request.GET:
             return request.GET[key]
-        except MultiValueDictKeyError:
+        elif key in request.POST:
+            return request.POST[key]
+        else:
             return default
 
     def do_ordering(qs):
@@ -30,10 +30,10 @@ def generic_list_json(request, model, columns, templates, bonus_data={}, check_d
         order = []
         for i in range(i_sorting_cols):
             try:
-                i_sort_col = int(request_get('iSortCol_%s' % i))
+                i_sort_col = int(request_get('iSortCol_%s' % i, 0))
             except ValueError:
                 i_sort_col = 0
-            s_sort_dir = request_get('sSortDir_%s' % i)
+            s_sort_dir = request_get('sSortDir_%s' % i, '')
 
             sdir = '-' if s_sort_dir == 'desc' else ''
 
