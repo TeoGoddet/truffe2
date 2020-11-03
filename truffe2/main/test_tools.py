@@ -58,7 +58,7 @@ class TruffeTestAbstract(TestCase, Client):
         self.content_type = getattr(self.response, 'content_type', self._get_default_content_type())
         self.content = self.response.content
         if status_expected != 0:
-            self.assertEqual(self.response.status_code, status_expected, "HTTP error [%s]:%s" % (self.response.status_code, self.get_div('text-center error-box')))
+            self.assertEqual(self.response.status_code, status_expected, "HTTP error [%s]:%s" % (self.response.status_code, self.get_div('text-center error-box', True)))
 
     def call_check_redirect(self, path, data={}, method='get', redirect_url=None, target_status_code=200):
         self.call(path, data, method, status_expected=302)
@@ -110,12 +110,16 @@ class TruffeTestAbstract(TestCase, Client):
             smallbox_pos = smallbox_text.find('$.smallBox({')
         self.assertEqual("\n".join(warning_list), warning_expected)
 
-    def call_check_html(self, path, data={}, method='get', alert_expected='', warning_expected='', formerror_expected=[]):
-        self.call(path, data, method)
+
+    def _convert_html(self):
         try:
             self.content = BeautifulSoup(self.response.content, "html.parser")
         except Exception:
             self.content = self.response.content
+
+    def call_check_html(self, path, data={}, method='get', alert_expected='', warning_expected='', formerror_expected=[]):
+        self.call(path, data, method)
+        self._convert_html()
         self.assertEqual(self.content_type, "text/html")
         self._check_alert(alert_expected)
         self._check_formerror(formerror_expected)
@@ -133,21 +137,20 @@ class TruffeTestAbstract(TestCase, Client):
     def call_check_text(self, path, data={}, method='get', alert_expected='', warning_expected='', formerror_expected=[]):
         self.call(path, data, method)
         self.assertEqual(self.content_type, "text/text")
-        try:
-            self.content = BeautifulSoup(self.response.content, "html.parser")
-        except Exception:
-            self.content = self.response.content        
+        self._convert_html()
         self._check_warning(warning_expected)
         if isinstance(self.content, BeautifulSoup):
             self._check_formerror(formerror_expected)
             self._check_alert(alert_expected)
 
-    def get_div(self, class_to_find):
+    def get_div(self, class_to_find, return_all=False):
         try:
+            if not isinstance(self.content, BeautifulSoup):
+                self._convert_html()
             div_dom = self.content.findAll('div', {'class': class_to_find})
             return "\n".join([item.text.strip() for item in div_dom])
         except Exception:
-            return None
+            return self.content if return_all else None
 
 
 class TruffeCmdTestAbstract(TestCase):

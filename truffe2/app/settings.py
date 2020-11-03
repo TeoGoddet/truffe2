@@ -138,10 +138,11 @@ INSTALLED_APPS = (
     'multiselectfield',
     'easy_thumbnails',
     'jfu',
+    'haystack',
+    'celery_haystack',
 
     'truffe',
     'generic',
-
     'main',
     'users',
     'units',
@@ -152,10 +153,8 @@ INSTALLED_APPS = (
     'accounting_core',
     'accounting_main',
     'accounting_tools',
-
     'members',
     'vehicles',
-
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

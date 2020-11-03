@@ -123,6 +123,8 @@ class AccountingToolsWithLoginTest(TruffeTestAbstract):
         self.call_check_json('/accounting/tools/subvention/logs/json')
 
     def test_subvention_add(self):
+        from accounting_tools.models import Subvention
+        Subvention.objects.get(id=1).delete()
         self.call_check_html('/accounting/tools/subvention/~/edit', data={'ypk':1})
         self.call_check_redirect('/accounting/tools/subvention/~/edit', method='post', redirect_url='/accounting/tools/subvention/2/',
                                  data={'ypk':1, "name":"new", "amount_asked":123, "kind":"subvention", 'linked_budget':1, 'unit':1})
