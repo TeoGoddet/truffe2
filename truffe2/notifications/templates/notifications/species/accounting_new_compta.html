@@ -11,7 +11,7 @@
         <button onclick="notification_ignore({{notification.pk}});" class="btn btn-xs btn-warning margin-top-5">
             <i class="fa fa-times"></i> {% trans "Ignorer" %}
         </button>
-        <button onclick="window.location = '{% url 'notifications.views.goto' notification.pk %}?next={% url 'accounting_main-views-accountingline_list' %}';" class="btn btn-xs btn-primary margin-top-5">
+        <button onclick="window.location = '{% url 'notifications-views-goto' notification.pk %}?next={% url 'accounting_main-views-accountingline_list' %}';" class="btn btn-xs btn-primary margin-top-5">
             <i class="fa fa-eye"></i> {% trans "Détails" %}
         </button>
     </span>

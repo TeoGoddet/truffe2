@@ -426,7 +426,7 @@ class _DisplayReservation(GenericModel, GenericDelayValidable, GenericGroupsVali
             return retour
 
     def get_display_link(self):
-        return '<a href="{}">{}</a>'.format(reverse('communication.views.display_show', args=(self.display.pk,)), self.display)
+        return '<a href="{}">{}</a>'.format(reverse('communication-views-display_show', args=(self.display.pk,)), self.display)
 
     def get_conflits_list(self):
 

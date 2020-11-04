@@ -10,7 +10,7 @@ Vous avez plusieures nouvelles notifications sur Truffe !
 
 {% include notification.get_email_template %}
 
-{% trans "Détails :" %} https://{{site.domain}}{% url 'notifications.views.goto' notification.pk %}?next={% if notification.get_metadata.notification_force_url %}{{notification.get_metadata.notification_force_url}}{% else %}{{notification.linked_object.display_url}}{% endif %}
+{% trans "Détails :" %} https://{{site.domain}}{% url 'notifications-views-goto' notification.pk %}?next={% if notification.get_metadata.notification_force_url %}{{notification.get_metadata.notification_force_url}}{% else %}{{notification.linked_object.display_url}}{% endif %}
 
 {% if not forloop.last %}
 ------

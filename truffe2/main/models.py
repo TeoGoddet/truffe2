@@ -290,7 +290,7 @@ class _SignableDocument(GenericModel, AgepolyEditableModel, SearchableModel):
         return u'{} ({})'.format(self.title, self.get_roles_display())
 
     def get_file_link(self):
-        return u'<a href="{}">{}</a>'.format(reverse('main.views.signabledocument_download', args=(self.pk,)), self.file)
+        return u'<a href="{}">{}</a>'.format(reverse('main-views-signabledocument_download', args=(self.pk,)), self.file)
 
     def get_roles_display(self):
         return u', '.join([r.name for r in self.roles.order_by('name').all()])
@@ -419,7 +419,7 @@ Les fichiers sont regroupés en différents groupes accessibles depuis le menu l
         return l.exists()
 
     def get_file_link(self):
-        return u'<a href="{}">{}</a>'.format(reverse('main.views.file_download', args=(self.pk,)), self.file)
+        return u'<a href="{}">{}</a>'.format(reverse('main-views-file_download', args=(self.pk,)), self.file)
 
     def rights_can_LIST_ACCOUNTING(self, user):
         return self.check_if_can(user, 'accounting')
