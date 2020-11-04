@@ -143,7 +143,7 @@ class _Logo(GenericModel, GenericModelWithFiles, AutoVisibilityLevel, UnitEditab
     class MetaRightsUnit(UnitEditableModel.MetaRightsUnit):
         access = 'COMMUNICATION'
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, default='---')
     unit = FalseFK('units.models.Unit')
 
     class MetaData:

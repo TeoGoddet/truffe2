@@ -20,7 +20,7 @@ class _Unit(GenericModel, AgepolyEditableModel, SearchableModel):
         access = 'INFORMATIQUE'
         world_ro_access = True
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, default='---')
     id_epfl = models.CharField(max_length=64, blank=True, null=True, help_text=_(u'Utilisé pour la synchronisation des accréditations'))
     description = models.TextField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
@@ -273,7 +273,7 @@ class _Role(GenericModel, AgepolyEditableModel, SearchableModel):
         access = 'INFORMATIQUE'
         world_ro_access = True
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, default='---')
     id_epfl = models.CharField(max_length=255, null=True, blank=True, help_text=_(u'Mettre ici l\'ID accred du rôle pour la synchronisation EPFL'))
     description = models.TextField(null=True, blank=True)
     order = models.IntegerField(null=True, blank=True, help_text=_(u'Il n\'est pas possible d\'accréditer la même personne dans la même unité plusieurs fois. Le rôle avec le plus PETIT ordre sera pris en compte'))

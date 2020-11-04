@@ -16,7 +16,7 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel, Sea
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['TRESORERIE']
 
-    name = models.CharField(_('Nom'), max_length=255, unique=True)
+    name = models.CharField(_('Nom'), max_length=255, unique=True, default='---')
     start_date = models.DateTimeField(_(u'Date de début'), blank=True, null=True)
     end_date = models.DateTimeField(_('Date de fin'), blank=True, null=True)
     subvention_deadline = models.DateTimeField(_(u'Délai pour les subventions'), blank=True, null=True)
@@ -180,7 +180,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel, Sear
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['TRESORERIE', 'SECRETARIAT']
 
-    name = models.CharField(_(u'Nom du centre de coût'), max_length=255)
+    name = models.CharField(_(u'Nom du centre de coût'), max_length=255, default='---')
     account_number = models.CharField(_(u'Numéro associé au centre de coût'), max_length=10)
     unit = FalseFK('units.models.Unit', verbose_name=_(u'Appartient à'))
     description = models.TextField(_('Description'), blank=True, null=True)
@@ -242,7 +242,7 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel,
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['TRESORERIE', 'SECRETARIAT']
 
-    name = models.CharField(_(u'Nom de la catégorie'), max_length=255)
+    name = models.CharField(_(u'Nom de la catégorie'), max_length=255, default='---')
     parent_hierarchique = models.ForeignKey('AccountCategory', null=True, blank=True, help_text=_(u'Catégorie parente pour la hiérarchie'))
     order = models.SmallIntegerField(_(u'Ordre dans le plan comptable'), default=0, help_text=_(u'Le plus petit d\'abord'))
     description = models.TextField(_('Description'), blank=True, null=True)
@@ -332,7 +332,7 @@ class _Account(GenericModel, AccountingYearLinked, AgepolyEditableModel, Searcha
         ('none', _(u'Visible à personne')),
     )
 
-    name = models.CharField(_('Nom du compte'), max_length=255)
+    name = models.CharField(_('Nom du compte'), max_length=255, default='---')
     account_number = models.CharField(_(u'Numéro du compte'), max_length=10)
     visibility = models.CharField(_(u'Visibilité dans les documents comptables'), max_length=50, choices=VISIBILITY_CHOICES)
     category = FalseFK('accounting_core.models.AccountCategory', verbose_name=_(u'Catégorie'))
@@ -423,7 +423,7 @@ class _TVA(GenericModel, AgepolyEditableModel, SearchableModel):
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = ['TRESORERIE', 'SECRETARIAT']
 
-    name = models.CharField(_(u'Nom de la TVA'), max_length=255)
+    name = models.CharField(_(u'Nom de la TVA'), max_length=255, default='---')
     value = models.DecimalField(_('Valeur (%)'), max_digits=20, decimal_places=2)
     agepoly_only = models.BooleanField(_(u'Limiter l\'usage au comité de l\'AGEPoly'), default=False)
     account = FalseFK('accounting_core.models.Account', verbose_name=_('Compte de TVA'))

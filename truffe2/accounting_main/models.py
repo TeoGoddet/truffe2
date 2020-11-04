@@ -524,7 +524,7 @@ class _Budget(GenericModel, GenericStateModel, AccountingYearLinked, CostCenterL
         access = ['TRESORERIE', 'SECRETARIAT']
         unit_ro_access = True
 
-    name = models.CharField(_(u'Titre du budget'), max_length=255)
+    name = models.CharField(_(u'Titre du budget'), max_length=255, default='---')
     unit = FalseFK('units.models.Unit')
 
     class MetaData:

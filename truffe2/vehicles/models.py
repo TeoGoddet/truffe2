@@ -17,7 +17,7 @@ class _Provider(GenericModel, AgepolyEditableModel, SearchableModel):
         access = ['LOGISTIQUE', 'SECRETARIAT']
         world_ro_access = False
 
-    name = models.CharField(_('Nom'), max_length=255)
+    name = models.CharField(_('Nom'), max_length=255, default='---')
     description = models.TextField(_('Description'))
 
     class MetaData:
@@ -70,7 +70,7 @@ class _VehicleType(GenericModel, AgepolyEditableModel, SearchableModel):
         world_ro_access = False
 
     provider = FalseFK('vehicles.models.Provider', verbose_name=_('Fournisseur'))
-    name = models.CharField(_('Nom'), max_length=255)
+    name = models.CharField(_('Nom'), max_length=255, default='---')
     description = models.TextField(_('Description'))
 
     class MetaData:
@@ -119,7 +119,7 @@ class _Card(GenericModel, AgepolyEditableModel, SearchableModel):
         world_ro_access = False
 
     provider = FalseFK('vehicles.models.Provider', verbose_name=_('Fournisseur'))
-    name = models.CharField(_('Nom'), max_length=255)
+    name = models.CharField(_('Nom'), max_length=255, default='---')
     number = models.CharField(_(u'Numéro'), max_length=255)
     description = models.TextField(_('Description'))
     exclusif = models.BooleanField(_('Usage exclusif'), default=True, help_text=_(u'Ne peut pas être utilisé plusieurs fois en même temps ?'))
@@ -173,7 +173,7 @@ class _Location(GenericModel, AgepolyEditableModel, SearchableModel):
         access = ['LOGISTIQUE', 'SECRETARIAT']
         world_ro_access = False
 
-    name = models.CharField(_('Nom'), max_length=255)
+    name = models.CharField(_('Nom'), max_length=255, default='---')
     description = models.TextField(_('Description'))
     url_location = models.URLField(_('URL carte lieu'), blank=True, null=True)
 

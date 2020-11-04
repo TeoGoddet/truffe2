@@ -41,7 +41,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
         access = 'TRESORERIE'
         world_ro_access = False
 
-    name = models.CharField(_(u'Nom du projet'), max_length=255)
+    name = models.CharField(_(u'Nom du projet'), max_length=255, default='---')
     amount_asked = models.IntegerField(_(u'Montant demandé'))
     amount_given = models.IntegerField(_(u'Montant attribué'), blank=True, null=True)
     mobility_asked = models.IntegerField(_(u'Montant mobilité demandé'), blank=True, null=True)
@@ -297,7 +297,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
 
 
 class SubventionLine(ModelUsedAsLine):
-    name = models.CharField(_(u'Nom de l\'évènement'), max_length=255)
+    name = models.CharField(_(u'Nom de l\'évènement'), max_length=255, default='---')
     start_date = models.DateField(_(u'Début de l\'évènement'))
     end_date = models.DateField(_(u'Fin de l\'évènement'))
     place = models.CharField(_(u'Lieu de l\'évènement'), max_length=100)
@@ -821,7 +821,7 @@ class _InternalTransfer(GenericModel, GenericStateModel, GenericTaggableObject, 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
         access = 'TRESORERIE'
 
-    name = models.CharField(_('Raison du transfert'), max_length=255)
+    name = models.CharField(_('Raison du transfert'), max_length=255, default='---')
     description = models.TextField(_('Description'), blank=True, null=True)
     account = FalseFK('accounting_core.models.Account', verbose_name=_(u'Compte concerné'))
     cost_center_from = FalseFK('accounting_core.models.CostCenter', related_name='internal_transfer_from', verbose_name=_(u'Centre de coûts prélevé'))
@@ -1044,7 +1044,7 @@ class _Withdrawal(GenericModel, GenericStateModel, GenericTaggableObject, Generi
     class MetaRights(UnitEditableModel.MetaRights):
         linked_unit_property = 'costcenter.unit'
 
-    name = models.CharField(_('Raison du retrait'), max_length=255)
+    name = models.CharField(_('Raison du retrait'), max_length=255, default='---')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Responsable'))
     description = models.TextField(_('Description'), blank=True, null=True)
     amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
@@ -1286,7 +1286,7 @@ class _ExpenseClaim(GenericModel, GenericTaggableObject, GenericAccountingStateM
     class MetaRights(UnitEditableModel.MetaRights):
         linked_unit_property = 'costcenter.unit'
 
-    name = models.CharField(_(u'Titre de la note de frais'), max_length=255)
+    name = models.CharField(_(u'Titre de la note de frais'), max_length=255, default='---')
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     nb_proofs = models.PositiveIntegerField(_(u'Nombre de justificatifs'), default=0)
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
@@ -1445,7 +1445,7 @@ class ExpenseClaimLine(ModelUsedAsLine):
 
 class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
 
-    name = models.CharField(_(u'Nom du fournisseur'), max_length=255)
+    name = models.CharField(_(u'Nom du fournisseur'), max_length=255, default='---')
     tva_number = models.CharField(_(u'Numéro de TVA du fournisseur'), max_length=255, blank=True, help_text=_(u'CHE-XXX.XXX.XXX (<a href="https://www.uid.admin.ch/Search.aspx?lang=fr">Recherche</a>)'))
 
     iban_ou_ccp = models.CharField(_('IBAN'), max_length=128, blank=False, help_text=_(u'(<a href="https://www.six-group.com/fr/products-services/banking-services/interbank-clearing/online-services/inquiry-iban.html">Convertir un numéro de compte en IBAN</a>) </br> Si la convertion ne fonctionne pas, noter CH00 et mettre le numéro de compte en remarque.'))
@@ -1531,7 +1531,7 @@ class _ProviderInvoice(GenericModel, GenericTaggableObject, GenericAccountingSta
     class MetaRights(UnitEditableModel.MetaRights):
         linked_unit_property = 'costcenter.unit'
 
-    name = models.CharField(_(u'Titre de la facture fournisseur'), max_length=255)
+    name = models.CharField(_(u'Titre de la facture fournisseur'), max_length=255, default='---')
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
 
@@ -1712,7 +1712,7 @@ class _CashBook(GenericModel, GenericTaggableObject, GenericAccountingStateModel
     class MetaRights(UnitEditableModel.MetaRights):
         linked_unit_property = 'costcenter.unit'
 
-    name = models.CharField(_(u'Titre du journal de caisse'), max_length=255)
+    name = models.CharField(_(u'Titre du journal de caisse'), max_length=255, default='---')
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     nb_proofs = models.PositiveIntegerField(_(u'Nombre de justificatifs'), default=0)
     comment = models.TextField(_(u'Commentaire'), null=True, blank=True)

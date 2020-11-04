@@ -3,7 +3,7 @@ from django.conf import settings
 
 
 class ImportedCreditCard(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, unique=True, default='---')
     description = models.TextField()
     amount = models.IntegerField()
     card_date = models.DateField()
