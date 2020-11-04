@@ -210,7 +210,7 @@ def home(request):
 
     for document in SignableDocument.objects.filter(deleted=False, active=True):
         if document.should_sign(request.user) and not document.signed(request.user):
-            return redirect(reverse('main.views.signabledocument_sign', args=(document.pk,)))
+            return redirect(reverse('main-views-signabledocument_sign', args=(document.pk,)))
 
     return render(request, 'main/home.html', data)
 
@@ -416,7 +416,7 @@ def signabledocument_sign(request, pk):
         ).save()
 
         messages.success(request, _(u'Document signé !'))
-        return redirect('main.views.signabledocument_signs')
+        return redirect('main-views-signabledocument_signs')
 
     return render(request, 'main/signabledocument/sign.html', {'file': file, 'signed': signed})
 

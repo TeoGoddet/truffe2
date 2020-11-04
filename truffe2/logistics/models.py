@@ -573,7 +573,7 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         line_link_list = u'<ul class="supply-items">'
 
         for line in self.lines.order_by('order'):
-            link = reverse('logistics.views.supply_show', args=(line.supply.pk,))
+            link = reverse('logistics-views-supply_show', args=(line.supply.pk,))
             line_link_list = u'{}<li><span><a href="{}">{} * {}</a></span></li>'.format(line_link_list, link, line.quantity, escape(line.supply))
 
         line_link_list = u'{}</ul>'.format(line_link_list)
