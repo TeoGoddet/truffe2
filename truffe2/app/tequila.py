@@ -11,7 +11,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import login as auth_login, authenticate
 from django.conf import settings
 from django.utils.http import is_safe_url
-
+from django.utils.timezone import now
 
 User = get_user_model()
 
@@ -61,6 +61,8 @@ class Backend:
                 user.first_name = firstName.split(',')[0]
                 user.last_name = name.split(',')[0]
                 user.email = email
+                user.last_login = now
+                user.password = ""
                 user.save()
             else:
                 user = None
