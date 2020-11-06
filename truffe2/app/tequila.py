@@ -20,6 +20,8 @@ def get_request_key(request):
     """Ask tequla server for the key"""
 
     params = "urlaccess=" + request.build_absolute_uri() + "\nservice=" + settings.TEQUILA_SERVICE + "\nrequest=name,firstname,email,uniqueid"
+    if settings.TEQUILA_ALLOW_GUEST:
+        params += '\nallows=categorie=epfl-guests'
     f = urllib.urlopen(settings.TEQUILA_SERVER + '/cgi-bin/tequila/createrequest', params)
     return re.search('key=(.*)', f.read()).group(1)
 

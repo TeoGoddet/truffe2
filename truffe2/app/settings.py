@@ -194,6 +194,7 @@ TEQUILA_SERVER = 'https://tequila.epfl.ch'  # Url of tequila server
 TEQUILA_SERVICE = 'Truffe2 - L\'intranet de l\'AGEPoly'  # Title used in tequila
 TEQUILA_AUTOCREATE = True  # Auto create users ?
 TEQUILA_FAILURE = '/users/login'  # Where to redirect user if there is a problem
+TEQUILA_ALLOW_GUEST = False # allow EPFL guest (GXXXXX) to connect (used for test)
 
 LOGIN_REDIRECT_URL = '/'
 
