@@ -8,7 +8,7 @@ from json import loads
 import os
 import sys
 from cStringIO import StringIO
-from os.path import dirname
+from os.path import dirname, join, isdir, isfile
 
 from django.test import TestCase, Client
 from django.test.client import MULTIPART_CONTENT
@@ -21,16 +21,26 @@ class TruffeTestAbstract(TestCase, Client):
     
     login_username = None
 
+    PDF_DIRECTORY = 'pdf'
+
     def __init__(self, methodName):
         TestCase.__init__(self, methodName)
         Client.__init__(self)
         self.send_content_type = MULTIPART_CONTENT
+
+    def _get_pdf_filename(self):
+        return join(self.PDF_DIRECTORY, "%s-%s-%s.pdf" % (self.__class__.__module__, self.__class__.__name__, self._testMethodName))
 
     def setUp(self):
         TestCase.setUp(self)
         setup_testing_all_data()
         if self.login_username is not None:
             self.connect_to(self.login_username)
+        if not isdir(self.PDF_DIRECTORY):
+            os.makedirs(self.PDF_DIRECTORY)
+        filename = self._get_pdf_filename()
+        if isfile(filename):
+            os.unlink(filename)
 
     def connect_to(self, username):
         self.call_check_html('/users/login')
@@ -110,7 +120,6 @@ class TruffeTestAbstract(TestCase, Client):
             smallbox_pos = smallbox_text.find('$.smallBox({')
         self.assertEqual("\n".join(warning_list), warning_expected)
 
-
     def _convert_html(self):
         try:
             self.content = BeautifulSoup(self.response.content, "html.parser")
@@ -133,6 +142,9 @@ class TruffeTestAbstract(TestCase, Client):
     def call_check_pdf(self, path, data={}, method='get'):
         self.call(path, data, method)
         self.assertEqual(self.content_type, "application/pdf")
+        filename = self._get_pdf_filename()
+        with open(filename, "wb") as pdf_writer:
+            pdf_writer.write(self.response.content)
 
     def call_check_text(self, path, data={}, method='get', alert_expected='', warning_expected='', formerror_expected=[]):
         self.call(path, data, method)

@@ -1,13 +1,10 @@
 from django import template
 from django.utils.safestring import mark_safe
 
-import bleach
-from bleach.sanitizer import BleachSanitizer
-from bleach.encoding import force_unicode
 from bootstrap3.renderers import FieldRenderer
 from bootstrap3.text import text_value
-import html5lib
 import re
+import bleach
 
 register = template.Library()
 
@@ -93,6 +90,7 @@ def nocrlf(parser, token):
 
 
 class CrlfNode(template.Node):
+
     def __init__(self, nodelist):
         self.nodelist = nodelist
 
@@ -103,7 +101,6 @@ class CrlfNode(template.Node):
 
 @register.filter
 def html_check_and_safe(value):
-
     tags = bleach.ALLOWED_TAGS + ['div', 'br', 'font', 'p', 'table', 'tr', 'td', 'th', 'img', 'u', 'span', 'tbody', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr']
     attrs = {
         '*': ['class', 'style', 'color', 'align', 'title', 'data-toggle', 'data-placement'],
@@ -111,20 +108,7 @@ def html_check_and_safe(value):
         'img': ['src', 'alt'],
     }
     style = ['line-height', 'background-color', 'font-size', 'margin-top']
-
-    text = force_unicode(value)
-
-    class s(BleachSanitizer):
-        allowed_elements = tags
-        allowed_attributes = attrs
-        allowed_css_properties = style
-        strip_disallowed_elements = True
-        strip_html_comments = True
-        allowed_protocols = ['http', 'https', 'data']
-
-    parser = html5lib.HTMLParser(tokenizer=s)
-
-    return mark_safe(bleach._render(parser.parseFragment(text)))
+    return mark_safe(bleach.clean(value, tags=tags, attributes=attrs, styles=style))
 
 
 class SimpleFieldRenderer(FieldRenderer):

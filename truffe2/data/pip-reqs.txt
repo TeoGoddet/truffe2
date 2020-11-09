@@ -1,6 +1,5 @@
 Django==1.11.29
 raven
-Pillow<3
 django-bootstrap3==11.1.0
 phonenumbers
 requests
@@ -8,21 +7,17 @@ django-impersonate==1.4
 pytz
 git+https://github.com/goinnn/django-multiselectfield
 easy_thumbnails==2.6.0
-bleach==1.5
+bleach==2.1.4
 python-ldap
-pisa
-reportlab<3
-html5lib==1.0b8
+pdfkit
 django-appconf==1.0.4
 django-sendfile
 django-haystack==2.8.1
 whoosh
-pdfminer.six==20181108
 textract
 celery==4.4.7
 celery-haystack==0.10
 pypdf
-pyyaml
 wand
 schwifty
 iso4217  # currency list

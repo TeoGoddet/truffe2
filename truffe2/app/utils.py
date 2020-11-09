@@ -3,7 +3,6 @@
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import get_template
-from django.template import Context
 from django import http
 from django.core.mail import EmailMultiAlternatives
 from django.utils.timezone import now
@@ -12,9 +11,10 @@ from django.shortcuts import render
 
 import logging
 import cgi
-import ho.pisa as pisa
+import pdfkit
 import cStringIO as StringIO
 from pyPdf import PdfFileWriter, PdfFileReader
+from PIL import Image
 import traceback
 
 
@@ -165,27 +165,23 @@ def generate_pdf(template, request, contexte, extra_pdf_files=None):
     contexte.update({'MEDIA_ROOT': settings.MEDIA_ROOT, 'cdate': now(), 'user': request.user})
     html = template.render(contexte)
 
-    result = StringIO.StringIO()
-    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
-
-    if extra_pdf_files:
-
-        output = PdfFileWriter()
-        append_pdf(PdfFileReader(result), output)
-
-        result = StringIO.StringIO()
-
-        for pdf_file in extra_pdf_files:
-            try:
-                append_pdf(PdfFileReader(pdf_file), output)
-            except Exception:
-                return render(request, "pdf_error.html", {'pdf': pdf_file, 'error': traceback.format_exc()})
-
-        output.write(result)
-
-    if not pdf.err:
+    try:
+        result = StringIO.StringIO(pdfkit.from_string(html, False, options={'quiet': ''}))
+        if extra_pdf_files:
+            output = PdfFileWriter()
+            append_pdf(PdfFileReader(result), output)
+            result = StringIO.StringIO()
+            for pdf_file in extra_pdf_files:
+                try:
+                    append_pdf(PdfFileReader(pdf_file), output)
+                except Exception:
+                    return render(request, "pdf_error.html", {'pdf': pdf_file, 'error': traceback.format_exc()})
+    
+            output.write(result)
         return http.HttpResponse(result.getvalue(), content_type='application/pdf')
-
+    except Exception as e:
+        logger = logging.getLogger(__name__)
+        logger.exception(e)
     return http.HttpResponse('Gremlins ate your pdf! %s' % cgi.escape(html))
 
 
@@ -198,19 +194,15 @@ def pad_image(image, **kwargs):
     fit = [float(img_size[i]) / des_size[i] for i in range(0, 2)]
 
     if fit[0] > fit[1]:
-        new_image = image.resize((image.size[0], int(round(des_size[1] * fit[0]))))
+        new_image = Image.new('RGB', (image.size[0], int(round(des_size[1] * fit[0]))), (255, 255, 255))
         top = int((new_image.size[1] - image.size[1]) / 2)
         left = 0
     elif fit[0] < fit[1]:
-        new_image = image.resize((int(round(des_size[0] * fit[1])), image.size[1]))
+        new_image = Image.new('RGB', (int(round(des_size[0] * fit[1])), image.size[1]), (255, 255, 255))
         top = 0
         left = int((new_image.size[0] - image.size[0]) / 2)
     else:
         return image
-
-    # For white
-    new_image.paste((255, 255, 255, 255))
-
     new_image.paste(image, (left, top))
     return new_image
 
