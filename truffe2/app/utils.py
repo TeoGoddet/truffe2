@@ -12,8 +12,7 @@ from django.shortcuts import render
 import logging
 import cgi
 import pdfkit
-import cStringIO as StringIO
-from pyPdf import PdfFileWriter, PdfFileReader
+from io import StringIO, BytesIO
 from PIL import Image
 import traceback
 
@@ -166,11 +165,12 @@ def generate_pdf(template, request, contexte, extra_pdf_files=None):
     html = template.render(contexte)
 
     try:
-        result = StringIO.StringIO(pdfkit.from_string(html, False, options={'quiet': ''}))
+        result = BytesIO(pdfkit.from_string(html, False, options={'quiet': ''}))
         if extra_pdf_files:
+            from pyPdf.pdf import PdfFileWriter, PdfFileReader
             output = PdfFileWriter()
             append_pdf(PdfFileReader(result), output)
-            result = StringIO.StringIO()
+            result = StringIO()
             for pdf_file in extra_pdf_files:
                 try:
                     append_pdf(PdfFileReader(pdf_file), output)
@@ -217,8 +217,8 @@ class UnicodeCSVWriter:
 
     def writerow(self, row):
         for s in row: 
-            if not isinstance(s, unicode):
-                s = unicode(s)
+            if not isinstance(s, str):
+                s = str(s)
             s = s.encode("cp1252")
             self.stream.write(s)
             self.stream.write(u';')

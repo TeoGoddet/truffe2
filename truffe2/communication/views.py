@@ -12,6 +12,7 @@ import json
 from app.utils import update_current_unit
 from generic.templatetags.generic_extras import html_check_and_safe
 
+
 def ecrans(request):
     """View to display the ecran page"""
 
@@ -37,7 +38,7 @@ def website_news(request):
 
     for news in WebsiteNews.objects.filter(status='2_online').exclude(deleted=True).filter(Q(start_date=None) | Q(start_date__lt=now())).filter(Q(end_date=None) | Q(end_date__gt=now())).order_by('?'):
         if not request.GET.get('only') or request.GET.get('only')[5:] == str(news.pk):
-            retour.append({'id': 'T2V1N{}'.format(news.pk), 'title_fr': news.title, 'title_en': news.title_en or news.title, 'content_fr': news.content, 'content_en': news.content_en or news.content, 'url': news.url, 'unit': news.unit.__unicode__(), 'date': str(news.start_date or news.last_log().when)})
+            retour.append({'id': 'T2V1N{}'.format(news.pk), 'title_fr': news.title, 'title_en': news.title_en or news.title, 'content_fr': news.content, 'content_en': news.content_en or news.content, 'url': news.url, 'unit': news.unit.__str__(), 'date': str(news.start_date or news.last_log().when)})
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
 
@@ -68,6 +69,7 @@ def logo_public_load(request):
 
     return render(request, 'communication/logo_public_load.html', {'logos': logos, 'unit': unit})
 
+
 @login_required
 def display_search(request):
     
@@ -77,7 +79,7 @@ def display_search(request):
     init = request.GET.get('init')
     unit_pk = request.GET.get('unit_pk', "-1") or "-1"
     
-    displays= Display.objects.filter(active=True, deleted=False).order_by('title')
+    displays = Display.objects.filter(active=True, deleted=False).order_by('title')
     
     if q:
         displays = displays.filter(title__icontains=q)
@@ -101,6 +103,6 @@ def display_search(request):
         if not dummy.rights_can('CREATE', request.user):
             raise Http404
 
-    retour = map(lambda display: {'id': display.pk, 'text': display.title, 'description': strip_tags(html_check_and_safe(display.description))[:100] + '...', 'unit': str(display.unit)}, displays)
+    retour = [{'id': display.pk, 'text': display.title, 'description': strip_tags(html_check_and_safe(display.description))[:100] + '...', 'unit': str(display.unit)} for display in displays]
     
     return HttpResponse(json.dumps(retour))

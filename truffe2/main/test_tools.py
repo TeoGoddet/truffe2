@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from json import loads
 import os
 import sys
-from cStringIO import StringIO
+from io import StringIO
 from os.path import dirname, join, isdir, isfile
 
 from django.test import TestCase, Client
@@ -47,20 +47,38 @@ class TruffeTestAbstract(TestCase, Client):
         csr_token_input = self.content.findAll('input', {'name': 'csrfmiddlewaretoken'})[0]           
         self.call_check_redirect('/users/login', {'username': username, 'password': username, 'csrfmiddlewaretoken': csr_token_input}, 'post', '/')
         self.call_check_html('/')
+        
+    def _decode_content(self):
+        for encoding in ('utf-8', 'latin1', 'ascii', 'utf-16'):
+            try:
+                return self.response.content.decode(encoding)
+            except UnicodeDecodeError:
+                pass
+        raise UnicodeDecodeError('not decode')
 
     def _get_default_content_type(self):
         if self.response.status_code != 200:
             return ""
-        if '<!DOCTYPE html>' in self.response.content:
+        if b'<!DOCTYPE html>' in self.response.content:
             default_type = 'text/html'
         elif len(self.response.content) == 0:
             default_type = 'text/text'
-        elif self.response.content.strip()[0] in ('[', '{'):
-            default_type = 'application/json'
-        elif self.response.content[1:4] == 'PDF':
+        elif self.response.content[1:4] == b'PDF':
             default_type = 'application/pdf'
+        elif self.response.content.strip()[:1] in (b'[', b'{'):
+            default_type = 'application/json'
         else:
-            default_type = 'text/text'
+            from PIL import Image, UnidentifiedImageError
+            try:
+                from io import BytesIO
+                img = Image.open(BytesIO(self.response.content))
+                default_type = 'image/' + img.format.lower()
+            except (ValueError, UnidentifiedImageError):
+                try:
+                    self._decode_content()
+                    default_type = 'text/text'
+                except UnicodeDecodeError:
+                    default_type = 'application/octet-stream'
         return default_type
 
     def call(self, path, data={}, method='get', status_expected=200):
@@ -111,7 +129,7 @@ class TruffeTestAbstract(TestCase, Client):
             return titles
 
         warning_list = []
-        smallbox_text = self.response.content
+        smallbox_text = self._decode_content()
         smallbox_pos = smallbox_text.find('$.smallBox({')
         while smallbox_pos != -1:
             end_pos = smallbox_text.find('}', smallbox_pos + 12)
@@ -137,7 +155,7 @@ class TruffeTestAbstract(TestCase, Client):
     def call_check_json(self, path, data={}, method='get'):
         self.call(path, data, method)
         self.assertEqual(self.content_type, "application/json")
-        self.content = loads(self.response.content)
+        self.content = loads(self.response.content.decode('utf-8'))
 
     def call_check_pdf(self, path, data={}, method='get'):
         self.call(path, data, method)

@@ -133,13 +133,13 @@ class _AccountingYear(GenericModel, GenericStateModel, AgepolyEditableModel, Sea
         datetime_fields = ['start_date', 'end_date', 'subvention_deadline']
 
         only_if = {
-            'last_accounting_import': lambda _: False
+            'last_accounting_import': lambda _, _user: False
         }
 
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def rights_can_EDIT(self, user):
@@ -223,7 +223,7 @@ class _CostCenter(GenericModel, AccountingYearLinked, AgepolyEditableModel, Sear
             'description',
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} - {}".format(self.account_number, self.name)
 
     def genericFormExtraClean(self, data, form):
@@ -286,7 +286,7 @@ class _AccountCategory(GenericModel, AccountingYearLinked, AgepolyEditableModel,
             'description',
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} ({})".format(self.name, self.accounting_year)
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
@@ -379,7 +379,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
             'category',
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} - {}".format(self.account_number, self.name)
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
@@ -388,7 +388,7 @@ Ils permettent de séparer les recettes et les dépenses par catégories.""")
 
         yeared_account_categories = AccountCategory.objects.filter(accounting_year=self.accounting_year)
         yeared_account_categories = filter(lambda qs: qs.get_children_categories().count() == 0, yeared_account_categories)
-        ids_yac = map(lambda yac: yac.id, yeared_account_categories)
+        ids_yac = [yac.id for yac in yeared_account_categories]
         form.fields['category'].queryset = AccountCategory.objects.filter(id__in=ids_yac)
 
     def genericFormExtraClean(self, data, form):
@@ -475,7 +475,7 @@ Les TVA ne sont pas liées aux autres objets comptables, il est possible de les 
             'ANYTVA': _(u'Peut utiliser n\'importe quelle valeure de TVA.'),
         })
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{}% ({})".format(self.value, self.name)
 
     def rights_can_ANYTVA(self, user):

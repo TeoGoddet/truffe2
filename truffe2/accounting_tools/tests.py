@@ -151,7 +151,8 @@ class AccountingToolsWithLoginTest(TruffeTestAbstract):
         self.call_check_pdf('/accounting/tools/invoice/1/pdf/')
 
     def test_invoice_bvr(self):
-        self.call_check_text('/accounting/tools/invoice/1/bvr/')
+        self.call('/accounting/tools/invoice/1/bvr/')
+        self.assertEqual(self.content_type, "image/png")
 
     def test_withdrawal_pdf(self):
         self.call_check_pdf('/accounting/tools/withdrawal/1/pdf/')
@@ -200,7 +201,9 @@ class AccountingToolsWithLoginTest(TruffeTestAbstract):
         self.call_check_text('/accounting/tools/subventionfile/1/delete?key=abc')
 
     def test_subventionfile_get(self):
-        self.call_check_text('/accounting/tools/subventionfile/1/get/', data={'down':1})
+        self.call('/accounting/tools/subventionfile/1/get/', data={'down':1})
+        self.assertEqual(self.content_type, "image/png")
 
     def test_subventionfile_thumbnail(self):
-        self.call_check_text('/accounting/tools/subventionfile/1/thumbnail') 
+        self.call('/accounting/tools/subventionfile/1/thumbnail')
+        self.assertEqual(self.content_type, "image/jpeg")

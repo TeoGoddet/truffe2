@@ -7,7 +7,6 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
 from django.core.urlresolvers import reverse
 
-
 from rights.utils import UnitEditableModel, UnitExternalEditableModel
 from datetime import timedelta
 
@@ -85,7 +84,7 @@ N'importe quelle unité peut mettre à disposition des salles et est responsable
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 
@@ -183,8 +182,8 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
         datetime_fields = ('start_date', 'end_date')
 
         only_if = {
-            'remarks': lambda (obj, user): obj.status == '2_online' and obj.rights_can('VALIDATE', user),
-            'room': lambda (obj, user): obj.status == '0_draft',
+            'remarks': lambda obj, user: obj.status == '2_online' and obj.rights_can('VALIDATE', user),
+            'room': lambda obj, user: obj.status == '0_draft',
         }
 
     class MetaSearch(SearchableModel.MetaSearch):
@@ -205,7 +204,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
         unit_field = 'room.unit'
         linked_model = 'logistics.models.Room'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def genericFormExtraClean(self, data, form):
@@ -271,6 +270,7 @@ Tu peux gérer ici la liste de réservation des salles de l'unité active.""")
             retour = u'{}</ul>'.format(retour)
 
             return u'<span class="txt-color-red conflicts-tooltip-parent" rel="tooltip" data-html="true" title="{}"><i class="fa fa-warning"></i></span>'.format(retour)
+
 
 class _Supply(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo, SearchableModel):
 
@@ -350,7 +350,7 @@ N'importe quelle unité peut mettre à disposition du matériel et est responsab
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 
@@ -360,7 +360,7 @@ class SupplyReservationLine(ModelUsedAsLine):
     supply = models.ForeignKey('Supply', related_name='reservations')
     quantity = models.IntegerField(_(u'Quantité'), default=1)
 
-    def __unicode__(self):
+    def __str__(self):
         try:
             return u'{}{}'.format(u'{} * '.format(self.quantity) if self.quantity > 1 else u'', self.supply or u'')
         except:
@@ -461,8 +461,8 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         datetime_fields = ('start_date', 'end_date')
 
         only_if = {
-            'remarks': lambda (obj, user): obj.status == '2_online' and obj.rights_can('VALIDATE', user),
-            'lines': lambda (obj, user): obj.status == '0_draft',
+            'remarks': lambda obj, user: obj.status == '2_online' and obj.rights_can('VALIDATE', user),
+            'lines': lambda obj, user: obj.status == '0_draft',
         }
 
     class MetaSearch(SearchableModel.MetaSearch):
@@ -515,7 +515,7 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
             if sr:
                 self.hidden_unit = sr.supply.unit
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def genericFormExtraCleanWithLines(self, data, form, lines):
@@ -589,7 +589,7 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
         return self.lines.order_by('order').all()
     
     def get_duration(self):
-        return ((self.end_date + timedelta(hours=1)).replace(second=0, minute=0, hour=0) -
+        return ((self.end_date + timedelta(hours=1)).replace(second=0, minute=0, hour=0) - 
                 self.start_date.replace(second=0, minute=0, hour=0)).days + 1
 
     def get_supply_infos(self):
@@ -624,9 +624,9 @@ class _SupplyReservation(GenericModel, GenericModelWithLines, GenericDelayValida
                     pass
 
         if not conflicts:
-            return mark_safe(u'<span class="txt-color-green"><i class="fa fa-check"></i> {}</span>'.format(unicode(_('Pas de conflits !'))))
+            return mark_safe(u'<span class="txt-color-green"><i class="fa fa-check"></i> {}</span>'.format(str(_('Pas de conflits !'))))
 
-        retour = u'<span class="txt-color-red"><i class="fa fa-warning"></i> {}</span><ul>'.format(unicode(_(u'Il y a d\'autres réservations en même temps !')))
+        retour = u'<span class="txt-color-red"><i class="fa fa-warning"></i> {}</span><ul>'.format(str(_(u'Il y a d\'autres réservations en même temps !')))
 
         for other_reservation, supply in conflicts:
             retour = u'{}<li><span class="label label-{}"><i class="{}"></i> {}</span>'.format(retour, other_reservation.status_color(), other_reservation.status_icon(), other_reservation.get_status_display())

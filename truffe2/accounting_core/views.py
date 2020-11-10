@@ -50,7 +50,7 @@ def copy_accounting_year(request, pk):
                 elem.id = None
                 elem.save()
 
-        for cp_class, cp_obj in copiable_objects.iteritems():
+        for cp_class, cp_obj in copiable_objects.items():
             # Correct dependencies on the new objects
             if hasattr(cp_class.MetaAccounting, 'foreign'):
                 for (field_name, field_class) in cp_class.MetaAccounting.foreign:
@@ -78,7 +78,7 @@ def costcenter_available_list(request):
 
     if request.GET.get('upk'):
         unit = get_object_or_404(Unit, pk=request.GET.get('upk'))
-        unit_and_sub_pks = [unit.pk] + map(lambda un: un.pk, unit.sub_eqi() + unit.sub_grp())
+        unit_and_sub_pks = [unit.pk] + [un.pk for un in unit.sub_eqi() + unit.sub_grp()]
         costcenters = costcenters.filter(unit__pk__in=unit_and_sub_pks)
 
     if request.GET.get('ypk'):
@@ -86,7 +86,7 @@ def costcenter_available_list(request):
         costcenters = costcenters.filter(accounting_year=accounting_year)
 
     # costcenters = filter(lambda cc: cc.rights_can('SHOW', request.user), list(costcenters))
-    retour = {'data': [{'pk': costcenter.pk, 'name': costcenter.__unicode__()} for costcenter in costcenters]}
+    retour = {'data': [{'pk': costcenter.pk, 'name': costcenter.__str__()} for costcenter in costcenters]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
 
@@ -159,7 +159,7 @@ def tva_available_list(request):
         except:
             tvas = tvas.filter(name__istartswith=init)
 
-    retour = [{'id': float(tva.value), 'text': tva.__unicode__()} for tva in tvas]
+    retour = [{'id': float(tva.value), 'text': tva.__str__()} for tva in tvas]
 
     if bonus_tva:  # On rajoute, si n'existe pas déjà dans la liste retournée une entrée avec la valeur de la TVA recherchée par l'utilisateur
         bonus_tva_exists = False
@@ -180,7 +180,7 @@ def leaves_cat_by_year(request, ypk):
 
     retour = AccountCategory.objects.filter(accounting_year__pk=ypk, deleted=False).order_by('order')
     retour = filter(lambda ac: not ac.get_children_categories().exists(), retour)
-    retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
+    retour = [{'value': ac.pk, 'text': ac.__str__()} for ac in retour]
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
 
@@ -191,7 +191,7 @@ def parents_cat_by_year(request, ypk):
 
     retour = AccountCategory.objects.filter(accounting_year__pk=ypk, deleted=False).order_by('order')
     retour = filter(lambda ac: ac.get_children_categories().exists(), retour)
-    retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
+    retour = [{'value': ac.pk, 'text': ac.__str__()} for ac in retour]
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
 
@@ -209,7 +209,7 @@ def accounts_by_year(request, ypk):
     elif request.GET.get('incomes'):
         retour = filter(lambda ac: ac.category.get_root_parent().name == "Produit", retour)
 
-    retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
+    retour = [{'value': ac.pk, 'text': ac.__str__()} for ac in retour]
     return HttpResponse(json.dumps(retour), content_type='application/json')
 
 
@@ -218,7 +218,7 @@ def costcenters_by_year(request, ypk):
     from accounting_core.models import CostCenter
 
     retour = CostCenter.objects.filter(accounting_year__pk=ypk, deleted=False).order_by('account_number')
-    retour = map(lambda ac: {'value': ac.pk, 'text': ac.__unicode__()}, retour)
+    retour = [{'value': ac.pk, 'text': ac.__str__()} for ac in retour]
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
 
@@ -233,15 +233,15 @@ def users_available_list_by_unit(request, upk):
     users = [request.user]
     if request.user.rights_in_unit(request.user, unit, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
         unit_users = unit.users_with_access(no_parent=True)
-        unit_users_pk = map(lambda user: user.pk, unit_users)
-        unit_users = filter(lambda user: user != request.user, unit_users)
+        unit_users_pk = [user.pk for user in unit_users]
+        unit_users = [user for user in unit_users if user != request.user]
 
         users += sorted(unit_users, key=lambda user: user.first_name)
 
         other_users = TruffeUser.objects.exclude(Q(pk=request.user.pk) | Q(pk__in=unit_users_pk)).order_by('first_name')
         users += list(other_users)
 
-    retour = [{'pk': user.pk, 'name': user.__unicode__()} for user in users]
+    retour = [{'pk': user.pk, 'name': user.__str__()} for user in users]
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
 
@@ -259,6 +259,6 @@ def account_available_list(request):
 
     accounts = filter(lambda acc: acc.rights_can('SHOW', request.user), list(accounts))
 
-    retour = {'data': [{'pk': account.pk, 'name': account.__unicode__()} for account in accounts]}
+    retour = {'data': [{'pk': account.pk, 'name': account.__str__()} for account in accounts]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')

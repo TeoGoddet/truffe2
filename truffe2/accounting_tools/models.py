@@ -14,7 +14,6 @@ from raven.contrib.django.models import client
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.template.defaultfilters import floatformat
 
-
 from schwifty import IBAN
 import datetime
 import string
@@ -57,7 +56,7 @@ class _Subvention(GenericModel, GenericModelWithFiles, GenericModelWithLines, Ac
 
     class MetaEdit:
         only_if = {
-            'linked_budget': lambda (obj, user): obj.unit,
+            'linked_budget': lambda obj, user: obj.unit,
         }
 
         files_title = _(u'Fichiers')
@@ -86,7 +85,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
         details_display = list_display + [('description', _(u'Description')), ('accounting_year', _(u'Année comptable'))]
         details_display.insert(3, ('amount_given', _(u'Montant attribué')))
         details_display.insert(5, ('mobility_given', _(u'Montant mobilité attribué')))
-        extra_right_display = {'comment_root': lambda (obj, user): obj.rights_can('LIST', user)}
+        extra_right_display = {'comment_root': lambda obj, user: obj.rights_can('LIST', user)}
 
         files_title = _(u'Fichiers')
         base_title = _(u'Subvention')
@@ -257,7 +256,7 @@ Ces différents documents sont demandés au format PDF dans la mesure du possibl
 
         return super(_Subvention, self).can_switch_to(user, dest_state)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} {}".format(self.get_real_unit_name(), self.accounting_year)
 
     def genericFormExtraClean(self, data, form):
@@ -305,7 +304,7 @@ class SubventionLine(ModelUsedAsLine):
 
     subvention = models.ForeignKey('Subvention', related_name="events", verbose_name=_(u'Subvention/sponsoring'))
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{}:{}".format(self.subvention.name, self.name)
 
 
@@ -369,7 +368,7 @@ class _Invoice(GenericModel, GenericStateModel, GenericTaggableObject, CostCente
             ('add_to', _(u'Rajouter "À l\'attention de"')),
 
         ]
-        filter_fields = ('title', )
+        filter_fields = ('title',)
 
         base_title = _(u'Facture (client)')
         list_title = _(u'Liste de toutes les factures (client)')
@@ -404,7 +403,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
                 obj.date_and_place = u'Lausanne, le {}'.format(_date(datetime.datetime.now(), u'd F Y'))
 
         only_if = {
-            'reception_date': lambda (obj, user): user.is_superuser or obj.rights_in_root_unit(user, access='TRESORERIE'),
+            'reception_date': lambda obj, user: user.is_superuser or obj.rights_in_root_unit(user, access='TRESORERIE'),
         }
 
     class MetaLines:
@@ -503,7 +502,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             '0_correct': [('2_ask_accord', 'fa fa-question', _(u'Demande accord AGEPoly')),
                           ('1_need_bvr', 'fa fa-question', _(u'Demander un BVR'))],
             '1_need_bvr': [],
-            '2_ask_accord': [('2_accord', 'fa fa-check', _(u'Donner l\'accord')),],
+            '2_ask_accord': [('2_accord', 'fa fa-check', _(u'Donner l\'accord')), ],
             '2_accord': [('3_sent', 'fa fa-check', _(u'Marquer comme envoyée'))],
             '3_sent': [('4_archived', 'fa fa-check', _(u'Marquer comme terminée')), ],
             '4_archived': [],
@@ -541,6 +540,7 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
             bvr = forms.CharField(label=_('BVR'), help_text=_(u'Soit le numéro complet, soit la fin, 94 42100 0...0 étant rajouté automatiquement'), required=False)
 
         def build_form_date(request, obj):
+
             class FormDate(forms.Form):
                 date = forms.DateField(label=_('Date valeur banque'), required=False, initial=now())
 
@@ -672,11 +672,10 @@ Tu peux utiliser le numéro de BVR généré, ou demander à Marianne un 'vrai' 
 
         return False
 
-
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} ({})'.format(self.title, self.get_reference())
 
     def get_reference(self):
@@ -798,7 +797,7 @@ class InvoiceLine(ModelUsedAsLine):
     tva = models.DecimalField(_('TVA'), max_digits=20, decimal_places=2)
     value_ttc = models.DecimalField(_('Montant (TTC)'), max_digits=20, decimal_places=2)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{}: {} * ({} + {}% == {})'.format(self.label, self.quantity, self.value, self.tva, self.value_ttc)
 
     def total(self):
@@ -934,6 +933,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
         }
 
         def build_form_done(request, obj):
+
             class FormDone(forms.Form):
                 transfert_date = forms.DateField(label=_('Date effective'), required=True, initial=now().date())
 
@@ -1019,7 +1019,7 @@ Ils peuvent être utilisés dans le cadre d'une commande groupée ou d'un rembou
                 self.transfert_date = request.POST.get('transfert_date')
                 self.save()
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} ({})".format(self.name, self.accounting_year)
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
@@ -1157,6 +1157,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         status_col_id = 3
 
         def build_form_withdrawn(request, obj):
+
             class FormWithdrawn(forms.Form):
                 initial = obj.withdrawn_date if obj.withdrawn_date else now().date()
                 withdrawn_date = forms.DateField(label=_('Date retrait banque'), help_text=_(u'La date de retrait à la banque'), required=True, initial=initial)
@@ -1246,7 +1247,7 @@ L'argent doit ensuite être justifié au moyen d'un journal de caisse.""")
         elif dest_status == '4_canceled' and self.status != '0_draft':
             notify_people(request, '%s.canceled' % (self.__class__.__name__,), 'accounting_canceled', self, self.build_group_members_for_canedit())
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} ({})".format(self.name, self.costcenter)
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
@@ -1385,7 +1386,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
             'lines': ['label', 'proof']
         }
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} - {}".format(self.name, self.costcenter)
 
     def rights_can_EDIT(self, user):
@@ -1432,7 +1433,7 @@ class ExpenseClaimLine(ModelUsedAsLine):
     tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
     value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
 
     def get_tva(self):
@@ -1490,7 +1491,7 @@ class _FinancialProvider(GenericModel, SearchableModel, AgepolyEditableModel):
 
         all_users = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class MetaRightsAgepoly(AgepolyEditableModel.MetaRightsAgepoly):
@@ -1646,7 +1647,7 @@ Il est nécéssaire de fournir la facture""")
             'lines': ['label']
         }
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} - {}".format(self.name, self.costcenter)
 
     def rights_can_EDIT(self, user):
@@ -1692,7 +1693,7 @@ class ProviderInvoiceLine(ModelUsedAsLine):
     tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
     value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
 
     def get_tva(self):
@@ -1795,8 +1796,10 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
     class MetaState(GenericAccountingStateModel.MetaState):
 
         def build_form_archive(request, obj):
+
             class FormArchive(forms.Form):
                 archive_proving_obj = forms.BooleanField(label=_(u'Archiver le retrait cash lié?'), initial=True, required=False)
+
             return FormArchive if obj.proving_object else None
 
         states_bonus_form = {
@@ -1819,7 +1822,7 @@ Attention! Il faut faire une ligne par taux TVA par ticket. Par exemple, si cert
             'lines': ['label', 'proof', 'amount']
         }
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} - {}".format(self.name, self.costcenter)
 
     def genericFormExtraClean(self, data, form):
@@ -1899,7 +1902,7 @@ class CashBookLine(ModelUsedAsLine):
     tva = models.DecimalField(_(u'TVA'), max_digits=20, decimal_places=2)
     value_ttc = models.DecimalField(_(u'Montant (TTC)'), max_digits=20, decimal_places=2)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{}: {} + {}% == {}'.format(self.label, self.value, self.tva, self.value_ttc)
 
     def get_tva(self):

@@ -53,7 +53,7 @@ class _Provider(GenericModel, AgepolyEditableModel, SearchableModel):
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_types(self):
@@ -108,7 +108,7 @@ class _VehicleType(GenericModel, AgepolyEditableModel, SearchableModel):
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -163,7 +163,7 @@ class _Card(GenericModel, AgepolyEditableModel, SearchableModel):
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} ({})'.format(self.name, self.number)
 
 
@@ -211,7 +211,7 @@ class _Location(GenericModel, AgepolyEditableModel, SearchableModel):
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -369,7 +369,7 @@ Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_location(self):
@@ -377,7 +377,7 @@ Ils sont soumis à validation par le secrétariat de l'AGEPoly. Il faut toujours
             if self.location.url_location:
                 return u'<a href="{}">{}</a>'.format(self.location.url_location, self.location)
             else:
-                return self.location.__unicode__()
+                return self.location.__str__()
         else:
             return ''
 

@@ -5,9 +5,7 @@ from generic.models import GenericModel, GenericStateModel, FalseFK, SearchableM
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 
-
 from rights.utils import AgepolyEditableModel, UnitEditableModel
-
 
 import hashlib
 
@@ -121,7 +119,7 @@ class _HomePageNews(GenericModel, GenericStateModel, AgepolyEditableModel, Searc
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 
@@ -189,15 +187,15 @@ class _Link(GenericModel, UnitEditableModel, SearchableModel):
 Le comité de l'AGEPoly peut aussi afficher un lien dans le menu de gauche.""")
 
         extra_right_display = {
-            'get_leftmenu_display': lambda (obj, user): obj.leftmenu,
-            'icon': lambda (obj, user): obj.leftmenu,
+            'get_leftmenu_display': lambda obj, user: obj.leftmenu,
+            'icon': lambda obj, user: obj.leftmenu,
         }
 
     class MetaEdit:
 
         only_if = {
-            'leftmenu': lambda (instance, user): user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
-            'icon': lambda (instance, user): user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
+            'leftmenu': lambda instance, user: user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
+            'icon': lambda instance, user: user.rights_in_root_unit(user, instance.MetaRightsUnit.access),
         }
 
     class MetaSearch(SearchableModel.MetaSearch):
@@ -211,7 +209,7 @@ Le comité de l'AGEPoly peut aussi afficher un lien dans le menu de gauche.""")
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} ({})'.format(self.title, self.url)
 
     def get_url(self):
@@ -283,10 +281,10 @@ class _SignableDocument(GenericModel, AgepolyEditableModel, SearchableModel):
         many_to_many_fields = ['roles']
 
         only_if = {
-            'sha': lambda x: False,
+            'sha': lambda x, _user: False,
         }
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} ({})'.format(self.title, self.get_roles_display())
 
     def get_file_link(self):
@@ -390,7 +388,7 @@ Les fichiers sont regroupés en différents groupes accessibles depuis le menu l
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} ({})'.format(self.title, self.get_group_display())
 
     def __init__(self, *args, **kwargs):

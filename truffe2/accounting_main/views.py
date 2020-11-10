@@ -9,10 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 from django.db.models import Sum
 
-
 from app.utils import generate_pdf
 from notifications.utils import notify_people
-
 
 import uuid
 import json
@@ -116,7 +114,7 @@ def budget_pdf(request, pk):
                               'description': line.description, 'amount': abs(float(line.amount))}, list(budget.budgetline_set.all()))
     accounts = sorted(list(set(map(lambda line: line['account'], lines))), key=lambda acc: acc.account_number)
     retour = [[[line for line in lines if line['account'] == acc and line['table_id'] == tab] for acc in accounts] for tab in ['incomes', 'outcomes']]
-    retour = map(lambda kind: map(lambda block: {'account': block[0]['account'], 'total': sum(map(lambda elem: elem['amount'], block)), 'entries': block} if block else {}, kind), retour)
+    retour = [[{'account': block[0]['account'], 'total': sum(map(lambda elem: elem['amount'], block)), 'entries': block} if block else {} for block in kind] for kind in retour]
 
     return generate_pdf("accounting_main/budget/pdf.html", request, {'object': budget, 'incomes': retour[0], 'outcomes': retour[1]})
 
@@ -161,19 +159,19 @@ def _csv_2014_processor(request, file):
 
         import csv
 
-        # csv.py doesn't do Unicode; encode temporarily as UTF-8:
+        # csv.py doesn't do str; encode temporarily as UTF-8:
         csv_reader = csv.reader(unicode_csv_data, *args, **kwargs)
         for row in csv_reader:
-            # decode UTF-8 back to Unicode, cell by cell:
-            yield [unicode(cell, 'cp1252') for cell in row]
+            # decode UTF-8 back to str, cell by cell:
+            yield [cell for cell in row]
 
     try:
-        with open(file, 'rb') as csvfile:
+        with open(file, 'r') as csvfile:
 
             csvreader = unicode_csv_reader(csvfile, 'excel-tab')
 
-            if csvreader.next()[0] != 'Extrait CdC':
-                messages.warning(request, "L'header initial ne correspond pas ({} vs {})".format(csvreader.next()[0], 'Extrait CdC'))
+            if csvreader.__next__()[0] != 'Extrait CdC':
+                messages.warning(request, "L'header initial ne correspond pas ({} vs {})".format(csvreader.__next__()[0], 'Extrait CdC'))
                 return False
 
             current_costcenter = None
@@ -181,7 +179,7 @@ def _csv_2014_processor(request, file):
             phase_solde = False
             phase_compte = False
 
-            current_line = csvreader.next()
+            current_line = csvreader.__next__()
 
             wanted_lines = []
 
@@ -284,7 +282,7 @@ def _csv_2014_processor(request, file):
                         pass
 
                 try:
-                    current_line = csvreader.next()
+                    current_line = csvreader.__next__()
                 except StopIteration:
                     return wanted_lines
 
@@ -351,7 +349,7 @@ def _diff_generator(request, year, data):
         else:
             to_add.append(wanted_line)
 
-    to_delete = map(lambda line: line.pk, AccountingLine.objects.filter(accounting_year=year).exclude(pk__in=valids_ids))
+    to_delete = [line.pk for line in AccountingLine.objects.filter(accounting_year=year).exclude(pk__in=valids_ids)]
 
     return {'to_add': to_add, 'to_update': to_update, 'nop': nop, 'to_delete': to_delete}
 
@@ -445,9 +443,9 @@ def accounting_import_step2(request, key):
 
     diff = session_data['data']
 
-    diff['nop'] = map(lambda line_pk: line_cache[line_pk], diff['nop'])
-    diff['to_delete'] = map(lambda line_pk: line_cache[line_pk], diff['to_delete'])
-    diff['to_update'] = map(lambda (line_pk, __, ___): (line_cache[line_pk], __, ___), diff['to_update'])
+    diff['nop'] = [line_cache[line_pk] for line_pk in diff['nop']]
+    diff['to_delete'] = [line_cache[line_pk] for line_pk in diff['to_delete']]
+    diff['to_update'] = [(line_cache[line_pk], arg1, arg2) for line_pk, arg1, arg2 in diff['to_update']]
 
     if request.method == 'POST':
 
@@ -463,7 +461,7 @@ def accounting_import_step2(request, key):
 
         for line, wanted_line, diffs in diff['to_update']:
 
-            for field, (old, new) in diffs.iteritems():
+            for field, (old, new) in diffs.items():
                 setattr(line, field, new)
 
             line.save()
@@ -496,15 +494,15 @@ def budget_available_list(request):
 
     if request.GET.get('upk'):
         unit = get_object_or_404(Unit, pk=request.GET.get('upk'))
-        unit_and_sub_pks = [unit.pk] + map(lambda un: un.pk, unit.sub_eqi() + unit.sub_grp())
+        unit_and_sub_pks = [unit.pk] + [un.pk for un in unit.sub_eqi() + unit.sub_grp()]
         budgets = budgets.filter(unit__pk__in=unit_and_sub_pks)
 
     if request.GET.get('ypk'):
         accounting_year = get_object_or_404(AccountingYear, pk=request.GET.get('ypk'))
         budgets = budgets.filter(accounting_year=accounting_year)
 
-    budgets = filter(lambda bud: bud.rights_can('SHOW', request.user), list(budgets))
-    retour = {'data': [{'pk': budget.pk, 'name': budget.__unicode__()} for budget in budgets]}
+    budgets = [bud for bud in list(budgets) if bud.rights_can('SHOW', request.user)]
+    retour = {'data': [{'pk': budget.pk, 'name': budget.__str__()} for budget in budgets]}
 
     return HttpResponse(json.dumps(retour), content_type='application/json')
 

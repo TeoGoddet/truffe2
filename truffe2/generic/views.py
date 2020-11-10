@@ -463,7 +463,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                         else:
                             line_instance = get_object_or_404(line_data['class'], pk=submited_id, **{line_data['field']: obj})
 
-                        line_old_val = line_instance.__unicode__()
+                        line_old_val = line_instance.__str__()
 
                         line_form = line_data['form'](request.POST, request.FILES, instance=line_instance, prefix="_LINES_%s_%s" % (line_data['related_name'], submited_id))
 
@@ -502,10 +502,10 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
                         setattr(line_obj, line_data['field'], obj)
 
                         if not line_obj.pk:
-                            lines_adds['%s' % (line_data['related_name'],)] = line_obj.__unicode__()
+                            lines_adds['%s' % (line_data['related_name'],)] = line_obj.__str__()
                         else:
-                            if line_form['old_val'] != line_obj.__unicode__():
-                                lines_updates['%s #%s' % (line_data['related_name'], line_obj.pk,)] = (line_form['old_val'], line_obj.__unicode__())
+                            if line_form['old_val'] != line_obj.__str__():
+                                lines_updates['%s #%s' % (line_data['related_name'], line_obj.pk,)] = (line_form['old_val'], line_obj.__str__())
 
                         if line_data['sortable']:
                             line_obj.order = line_order
@@ -517,7 +517,7 @@ def generate_edit(module, base_name, model_class, form_class, log_class, file_cl
 
                     for line_deleted in getattr(obj, line_data['related_name']).exclude(pk__in=valids_ids):
 
-                        lines_deletes['%s #%s' % (line_data['related_name'], line_deleted.pk,)] = line_deleted.__unicode__()
+                        lines_deletes['%s #%s' % (line_data['related_name'], line_deleted.pk,)] = line_deleted.__str__()
 
                         line_deleted.delete()
 
@@ -727,7 +727,7 @@ def generate_show(module, base_name, model_class, log_class, tag_class):
 
         if hasattr(model_class, 'MetaRights'):
 
-            for key, info in obj.MetaRights.rights.iteritems():
+            for key, info in obj.MetaRights.rights.items():
                 rights.append((key, info, obj.rights_can(key, request.user)))
 
         log_entires = log_class.objects.filter(object=obj).order_by('-when').all()
@@ -973,7 +973,7 @@ def generate_switch_status(module, base_name, model_class, log_class):
                 if hasattr(obj, 'switch_status_signal'):
                     obj.switch_status_signal(request, old_status, dest_status)
 
-                log_class(who=request.user, what='state_changed', object=obj, extra_data=json.dumps({'old': unicode(obj.MetaState.states.get(old_status)), 'new': unicode(obj.MetaState.states.get(dest_status)), 'old_code': old_status})).save()
+                log_class(who=request.user, what='state_changed', object=obj, extra_data=json.dumps({'old': str(obj.MetaState.states.get(old_status)), 'new': str(obj.MetaState.states.get(dest_status)), 'old_code': old_status})).save()
 
                 storage = messages.get_messages(request)
                 if not storage:
@@ -1128,7 +1128,7 @@ def generate_calendar_json(module, base_name, model_class):
                 linked_object = l.get_linked_object()
 
                 if isinstance(linked_object, list):
-                    titre = u'{} (Géré par {})'.format(u', '.join([o.__unicode__() for o in linked_object]), linked_object[0].unit)
+                    titre = u'{} (Géré par {})'.format(u', '.join([o.__str__() for o in linked_object]), linked_object[0].unit)
                 else:
                     titre = u'{} (Géré par {})'.format(l.get_linked_object(), l.get_linked_object().unit)
             else:
@@ -1214,7 +1214,7 @@ def generate_calendar_related_json(module, base_name, model_class):
             if hasattr(l, 'get_linked_object'):
                 lobj = l.get_linked_object()
                 if isinstance(lobj, list):
-                    titre = u'{} (Réservé par {})'.format(u', '.join([o.__unicode__() for o in lobj]), par)
+                    titre = u'{} (Réservé par {})'.format(u', '.join([o.__str__() for o in lobj]), par)
                     colored = colors[lobj[0].pk % len(colors)]
                 else:
                     titre = u'{} (Réservé par {})'.format(lobj, par)

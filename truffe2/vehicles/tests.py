@@ -79,7 +79,7 @@ class VehiculesWithLoginTest(TruffeTestAbstract):
     def test_booking_deleted(self):
         from vehicles.models import Booking
         Booking(id=2, unit_id=1, title="bad booking", responsible_id=1, reason="why not?", provider_id=1,
-                vehicletype_id=1, card_id=1, location_id=1, start_date=datetime_aware(2000, 01, 01), end_date=datetime_aware(2099, 12, 31), deleted=True).save()
+                vehicletype_id=1, card_id=1, location_id=1, start_date=datetime_aware(2000, 1, 1), end_date=datetime_aware(2099, 12, 31), deleted=True).save()
         self.call_check_html('/vehicles/booking/deleted', data={'upk':1})
         self.call_check_redirect('/vehicles/booking/deleted', method='post', data={'upk':1, 'pk':2}, redirect_url='/vehicles/booking/')
 
@@ -113,7 +113,7 @@ class VehiculesWithLoginTest(TruffeTestAbstract):
     def test_booking_switch_status(self):
         self.call_check_text('/vehicles/booking/1/switch_status', data={'dest_status':'2_online', 'from_list':'from_list'})
         self.call_check_text('/vehicles/booking/1/switch_status?dest_status=2_online&from_list=from_list', method='post', data={'do':'it'})
-        self.assertIn('window.location.reload();', self.response.content)
+        self.assertIn('window.location.reload();', self.response.content.decode('utf-8'))
         
     def test_booking_calendar(self):
         self.call_check_html('/vehicles/booking/calendar/')

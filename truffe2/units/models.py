@@ -81,7 +81,7 @@ Les unités sont organisées en arbre hiérarchique, avec le Comité de l'AGEPol
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
@@ -293,7 +293,7 @@ class _Role(GenericModel, AgepolyEditableModel, SearchableModel):
 
     access = MultiSelectField(choices=ACCESS_CHOICES, blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_access(self):
@@ -458,7 +458,7 @@ class Accreditation(models.Model, UnitEditableModel, SearchableModel):
 
         notify_people(request, 'Accreds.ToValidate', 'accreds_tovalidate', self, dest_users)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} ({})'.format(self.user, self.get_role_or_display_name())
 
     def display_url(self):
@@ -561,7 +561,7 @@ Il est aussi possible de restreindre une délégation â un utilisateur ou à un
         if self.access:
             return u', '.join(list(self.access))
 
-    def __unicode__(self):
+    def __str__(self):
         return _(u'Accês supplémentaire n°%s' % (self.pk,))
 
     def delete_signal(self, request):

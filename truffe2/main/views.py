@@ -11,7 +11,6 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
-
 from haystack.views import SearchView
 from sendfile import sendfile
 
@@ -41,7 +40,7 @@ def _home_invoices(request):
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.rights_in_root_unit(request.user, 'TRESORERIE') or request.user.is_superuser:
         invoices_need_bvr = Invoice.objects.filter(deleted=False, status='1_need_bvr').order_by('-pk')
         invoices_attente_accord = Invoice.objects.filter(deleted=False, status='2_ask_accord').order_by('-pk')
-	invoices_waiting = Invoice.objects.filter(deleted=False, status='3_sent').order_by('-pk')
+        invoices_waiting = Invoice.objects.filter(deleted=False, status='3_sent').order_by('-pk')
     else:
         invoices_need_bvr = None
         invoices_attente_accord = None
@@ -92,7 +91,7 @@ def _home_accounting_lines(request):
     # de manière fausse: basée sur les droits
     for unit in Unit.objects.filter(deleted=False).order_by('name'):
         if request.user.rights_in_unit(request.user, unit, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
-            lines_status_by_unit[unit] = (AccountingLine.objects.filter(deleted=False, costcenter__unit=unit, status='0_imported').exclude(accounting_year__status='3_archived').count(), 
+            lines_status_by_unit[unit] = (AccountingLine.objects.filter(deleted=False, costcenter__unit=unit, status='0_imported').exclude(accounting_year__status='3_archived').count(),
                                           AccountingLine.objects.filter(deleted=False, costcenter__unit=unit, status='2_error').exclude(accounting_year__status='3_archived').count())
 
     return {'lines_status_by_unit': lines_status_by_unit}
@@ -118,7 +117,7 @@ def _home_expenseclaim(request):
     if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
         expenseclaim_to_validate = ExpenseClaim.objects.filter(deleted=False, status__in=['1_unit_validable', '2_agep_validable', '3_agep_sig1', '3_agep_sig2']).order_by('status', '-pk')
     else:
-        expenseclaim_to_validate = sorted(filter(lambda ec: ec.is_unit_validator(request.user), list(ExpenseClaim.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda ec: -ec.pk)
+        expenseclaim_to_validate = sorted(filter(lambda ec: ec.is_unit_validator(request.user), list(ExpenseClaim.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda ec:-ec.pk)
 
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.is_superuser:
         expenseclaim_to_account = ExpenseClaim.objects.filter(deleted=False, status__in=['4_accountable', '5_in_accounting']).order_by('status', 'pk')
@@ -135,7 +134,7 @@ def _home_cashbook(request):
     if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
         cashbook_to_validate = CashBook.objects.filter(deleted=False, status__in=['1_unit_validable', '2_agep_validable', '3_agep_sig1', '3_agep_sig2']).order_by('status', '-pk')
     else:
-        cashbook_to_validate = sorted(filter(lambda cb: cb.is_unit_validator(request.user), list(CashBook.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda cb: -cb.pk)
+        cashbook_to_validate = sorted(filter(lambda cb: cb.is_unit_validator(request.user), list(CashBook.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda cb:-cb.pk)
 
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.is_superuser:
         cashbook_to_account = CashBook.objects.filter(deleted=False, status__in=['4_accountable', '5_in_accounting']).order_by('status', 'pk')
@@ -152,7 +151,7 @@ def _home_providerInvoice(request):
     if request.user.rights_in_root_unit(request.user, ['TRESORERIE', 'SECRETARIAT']) or request.user.is_superuser:
         providerinvoice_to_validate = ProviderInvoice.objects.filter(deleted=False, status__in=['1_unit_validable', '2_agep_validable']).order_by('-pk')
     else:
-        providerinvoice_to_validate = sorted(filter(lambda ec: ec.is_unit_validator(request.user), list(ProviderInvoice.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda ec: -ec.pk)
+        providerinvoice_to_validate = sorted(filter(lambda ec: ec.is_unit_validator(request.user), list(ProviderInvoice.objects.filter(deleted=False, status='1_unit_validable'))), key=lambda ec:-ec.pk)
 
     if request.user.rights_in_root_unit(request.user, 'SECRETARIAT') or request.user.is_superuser:
         providerinvoice_to_account = ProviderInvoice.objects.filter(deleted=False, status='3_accountable').order_by('pk')

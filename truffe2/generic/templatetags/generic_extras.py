@@ -73,13 +73,13 @@ def switchable(context, obj, user, id):
 @register.assignment_tag(takes_context=True)
 def get_list_quick_switch(context, obj):
     if hasattr(obj.MetaState, 'list_quick_switch'):
-        return filter(lambda (status, __, ___): obj.may_switch_to(context['user'], status), obj.MetaState.list_quick_switch.get(obj.status, []))
+        return filter(lambda status_values: obj.may_switch_to(context['user'], status_values[0]), obj.MetaState.list_quick_switch.get(obj.status, []))
 
 
 @register.assignment_tag(takes_context=True)
 def get_states_quick_switch(context, obj):
     if hasattr(obj.MetaState, 'states_quick_switch'):
-        return filter(lambda (status, __): obj.may_switch_to(context['user'], status), obj.MetaState.states_quick_switch.get(obj.status, []))
+        return filter(lambda status_values: obj.may_switch_to(context['user'], status_values[0]), obj.MetaState.states_quick_switch.get(obj.status, []))
 
 
 @register.tag

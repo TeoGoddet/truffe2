@@ -9,12 +9,10 @@ from django.forms import CharField, Form, Textarea, BooleanField
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-
 import collections
 from copy import deepcopy
 import json
 from math import copysign
-
 
 from accounting_core.utils import AccountingYearLinked, CostCenterLinked
 from accounting_core.models import AccountingGroupModels
@@ -208,7 +206,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
         """Always display log, even if current state dosen't allow edit"""
         return super(_AccountingLine, self).rights_can_EDIT(user)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.output and self.input:
             return u'{}: {} (-{}/+{})'.format(self.date, self.text, intcomma(floatformat(self.output, 2)), intcomma(floatformat(self.input, 2)))
         elif self.output:
@@ -270,7 +268,7 @@ Tu peux (et tu dois) valider les lignes ou signaler les erreurs via les boutons 
                     error.status = '2_fixed'
                     error.save()
 
-                    AccountingErrorLogging(who=request.user, what='state_changed', object=error, extra_data=json.dumps({'old': unicode(error.MetaState.states.get(old_status)), 'new': unicode(error.MetaState.states.get('2_fixed'))})).save()
+                    AccountingErrorLogging(who=request.user, what='state_changed', object=error, extra_data=json.dumps({'old': str(error.MetaState.states.get(old_status)), 'new': str(error.MetaState.states.get('2_fixed'))})).save()
 
                     unotify_people(u'AccountingError.{}.created'.format(self.costcenter.unit), error)
                     notify_people(request, u'AccountingError.{}.fixed'.format(self.costcenter.unit), 'accounting_error_fixed', error, error.build_group_members_for_compta_everyone_with_messages())
@@ -428,7 +426,7 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
         """Always display log, even if current state dosen't allow edit"""
         return super(_AccountingError, self).rights_can_EDIT(user)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'Erreur: {}'.format(self.get_linked_line())
 
     def genericFormExtraInit(self, form, current_user, *args, **kwargs):
@@ -437,7 +435,7 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
 
     def get_linked_line(self):
         if self.linked_line:
-            return self.linked_line.__unicode__()
+            return self.linked_line.__str__()
         elif self.linked_line_cache:
             return u'{} (Cache)'.format(self.linked_line_cache)
         else:
@@ -446,7 +444,7 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
     def save(self, *args, **kwargs):
 
         if not self.linked_line_cache and self.linked_line:
-            self.linked_line_cache = self.linked_line.__unicode__()
+            self.linked_line_cache = self.linked_line.__str__()
 
         return super(_AccountingError, self).save(*args, **kwargs)
 
@@ -487,7 +485,7 @@ class _AccountingError(GenericModel, GenericStateModel, AccountingYearLinked, Co
                     self.linked_line.status = '1_validated'
                     self.linked_line.save()
 
-                    AccountingLineLogging(who=request.user, what='state_changed', object=self.linked_line, extra_data=json.dumps({'old': unicode(self.linked_line.MetaState.states.get(old_status)), 'new': unicode(self.linked_line.MetaState.states.get('1_validated'))})).save()
+                    AccountingLineLogging(who=request.user, what='state_changed', object=self.linked_line, extra_data=json.dumps({'old': str(self.linked_line.MetaState.states.get(old_status)), 'new': str(self.linked_line.MetaState.states.get('1_validated'))})).save()
 
                     unotify_people(u'AccountingLine.{}.error'.format(self.costcenter.unit), self.linked_line)
                     notify_people(request, u'AccountingLine.{}.fixed'.format(self.costcenter.unit), 'accounting_line_fixed', self.linked_line, self.linked_line.build_group_members_for_compta_everyone())
@@ -556,6 +554,7 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
         abstract = True
 
     class MetaEdit:
+
         @staticmethod
         def do_extra_post_actions(obj, request, post_request, form_is_valid):
             """Edit budget lines on edit"""
@@ -566,7 +565,7 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
             map(lambda line: old_lines[line.account.pk].append({'amount': line.amount, 'description': line.description}), obj.budgetline_set.all())
 
             lines = collections.defaultdict(dict)  # {id: {type, account_pk, entries: {id1: {description, amount}, id2:{}, ...}}, ...}
-            for (field, value) in post_request.iteritems():
+            for (field, value) in post_request.items():
 
                 if field.startswith('account-'):
                     field_arr = field.split('-')
@@ -595,7 +594,7 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                     try:
                         account = Account.objects.get(pk=line_object['account_pk'])
                         coeff = line_object['type']  # -1 for outcomes, 1 for incomes
-                        entries = sorted(line_object['entries'].items(), key=lambda (x, y): x)
+                        entries = sorted(line_object['entries'].items(), key=lambda x, y: x)
                         for entry in entries:
                             if entry[1]['amount']:
                                 new_lines[account.pk].append({'amount': coeff * abs(float(entry[1]['amount'])), 'description': entry[1].get('description', '')})
@@ -645,12 +644,12 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
                 for (title, lines) in [('log_add', new_lines), ('log_update', modif_lines), ('log_delete', old_lines)]:
                     map(lambda key: lines.pop(key), filter(lambda key: not lines[key], lines.keys()))
                     if title == 'log_update':
-                        result[title] = dict(map(lambda (acc, entries): (u'{}'.format(Account.objects.get(pk=acc)),
-                                                                         (u', '.join(map(lambda ent: u'{} : {}'.format(ent['description'], ent['old_amount']), entries)),
-                                                                          u', '.join(map(lambda ent: u'{} : {}'.format(ent['description'], ent['amount']), entries)))), lines.items()))
+                        result[title] = dict(map(lambda acc, entries: (u'{}'.format(Account.objects.get(pk=acc)),
+                                                                       (u', '.join(map(lambda ent: u'{} : {}'.format(ent['description'], ent['old_amount']), entries)),
+                                                                        u', '.join(map(lambda ent: u'{} : {}'.format(ent['description'], ent['amount']), entries)))), lines.items()))
                     else:
-                        result[title] = dict(map(lambda (acc, entries): (u'{}'.format(Account.objects.get(pk=acc)),
-                                                                         u', '.join(map(lambda ent: u'{} : {}'.format(ent['description'], ent['amount']), entries))), lines.items()))
+                        result[title] = dict(map(lambda acc, entries: (u'{}'.format(Account.objects.get(pk=acc)),
+                                                                       u', '.join(map(lambda ent: u'{} : {}'.format(ent['description'], ent['amount']), entries))), lines.items()))
             return result
 
     class MetaState:
@@ -758,7 +757,7 @@ Il est obligatoire de fournir un budget au plus tard 6 semaines après le début
 
         return super(_Budget, self).rights_can_SHOW(user)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} ({})".format(self.name, self.costcenter)
 
     def get_total_incomes(self):
@@ -788,5 +787,5 @@ class BudgetLine(models.Model):
     amount = models.DecimalField(_('Montant'), max_digits=20, decimal_places=2)
     description = models.CharField(max_length=250)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} : {} ({} - {})".format(self.budget, self.amount, self.description, self.account.account_number)

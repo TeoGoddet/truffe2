@@ -3,11 +3,11 @@
 from django.forms import ModelForm, Form, CharField, ChoiceField, Textarea, BooleanField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-
 from app.utils import get_property
 
 
 class GenericForm(ModelForm):
+
     class Meta:
         pass
 
@@ -29,8 +29,8 @@ class GenericForm(ModelForm):
             self.fields['unit'].queryset = Unit.objects.order_by('name')
 
         if hasattr(self.Meta.model, 'MetaEdit') and hasattr(self.Meta.model.MetaEdit, 'only_if'):
-            for key, test in self.Meta.model.MetaEdit.only_if.iteritems():
-                if not test((self.instance, current_user)):
+            for key, test in self.Meta.model.MetaEdit.only_if.items():
+                if not test(self.instance, current_user):
                     if key in self.fields:
                         del self.fields[key]
 
@@ -59,8 +59,10 @@ class GenericForm(ModelForm):
             if 'costcenter' not in cleaned_data:
                 raise ValidationError(_(u'Aucun centre de coûts sélectionné !'))
 
-            if hasattr(self.instance, 'unit') and cleaned_data['costcenter'].unit.pk not in [self.instance.unit.pk] + map(lambda un: un.pk, self.instance.unit.sub_eqi() + self.instance.unit.sub_grp()):
-                raise ValidationError(_(u'Le centre de coût n\'est pas lié à l\'unité !'))
+            if hasattr(self.instance, 'unit'):
+                list_unit_pk = [self.instance.unit.pk] + [un.pk for un in self.instance.unit.sub_eqi() + self.instance.unit.sub_grp()]
+                if cleaned_data['costcenter'].unit.pk not in list_unit_pk:
+                    raise ValidationError(_(u'Le centre de coût n\'est pas lié à l\'unité !'))
 
             if hasattr(self.instance, 'accounting_year') and self.instance.accounting_year != cleaned_data['costcenter'].accounting_year:
                 raise ValidationError(_(u'Le centre de coût n\'est pas lié à l\'année comptable !'))
@@ -77,6 +79,6 @@ class ContactForm(Form):
     def __init__(self, keys, *args, **kwargs):
         super(ContactForm, self).__init__(*args, **kwargs)
 
-        choices_key = [x for x in keys.iteritems()]
+        choices_key = [x for x in keys.items()]
 
         self.fields['key'] = ChoiceField(label=_('Destinataire(s)'), choices=choices_key)

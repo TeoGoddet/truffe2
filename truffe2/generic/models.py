@@ -54,7 +54,8 @@ def build_models_list_of(Class):
             urls_module = importlib.import_module('.urls', app)
             forms_module = importlib.import_module('.forms', app)
         except Exception as e:
-            if str(e) not in ["No module named urls", "No module named views", "No module named forms", "No module named models"]:
+            message = str(e)
+            if ("No module named" not in message) and not (("urls" in message) or ("views" in message) or ("forms" in message) or ("models" in message)):
                 raise
 
         try:
@@ -116,7 +117,7 @@ class GenericModel(models.Model):
                 if issubclass(model_class, SpecificClass):
                     extra_data.update(SpecificClass.do(module, models_module, model_class, cache))
 
-            for key, value in model_class.__dict__.iteritems():
+            for key, value in model_class.__dict__.items():
                 if hasattr(value, '__class__') and value.__class__ == FalseFK:
                     extra_data.update({key: models.ForeignKey(cache[value.model], *value.args, **value.kwargs)})
 
@@ -301,10 +302,10 @@ class GenericModel(models.Model):
                     loc = getattr(self, f.name).astimezone(timezone(settings.TIME_ZONE))
                     retour[f.name] = loc.strftime("%Y-%m-%d %H:%M:%S")
             elif isinstance(f, models.ManyToManyField):
-                retour[f.name] = u', '.join([unicode(x) for x in getattr(self, f.name).all()])
+                retour[f.name] = u', '.join([str(x) for x in getattr(self, f.name).all()])
 
             else:
-                retour[f.name] = unicode(getattr(self, f.name))
+                retour[f.name] = str(getattr(self, f.name))
 
         return retour
 
@@ -331,10 +332,10 @@ class GenericModel(models.Model):
 
     def is_new(self, user):
         """Return true is the model has unseen updates for a user"""
-
+        last_log = self.last_log()
         try:
             view_obj = self.views.get(who=user)
-            return view_obj.when <= self.last_log().when
+            return view_obj.when <= last_log.when if last_log is not None else True
         except self._t2_views_class.DoesNotExist:
             return True
 
@@ -398,7 +399,7 @@ class GenericStateModel(object):
     def do(module, models_module, model_class, cache):
         """Execute code at startup"""
 
-        return {'status': models.CharField(max_length=255, choices=model_class.MetaState.states.iteritems(), default=model_class.MetaState.default)}
+        return {'status': models.CharField(max_length=255, choices=model_class.MetaState.states.items(), default=model_class.MetaState.default)}
 
     def status_color(self):
         return self.MetaState.states_colors.get(self.status, 'default')
@@ -426,13 +427,13 @@ class GenericStateModel(object):
 
         current_id = 0
 
-        for elem, __ in self.MetaState.states.iteritems():
+        for elem, __ in self.MetaState.states.items():
             by_ids[elem] = current_id
             current_id += 1
 
         retour_links = []
 
-        for elem, __ in self.MetaState.states.iteritems():
+        for elem, __ in self.MetaState.states.items():
             tmp = []
 
             for elem_dest in self.MetaState.states_links[elem]:
@@ -447,7 +448,7 @@ class GenericStateModel(object):
 
         retour = {}
 
-        for k, (x, _) in self.MetaState.forced_pos.iteritems():
+        for k, (x, _) in self.MetaState.forced_pos.items():
             retour[k] = x
 
         return retour
@@ -458,7 +459,7 @@ class GenericStateModel(object):
 
         retour = {}
 
-        for k, (_, y) in self.MetaState.forced_pos.iteritems():
+        for k, (_, y) in self.MetaState.forced_pos.items():
             retour[k] = y
 
         return retour
@@ -1313,7 +1314,7 @@ def index_generator(model_class):
                     text += u"{} {}\n".format(f.file.name.split('/')[-1], txt)
 
             if obj.MetaSearch.linked_lines:
-                for key, fields in obj.MetaSearch.linked_lines.iteritems():
+                for key, fields in obj.MetaSearch.linked_lines.items():
                     for line_elem in getattr(obj, key).all():
 
                         for field in fields:

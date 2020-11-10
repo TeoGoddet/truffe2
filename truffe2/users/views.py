@@ -118,7 +118,7 @@ def users_edit(request, pk):
         if form.is_valid():  # If the form is valid
             user = form.save()
 
-            for (field, value) in privacy_values.iteritems():
+            for (field, value) in privacy_values.items():
                 # At this point, the object should exist !
                 UserPrivacy.objects.filter(user=user, field=field).update(level=value)
 
@@ -247,7 +247,7 @@ def ldap_search(request):
     query = request.GET.get('q')
     results = search_sciper(query)
 
-    retour = map(lambda (sciper, data): {'id': sciper, 'text': '%s - %s %s (%s)' % data}, results.iteritems())
+    retour = map(lambda sciper, data: {'id': sciper, 'text': '%s - %s %s (%s)' % data}, results.items())
 
     internal = TruffeUser.objects.filter(Q(username__icontains=query) | Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(email__icontains=query))
 

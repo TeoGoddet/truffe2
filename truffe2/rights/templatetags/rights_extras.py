@@ -37,7 +37,7 @@ class IfHasRightNode(Node):
                 user = template.Variable(user).resolve(context)
                 right = template.Variable(right).resolve(context)
 
-                if isinstance(obj, basestring):
+                if isinstance(obj, str):
                     new_obj = importlib.import_module('.'.join(obj.split('.')[:-1]))
                     obj = getattr(new_obj, obj.split('.')[-1])
 
@@ -114,7 +114,7 @@ class IfCanDisplayNode(Node):
             field = template.Variable(field).resolve(context)
 
             if field is not None and hasattr(obj, 'MetaData') and hasattr(obj.MetaData, 'extra_right_display') and field in obj.MetaData.extra_right_display:  # if / elif clause
-                if isinstance(obj, basestring):
+                if isinstance(obj, str):
                     new_obj = importlib.import_module('.'.join(obj.split('.')[:-1]))
                     obj = getattr(new_obj, obj.split('.')[-1])
 

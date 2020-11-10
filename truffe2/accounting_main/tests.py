@@ -134,7 +134,7 @@ class AccountingMainWithLoginTest(TruffeTestAbstract):
 
     def test_accounting_import_step1(self):
         now = timezone.now()
-        content_csv = b"""Extrait CdC
+        content_csv = """Extrait CdC
 Extrait de:  01.01.YYYY  bis  31.12.YYYY
 Tous CdC
 
@@ -154,7 +154,7 @@ Solde CHF\t
 23.08.YYYY\t427\tPmt salaire 08.YYYY, M. VATU\t2229\t5'406.60\t\t223'946.65\t-
 30.08.YYYY\t437\tFrais trafic des paiements au 31.08.YYYY\t6710\t25.10\t\t223'921.55\t-
 """
-        file_to_upload = SimpleUploadedFile("accounting.csv", content_csv.replace('YYYY', str(now.year)), content_type="text/plain")
+        file_to_upload = SimpleUploadedFile("accounting.csv", content_csv.replace('YYYY', str(now.year)).encode(), content_type="text/plain")
         sess = self.session
         sess.update({'T2_ACCOUNTING_IMPORT_def-123-abc': {'is_valid': True, 'has_data': False}})
         sess.save()
@@ -235,7 +235,7 @@ Solde CHF\t
     def test_budget_switch_status(self):
         self.call_check_text('/accounting/main/budget/1/switch_status', data={'dest_status':'2_treated', 'from_list':'from_list'})
         self.call_check_text('/accounting/main/budget/1/switch_status?dest_status=2_treated&from_list=from_list', method='post', data={'do':'it'})
-        self.assertIn('window.location.reload();', self.response.content)
+        self.assertIn('window.location.reload();', self.response.content.decode('utf-8'))
 
     def test_budget_contact(self):
         self.call_check_text('/accounting/main/budget/1/contact/agep_compta') 
@@ -284,7 +284,7 @@ Solde CHF\t
     def test_accountingline_switch_status(self):
         self.call_check_text('/accounting/main/accountingline/2/switch_status', data={'dest_status':'1_validated', 'from_list':'from_list'})
         self.call_check_text('/accounting/main/accountingline/2/switch_status?dest_status=1_validated&from_list=from_list', method='post', data={'do':'it'})
-        self.assertIn('window.location.reload();', self.response.content)
+        self.assertIn('window.location.reload();', self.response.content.decode('utf-8'))
 
     def test_accountingline_contact(self):
         self.call_check_text('/accounting/main/accountingline/2/contact/editor') 

@@ -71,7 +71,7 @@ class _WebsiteNews(GenericModel, GenericGroupsModerableModel, GenericGroupsModel
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 
@@ -130,7 +130,7 @@ class _AgepSlide(GenericModel, GenericGroupsModerableModel, GenericGroupsModel, 
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_image_warning(self):
@@ -151,7 +151,7 @@ class _Logo(GenericModel, GenericModelWithFiles, AutoVisibilityLevel, UnitEditab
             ('name', _('Nom')),
         ]
         details_display = list_display + [('get_visibility_level_display', _(u'Visibilité')), ]
-        filter_fields = ('name', )
+        filter_fields = ('name',)
 
         base_title = _(u'Logo')
         list_title = _(u'Liste de tous les logos')
@@ -184,7 +184,7 @@ class _Logo(GenericModel, GenericModelWithFiles, AutoVisibilityLevel, UnitEditab
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_best_image(self):
@@ -195,6 +195,7 @@ class _Logo(GenericModel, GenericModelWithFiles, AutoVisibilityLevel, UnitEditab
                 return f
 
         return f
+
 
 class _Display(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelayValidableInfo, SearchableModel):
 
@@ -267,8 +268,9 @@ class _Display(GenericModel, GenericGroupsModel, UnitEditableModel, GenericDelay
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
+
 
 class _DisplayReservation(GenericModel, GenericDelayValidable, GenericGroupsValidableModel, GenericGroupsModel, GenericContactableModel, GenericStateUnitValidable, GenericStateModel, GenericExternalUnitAllowed, UnitExternalEditableModel, SearchableModel):
 
@@ -357,8 +359,8 @@ class _DisplayReservation(GenericModel, GenericDelayValidable, GenericGroupsVali
         datetime_fields = ('start_date', 'end_date')
 
         only_if = {
-            'remarks': lambda (obj, user): obj.status == '2_online' and obj.rights_can('VALIDATE', user),
-            'display': lambda (obj, user): obj.status == '0_draft',
+            'remarks': lambda obj, user: obj.status == '2_online' and obj.rights_can('VALIDATE', user),
+            'display': lambda obj, user: obj.status == '0_draft',
         }
 
     class MetaSearch(SearchableModel.MetaSearch):
@@ -379,7 +381,7 @@ class _DisplayReservation(GenericModel, GenericDelayValidable, GenericGroupsVali
         unit_field = 'display.unit'
         linked_model = 'communication.models.Display'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def genericFormExtraClean(self, data, form):

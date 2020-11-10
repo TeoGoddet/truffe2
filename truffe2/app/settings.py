@@ -20,7 +20,7 @@ ALLOWED_HOSTS = []
 TIME_ZONE = 'Europe/Zurich'
 
 # Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
+# http://www.i18nguy.com/str/language-identifiers.html
 LANGUAGE_CODE = 'fr-ch'
 
 LANGUAGES = (
@@ -256,7 +256,7 @@ WEBSITE_PATH = 'https://truffe2.agepoly.ch'
 EMAIL_FROM = 'truffe2@epfl.ch'
 
 try:
-    from settingsLocal import *
+    from app.settingsLocal import *
 except ImportError:
     raise
 

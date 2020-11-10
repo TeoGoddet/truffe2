@@ -94,7 +94,7 @@ class UnitsWithLoginTest(TruffeTestAbstract):
         self.call_check_text('/units/accreds/1/edit')
         self.call_check_text('/units/accreds/1/edit', method='post',
                              data={'unit':1, 'role':1, 'display_name':'new', 'no_epfl_sync':False, 'hidden_in_epfl':False, 'hidden_in_truffe':False})
-        self.assertIn('window.location.reload();', self.response.content)
+        self.assertIn('window.location.reload();', self.response.content.decode('utf-8'))
 
     def test_accreds_delete(self):
         self.call_check_html('/units/accreds/1/delete')
@@ -108,7 +108,7 @@ class UnitsWithLoginTest(TruffeTestAbstract):
         self.call_check_text('/units/accreds/add')
         self.call_check_text('/units/accreds/add', method='post',
                              data={'unit':1, 'role':1, 'display_name':'new', 'no_epfl_sync':False, 'hidden_in_epfl':False, 'hidden_in_truffe':False, 'user':'admin'})
-        self.assertIn('window.location.reload();', self.response.content)
+        self.assertIn('window.location.reload();', self.response.content.decode('utf-8'))
 
     def test_role_users(self):
         self.call_check_html('/units/role/1/users')

@@ -115,7 +115,7 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
 
     class MetaEdit:
         only_if = {
-            'api_secret_key': lambda (x, user): user.is_superuser
+            'api_secret_key': lambda x, user: user.is_superuser
         }
 
     def genericFormExtraClean(self, data, form):
@@ -161,7 +161,7 @@ Les groupes peuvent générer une accréditation EPFL pour leurs membres et gér
         abstract = True
         unique_together = ("name", "unit")
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} ({})".format(self.name, self.unit)
 
     def rights_can_EDIT(self, user):

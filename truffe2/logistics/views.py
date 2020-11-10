@@ -45,7 +45,7 @@ def room_search(request):
         if not dummy.rights_can('CREATE', request.user):
             raise Http404
 
-    retour = map(lambda room: {'id': room.pk, 'text': room.title, 'description': strip_tags(html_check_and_safe(room.description))[:100] + '...', 'unit': str(room.unit)}, rooms)
+    retour = [{'id': room.pk, 'text': room.title, 'description': strip_tags(html_check_and_safe(room.description))[:100] + '...', 'unit': str(room.unit)} for room in rooms]
 
     return HttpResponse(json.dumps(retour))
 
@@ -83,7 +83,7 @@ def supply_search(request):
         if not dummy.rights_can('CREATE', request.user):
             raise Http404
 
-    retour = map(lambda supply: {'id': supply.pk, 'text': supply.title, 'description': strip_tags(html_check_and_safe(supply.description))[:100] + '...', 'unit': str(supply.unit)}, supplies)
+    retour = [{'id': supply.pk, 'text': supply.title, 'description': strip_tags(html_check_and_safe(supply.description))[:100] + '...', 'unit': str(supply.unit)} for supply in supplies]
 
     return HttpResponse(json.dumps(retour))
 

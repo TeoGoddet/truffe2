@@ -143,7 +143,7 @@ class LogisticsWithLoginTest(TruffeTestAbstract):
     def test_roomreservation_switch_status(self):
         self.call_check_text('/logistics/roomreservation/1/switch_status', data={'dest_status':'2_online', 'from_list':'from_list'})
         self.call_check_text('/logistics/roomreservation/1/switch_status?dest_status=2_online&from_list=from_list', method='post', data={'do':'it'})
-        self.assertIn('window.location.reload();', self.response.content)
+        self.assertIn('window.location.reload();', self.response.content.decode('utf-8'))
 
     def test_roomreservation_calendar(self):
         self.call_check_html('/logistics/roomreservation/calendar/')

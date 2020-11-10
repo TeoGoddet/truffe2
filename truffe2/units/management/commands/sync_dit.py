@@ -15,7 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        with open('/tmp/generateListAccredsForDIT', 'wb') as csvfile:
+        with open('/tmp/generateListAccredsForDIT', 'w') as csvfile:
 
             writer = csv.writer(csvfile, delimiter='\t')
             writer.writerow(["Scriper", "GroupeId", "RoleId", "botweb", "Prenom", "Nom", "GroupeNom", "RoleNom", "Type"])
