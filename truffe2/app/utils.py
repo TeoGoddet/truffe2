@@ -11,10 +11,11 @@ from django.shortcuts import render
 
 import logging
 import cgi
-import pdfkit
+from xhtml2pdf import pisa
 from io import StringIO, BytesIO
 from PIL import Image
 import traceback
+from os.path import isdir, join
 
 
 def add_current_unit(request):
@@ -155,30 +156,31 @@ def set_property(obj, prop, val):
     setattr(obj, prop.split('.')[-1], val)
 
 
-def append_pdf(input, output):
-    [output.addPage(input.getPage(page_num)) for page_num in range(input.numPages)]
+def append_pdf(input_pdf, output_pdf):
+    [output_pdf.addPage(input_pdf.getPage(page_num)) for page_num in range(input_pdf.numPages)]
 
 
-def generate_pdf(template, request, contexte, extra_pdf_files=None):
-    template = get_template(template)
+def generate_pdf(template_name, request, contexte, extra_pdf_files=None):
+    template = get_template(template_name)
     contexte.update({'MEDIA_ROOT': settings.MEDIA_ROOT, 'cdate': now(), 'user': request.user})
     html = template.render(contexte)
 
     try:
-        result = BytesIO(pdfkit.from_string(html, False, options={'quiet': ''}))
-        if extra_pdf_files:
-            from pyPdf.pdf import PdfFileWriter, PdfFileReader
-            output = PdfFileWriter()
-            append_pdf(PdfFileReader(result), output)
-            result = StringIO()
-            for pdf_file in extra_pdf_files:
-                try:
-                    append_pdf(PdfFileReader(pdf_file), output)
-                except Exception:
-                    return render(request, "pdf_error.html", {'pdf': pdf_file, 'error': traceback.format_exc()})
-    
-            output.write(result)
-        return http.HttpResponse(result.getvalue(), content_type='application/pdf')
+        result = BytesIO()        
+        pisa_status = pisa.CreatePDF(html, result) 
+        if not pisa_status.err:
+            if extra_pdf_files:
+                from PyPDF4 import PdfFileWriter, PdfFileReader
+                output = PdfFileWriter()
+                append_pdf(PdfFileReader(result), output)
+                result = BytesIO()
+                for pdf_file in extra_pdf_files:
+                    try:
+                        append_pdf(PdfFileReader(pdf_file), output)
+                    except Exception:
+                        return render(request, "pdf_error.html", {'pdf': pdf_file, 'error': traceback.format_exc()})
+                output.write(result)
+            return http.HttpResponse(result.getvalue(), content_type='application/pdf')
     except Exception as e:
         logger = logging.getLogger(__name__)
         logger.exception(e)

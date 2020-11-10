@@ -9,7 +9,7 @@ git+https://github.com/goinnn/django-multiselectfield
 easy_thumbnails==2.6.0
 bleach==2.1.4
 python-ldap
-pdfkit
+xhtml2pdf
 django-appconf==1.0.4
 django-sendfile
 django-haystack==2.8.1
@@ -17,7 +17,7 @@ whoosh
 textract
 celery==4.4.7
 celery-haystack==0.10
-pypdf
+PyPDF4
 wand
 schwifty
 iso4217  # currency list
