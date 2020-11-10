@@ -31,7 +31,7 @@ class AccountingToolsNoLoginTest(TruffeTestAbstract):
         self.call_check_redirect('/accounting/tools/subvention/logs/json')
 
     def test_subvention_add(self):
-        self.call_check_redirect('/accounting/tools/subvention/%7E/edit')
+        self.call_check_redirect('/accounting/tools/subvention/~/edit')
 
     def test_subvention_edit(self):
         self.call_check_redirect('/accounting/tools/subvention/1/edit')

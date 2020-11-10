@@ -71,7 +71,7 @@ def add_current_year(request):
 
     current_year = get_current_year(request)
 
-    current_year_pk = current_year.pk if current_year else -1
+    current_year_pk = current_year.pk if current_year else 0
     current_year_name = current_year.name if current_year else _(u'?')
 
     return {'CURRENT_YEAR': current_year, 'CURRENT_YEAR_NAME': current_year_name, 'CURRENT_YEAR_PK': current_year_pk}

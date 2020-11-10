@@ -39,7 +39,7 @@ class LogisticsNoLoginTest(TruffeTestAbstract):
         self.call_check_redirect('/logistics/roomreservation/logs/json')
 
     def test_roomreservation_add(self):
-        self.call_check_redirect('/logistics/roomreservation/%7E/edit')
+        self.call_check_redirect('/logistics/roomreservation/~/edit')
 
     def test_roomreservation_edit(self):
         self.call_check_redirect('/logistics/roomreservation/1/edit')

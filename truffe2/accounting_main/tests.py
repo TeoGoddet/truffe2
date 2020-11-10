@@ -65,7 +65,7 @@ class AccountingMainNoLoginTest(TruffeTestAbstract):
         self.call_check_redirect('/accounting/main/budget/logs/json')
 
     def test_budget_add(self):
-        self.call_check_redirect('/accounting/main/budget/%7E/edit')
+        self.call_check_redirect('/accounting/main/budget/~/edit')
 
     def test_budget_edit(self):
         self.call_check_redirect('/accounting/main/budget/1/edit')
