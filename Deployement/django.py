@@ -168,7 +168,6 @@ def chmod_and_chown():
 def sync_databases():
     """Sync django databases"""
     with cd('/var/www/git-repo/truffe2/truffe2'):
-        sudo("python manage.py syncdb --noinput")
         sudo("python manage.py migrate --noinput")
 
 
