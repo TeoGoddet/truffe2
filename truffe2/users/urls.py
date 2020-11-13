@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from django.conf.urls import include, url
+from django.contrib.auth.views import password_reset, password_reset_confirm, \
+    logout
+
 from users.views import users_myunit_pdf, users_myunit_vcard, \
     users_profile_picture, \
     password_change_done, password_change_check, users_create_external, \
     users_set_body, users_list, users_list_json, users_profile, \
     users_vcard, users_edit, users_myunit_list, login, users_myunit_list_json, \
     ldap_search
-from django.contrib.auth.views import password_reset, password_reset_confirm, \
-    logout
-from importlib import import_module
+import app.tequila
 
 urlpatterns = [
     url(r'^login$', login, name='users-views-login'),
@@ -42,9 +43,4 @@ urlpatterns = [
     url(r'^logout$', logout, {'next_page': '/'}, name='django-contrib-auth-views-logout'),
 ]
 
-try:
-    tequila_login = getattr(import_module('app.tequila'), 'login')
-    urlpatterns.append(url(r'^login/tequila$', tequila_login, name='app-tequila-login'))
-except Exception as err:
-    print('TEQUILA URL ERROR', err)
-    pass
+urlpatterns.append(url(r'^login/tequila$', app.tequila.login, name='app-tequila-login'))

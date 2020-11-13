@@ -4,7 +4,7 @@
 # (C) Maximilien Cuony 2010
 # BSD License
 
-import urllib
+import urllib.request
 import re
 from django.http import HttpResponseRedirect
 from django.contrib.auth import get_user_model
@@ -22,8 +22,8 @@ def get_request_key(request):
     params = "urlaccess=" + request.build_absolute_uri() + "\nservice=" + settings.TEQUILA_SERVICE + "\nrequest=name,firstname,email,uniqueid"
     if settings.TEQUILA_ALLOW_GUEST:
         params += '\nallows=categorie=epfl-guests'
-    f = urllib.urlopen(settings.TEQUILA_SERVER + '/cgi-bin/tequila/createrequest', params)
-    return re.search('key=(.*)', f.read()).group(1)
+    f = urllib.request.urlopen(settings.TEQUILA_SERVER + '/cgi-bin/tequila/createrequest', params.encode())
+    return re.search('key=(.*)', f.read().decode()).group(1)
 
 
 class Backend:
@@ -39,8 +39,8 @@ class Backend:
 
         # Check if token is valid
         params = 'key=' + token
-        f = urllib.urlopen(settings.TEQUILA_SERVER + '/cgi-bin/tequila/fetchattributes', params)
-        data = f.read()
+        f = urllib.request.urlopen(settings.TEQUILA_SERVER + '/cgi-bin/tequila/fetchattributes', params.encode())
+        data = f.read().decode()
 
         if data.find('status=ok') == -1:
             return None
@@ -107,8 +107,8 @@ def login(request):
         r = HttpResponseRedirect(settings.TEQUILA_SERVER + '/cgi-bin/tequila/requestauth?requestkey=' + get_request_key(request))
 
         # Set the cookie to be redirected when auth is done
-        next = request.GET.get('next', settings.LOGIN_REDIRECT_URL)
-        r.set_cookie('login_redirect', next)
+        next_url = request.GET.get('next', settings.LOGIN_REDIRECT_URL)
+        r.set_cookie('login_redirect', next_url)
 
         return r
 
