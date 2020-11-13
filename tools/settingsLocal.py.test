@@ -53,3 +53,5 @@ LOGGING = {
 
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
+
+TEQUILA_ALLOW_GUEST = True # used for test

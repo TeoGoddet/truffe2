@@ -63,7 +63,7 @@ class Backend:
                 user.first_name = firstName.split(',')[0]
                 user.last_name = name.split(',')[0]
                 user.email = email
-                user.last_login = now
+                user.last_login = now()
                 user.password = ""
                 user.save()
             else:
