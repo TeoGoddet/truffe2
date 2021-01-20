@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# (C) AGEPoly (Association Générale des Etudiants de l’EPFL)
+#     Roosembert Palacios, 2019
+#     Téo Goddet, 2019
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# This program boots a truffe2 container
+
+# print env to a file for cron
+env >> /etc/environment
+sed -i '/HOME=*/d' /etc/environment
+
+ssh-keyscan cadibatch.epfl.ch >> /root/.ssh/known_hosts 
+
+su www-data -s /bin/bash -c 'python3 /var/www/truffe2/manage.py migrate --noinput'
+su www-data -s /bin/bash -c 'mkdir -p /var/www/truffe2/media/uploads/_generic/{Logo,Subvention,Withdrawal,ExpenseClaim,CashBook,Invoice,ProviderInvoice}'
+
+su www-data -s /bin/bash -c 'python3 /var/www/truffe2/manage.py update_index' &
+
+exec s6-svscan -t 0 /lib/s6/services

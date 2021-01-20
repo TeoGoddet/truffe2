@@ -1,0 +1,6 @@
+00  22 * * * root  cd /var/www/truffe2 && python2 manage.py sync_dit >> /var/log/truffe2/cron.log 2>&1
+00  21 * * * root  cd /var/www/truffe2 && python2 manage.py sync_rlc >> /var/log/truffe2/cron.log 2>&1
+00  23 * * * root  cd /var/www/truffe2 && python2 manage.py cron_accreds  >> /var/log/truffe2/cron.log 2>&1
+00  2  * * * www-data  cd /var/www/truffe2 && python2 manage.py update_users  >> /var/log/truffe2/cron.log 2>&1 
+*/5 *  * * * www-data  cd /var/www/truffe2 && python2 manage.py process_notifications >> /var/log/truffe2/cron.log 2>&1
+0   3  * * 0 www-data  cd /var/www/truffe2 && python2 manage.py update_index >> /var/log/truffe2/cron.log 2>&1
